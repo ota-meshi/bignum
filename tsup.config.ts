@@ -7,4 +7,7 @@ export default defineConfig({
   format: ["cjs", "esm"],
   outDir: "lib",
   target: "node14",
+  // minifyIdentifiers: true,
+  // minifySyntax: true,
+  // sourcemap: true,
 });

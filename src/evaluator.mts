@@ -44,104 +44,114 @@ const WELLKNOWN_TOKEN: (PunctuatorToken | OperatorToken)[] = [
   { t: TokenType.punctuator, v: "," } satisfies PunctuatorToken,
 ].sort((a, b) => b.v.length - a.v.length);
 
-class Tokenizer<OPERAND> {
-  private readonly elements: ArrayLike<string>;
+type Tokenizer<OPERAND> = {
+  finished: () => boolean;
+  next: () => Token<OPERAND>;
+  back: (token: Token<OPERAND>) => void;
+};
 
-  private readonly operands: readonly OPERAND[];
+/**
+ * Build Tokenizer
+ */
+function buildTokenizer<OPERAND>(
+  elements: ArrayLike<string>,
+  operands: readonly OPERAND[],
+): Tokenizer<OPERAND> {
+  let mode: TokenMode = TokenMode.element;
+  let index = 0;
+  let curr = elements[0];
+  let position = 0;
+  const buffer: Token<OPERAND>[] = [];
+  consume(0);
 
-  private mode = TokenMode.element;
-
-  private index = 0;
-
-  private curr: string;
-
-  private position = 0;
-
-  private readonly buffer: Token<OPERAND>[] = [];
-
-  constructor(elements: ArrayLike<string>, operands: readonly OPERAND[]) {
-    this.elements = elements;
-    this.operands = operands;
-    this.curr = this.elements[0];
-    this.consume(0);
-  }
-
-  public finished(): boolean {
-    return this.mode === TokenMode.finished && !this.buffer.length;
-  }
-
-  public next(): Token<OPERAND> {
-    if (this.buffer.length) {
-      return this.buffer.pop()!;
-    }
-    if (this.mode === TokenMode.element) {
-      for (const token of WELLKNOWN_TOKEN) {
-        if (this.eat(token.v)) {
-          return token;
-        }
+  return {
+    finished(): boolean {
+      return mode === TokenMode.finished && !buffer.length;
+    },
+    next(): Token<OPERAND> {
+      if (buffer.length) {
+        return buffer.pop()!;
       }
-
-      // parse operand
-      let value = this.curr[this.position++];
-      while (this.position < this.curr.length) {
-        if (this.isSpace()) break;
+      if (mode === TokenMode.element) {
         for (const token of WELLKNOWN_TOKEN) {
-          if (this.match(token.v)) {
-            break;
+          if (eat(token.v)) {
+            return token;
           }
         }
-        value += this.curr[this.position++];
+
+        // parse operand
+        let value = curr[position++];
+        while (position < curr.length) {
+          if (isSpace()) break;
+          for (const token of WELLKNOWN_TOKEN) {
+            if (match(token.v)) {
+              break;
+            }
+          }
+          value += curr[position++];
+        }
+        consume(0);
+        if (reId.test(value)) {
+          return { t: TokenType.identifier, v: value };
+        }
+        return { t: TokenType.operand, v: value };
       }
-      this.consume(0);
-      if (reId.test(value)) {
-        return { t: TokenType.identifier, v: value };
-      }
-      return { t: TokenType.operand, v: value };
-    }
-    return this.consumeOperand();
+      return consumeOperand();
+    },
+    back(token: Token<OPERAND>) {
+      buffer.push(token);
+    },
+  };
+
+  /**
+   * Checks whether the current position matches the given string.
+   */
+  function match(str: string): boolean {
+    return curr.startsWith(str, position);
   }
 
-  public back(token: Token<OPERAND>) {
-    this.buffer.push(token);
+  /**
+   * Checks whether the current position is the space.
+   */
+  function isSpace(): boolean {
+    return !curr[position].trim();
   }
 
-  private match(str: string): boolean {
-    return this.curr.startsWith(str, this.position);
-  }
-
-  private isSpace(): boolean {
-    return !this.curr[this.position].trim();
-  }
-
-  private eat(str: string): boolean {
-    if (!this.match(str)) {
+  /**
+   * Consumes a string if the current position matches the given string.
+   */
+  function eat(str: string): boolean {
+    if (!match(str)) {
       return false;
     }
-    this.consume(str.length);
+    consume(str.length);
     return true;
   }
 
-  private consume(offset: number) {
-    this.position += offset;
-    if (this.position < this.curr.length) {
-      if (this.isSpace()) {
+  /**
+   * Consumes the given offset.
+   */
+  function consume(offset: number) {
+    position += offset;
+    if (position < curr.length) {
+      if (isSpace()) {
         // skip spaces
-        this.consume(1);
+        consume(1);
       }
     } else {
-      this.mode =
-        this.operands.length <= this.index
-          ? TokenMode.finished
-          : TokenMode.operand;
+      mode = operands.length <= index ? TokenMode.finished : TokenMode.operand;
     }
   }
 
-  private consumeOperand(): OperandToken<OPERAND> {
-    const value = this.operands[this.index++];
-    this.mode = TokenMode.element;
-    this.position = 0;
-    this.curr = this.elements[this.index];
-    this.consume(0);
+  /**
+   * Consumes the operand.
+   */
+  function consumeOperand(): OperandToken<OPERAND> {
+    const value = operands[index++];
+    mode = TokenMode.element;
+    position = 0;
+    curr = elements[index];
+    consume(0);
     return { t: TokenType.operand, v: value };
   }
 }
@@ -154,7 +164,7 @@ export function evaluate<OPERAND, RESULT, NORMALIZED>(
   operands: readonly OPERAND[],
   context: FLContext<OPERAND, RESULT, NORMALIZED>,
 ): NORMALIZED {
-  const tokenizer = new Tokenizer(templateElements, operands);
+  const tokenizer = buildTokenizer(templateElements, operands);
   const result = parseAndEvaluate(tokenizer, context);
   if (!tokenizer.finished()) throw new SyntaxError(`Parsing error`);
   return context.normalizeResult(result.v);

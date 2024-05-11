@@ -18,3 +18,10 @@ const num = 10;
 const result = f`1 + 2 * ${num}`;
 console.log(result); // 21
 ```
+
+## Features
+
+This package is similar to [bigjs-literal] in that it uses template literals for calculations, but [bigjs-literal] has a 49kB file for the parser alone.\
+The `formula-literal` bundled JavaScript file is 8kB.
+
+[bigjs-literal]: https://www.npmjs.com/package/bigjs-literal
