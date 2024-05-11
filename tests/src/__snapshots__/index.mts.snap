@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`standard tests \`(1 + \${2}) * 3\` 1`] = `9`;
+
+exports[`standard tests \`1 + \${2} * 3\` 1`] = `7`;
+
+exports[`standard tests \`1 + \${3}\` 1`] = `4`;
+
+exports[`standard tests \`1 + 2\` 1`] = `3`;
