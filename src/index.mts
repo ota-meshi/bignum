@@ -13,18 +13,20 @@ export type {
 
 const numberContext: FLContext<unknown, number, number> = {
   binaryOperations: {
-    "*": (a, b) => Number(a) * Number(b),
+    "*": (a, b) => (a as any) * (b as any),
     "+": (a, b) => Number(a) + Number(b),
-    "-": (a, b) => Number(a) - Number(b),
-    "/": (a, b) => Number(a) / Number(b),
-    "%": (a, b) => Number(a) % Number(b),
-    "**": (a, b) => Number(a) ** Number(b),
+    "-": (a, b) => (a as any) - (b as any),
+    "/": (a, b) => (a as any) / (b as any),
+    "%": (a, b) => (a as any) % (b as any),
+    "**": (a, b) => (a as any) ** (b as any),
   },
   unaryOperations: {
-    "-": (a) => -Number(a),
+    "-": (a) => -(a as any),
     "+": (a) => Number(a),
   },
   normalizeResult: (value) => Number(value),
+  variables: Math as any,
+  functions: Math as any,
 };
 
 export { compile };
@@ -47,7 +49,7 @@ export function setupEngine<OPERAND, RESULT, NORMALIZED>(
     return setupEngine(numberContext) as FLEngine<OPERAND, NORMALIZED>;
   }
   return (template, ...substitutions) => {
-    const fn = compile<OPERAND, RESULT>(template);
+    const fn = compile(template);
     return context.normalizeResult(fn(substitutions, context));
   };
 }

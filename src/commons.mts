@@ -23,7 +23,7 @@ export type FLEngine<OPERAND, NORMALIZE> = (
 export type FLFunction<OPERAND, RESULT> = (
   ...args: (OPERAND | RESULT | string)[]
 ) => RESULT;
-export type FLCompiled<OPERAND, RESULT> = (
+export type FLCompiled = <OPERAND, RESULT>(
   params: OPERAND[],
   context: FLContext<OPERAND, RESULT, unknown>,
 ) => RESULT | OPERAND | string;

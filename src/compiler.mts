@@ -18,16 +18,12 @@ type OperatorToken = {
   t: TokenType.operator;
   v: FLBinaryOperator | FLUnaryOperator;
 };
-type OperandToken<OPERAND, RESULT> = {
+type OperandToken = {
   t: TokenType.operand;
-  v: FLCompiled<OPERAND, RESULT>;
+  v: FLCompiled;
 };
 type IdentifierToken = { t: TokenType.identifier; v: string };
-type Token<OPERAND, RESULT> =
-  | PunctuatorToken
-  | OperatorToken
-  | OperandToken<OPERAND, RESULT>
-  | IdentifierToken;
+type Token = PunctuatorToken | OperatorToken | OperandToken | IdentifierToken;
 
 const WELLKNOWN_TOKEN: (PunctuatorToken | OperatorToken)[] = [
   ...[...BINARY_OPERATORS, ...UNARY_OPERATORS].map(
@@ -41,30 +37,26 @@ const WELLKNOWN_TOKEN: (PunctuatorToken | OperatorToken)[] = [
   { t: TokenType.punctuator, v: "," } satisfies PunctuatorToken,
 ].sort((a, b) => b.v.length - a.v.length);
 
-type Tokenizer<OPERAND, RESULT> = {
+type Tokenizer = {
   finished: () => boolean;
-  next: () => Token<OPERAND, RESULT>;
-  lookahead: () => Token<OPERAND, RESULT>;
+  next: () => Token;
+  lookahead: () => Token | null;
 };
 
 /**
  * Build Tokenizer
  */
-function buildTokenizer<OPERAND, RESULT>(
-  elements: ArrayLike<string>,
-): Tokenizer<OPERAND, RESULT> {
+function buildTokenizer(elements: ArrayLike<string>): Tokenizer {
   let finished = false;
-  const buffer: Token<OPERAND, RESULT>[] = [];
+  const buffer: Token[] = [];
   let curr = elements[0];
   let index = 0;
   let position = 0;
   updated();
 
   /** Get next token and consume */
-  function next(): Token<OPERAND, RESULT> {
-    if (buffer.length) {
-      return buffer.shift()!;
-    }
+  function next(): Token {
+    if (buffer.length) return buffer.shift()!;
     for (const token of WELLKNOWN_TOKEN) {
       if (curr.startsWith(token.v, position)) {
         position += token.v.length;
@@ -77,34 +69,27 @@ function buildTokenizer<OPERAND, RESULT>(
     let value = curr[position++];
     while (position < curr.length) {
       if (!curr[position].trim()) break;
-      for (const token of WELLKNOWN_TOKEN) {
-        if (curr.startsWith(token.v, position)) {
-          break;
-        }
-      }
+      if (WELLKNOWN_TOKEN.some((token) => curr.startsWith(token.v, position)))
+        break;
       value += curr[position++];
     }
     updated();
-    if (reId.test(value)) {
-      return { t: TokenType.identifier, v: value };
-    }
-    return { t: TokenType.operand, v: () => value };
+    return reId.test(value)
+      ? { t: TokenType.identifier, v: value }
+      : { t: TokenType.operand, v: () => value };
   }
 
   /** Lookahead token */
-  function lookahead(): Token<OPERAND, RESULT> {
-    if (buffer.length >= 1) {
-      return buffer[0];
-    }
+  function lookahead(): Token | null {
+    if (buffer.length >= 1) return buffer[0];
+    if (finished) return null;
     const nextToken = next();
     buffer.unshift(nextToken);
     return nextToken;
   }
 
   return {
-    finished(): boolean {
-      return finished && !buffer.length;
-    },
+    finished: () => finished && !buffer.length,
     next,
     lookahead,
   };
@@ -128,7 +113,7 @@ function buildTokenizer<OPERAND, RESULT>(
         position = 0;
         buffer.push({
           t: TokenType.operand,
-          v: (params: OPERAND[]) => params[curIndex],
+          v: (params) => params[curIndex],
         });
         updated();
       }
@@ -139,10 +124,8 @@ function buildTokenizer<OPERAND, RESULT>(
 /**
  * Parse and evaluate a template string with operands.
  */
-export function compile<OPERAND, RESULT>(
-  templateElements: readonly string[],
-): FLCompiled<OPERAND, RESULT> {
-  const tokenizer = buildTokenizer<OPERAND, RESULT>(templateElements);
+export function compile(templateElements: readonly string[]): FLCompiled {
+  const tokenizer = buildTokenizer(templateElements);
   const result = parse(tokenizer);
   if (!tokenizer.finished()) throw new SyntaxError(`Parsing error`);
   return result;
@@ -166,26 +149,21 @@ const PRECEDENCE = {
 /**
  * Parse a template string.
  */
-function parse<OPERAND, RESULT>(
-  tokenizer: Tokenizer<OPERAND, RESULT>,
-): FLCompiled<OPERAND, RESULT> {
+function parse(tokenizer: Tokenizer): FLCompiled {
   return parseOperand().v;
 
   /** Parse for operand */
-  function parseOperand(): OperandToken<OPERAND, RESULT> {
-    const stack: Token<OPERAND, RESULT>[] = [];
+  function parseOperand(): OperandToken {
+    const stack: Token[] = [];
     let unaryOperator: FLUnaryOperator | null = null;
 
     while (!tokenizer.finished() && !isCloseParen(tokenizer.lookahead())) {
       const token = tokenizer.next();
       if (token.t === TokenType.punctuator) {
-        if (token.v !== "(") {
-          throw new SyntaxError(`Unexpected '${token.v}'`);
-        }
+        if (token.v !== "(") throw new SyntaxError(`Unexpected '${token.v}'`);
         const operand = parseOperand();
-        if (tokenizer.finished() || !isCloseParen(tokenizer.next())) {
+        if (tokenizer.finished() || !isCloseParen(tokenizer.next()))
           throw new SyntaxError(`Unterminated paren`);
-        }
         stack.push(processOperand(unaryOperator, operand));
         unaryOperator = null;
       } else if (token.t === TokenType.operator) {
@@ -204,9 +182,8 @@ function parse<OPERAND, RESULT>(
             if (
               beforeOpToken.t === TokenType.operator &&
               PRECEDENCE[token.v] <= PRECEDENCE[beforeOpToken.v]
-            ) {
+            )
               stack.push(processBinary(stack));
-            }
           }
           stack.push(token);
         }
@@ -214,8 +191,8 @@ function parse<OPERAND, RESULT>(
         stack.push(processOperand(unaryOperator, token));
         unaryOperator = null;
       } else if (token.t === TokenType.identifier) {
-        const args = parseFnArgs();
-        if (!args) {
+        const firstToken = tokenizer.lookahead();
+        if (firstToken?.t !== TokenType.punctuator || firstToken.v !== "(") {
           stack.push(
             processOperand(unaryOperator, {
               t: TokenType.operand,
@@ -228,6 +205,7 @@ function parse<OPERAND, RESULT>(
             }),
           );
         } else {
+          const args = parseFnArgs();
           stack.push(
             processOperand(unaryOperator, {
               t: TokenType.operand,
@@ -250,9 +228,7 @@ function parse<OPERAND, RESULT>(
     if (unaryOperator)
       // Unary operator that was not consumed.
       throw new SyntaxError(`Unexpected '${unaryOperator}'`);
-    while (stack.length > 1) {
-      stack.push(processBinary(stack));
-    }
+    while (stack.length > 1) stack.push(processBinary(stack));
     const result = stack[0];
     if (!stack.length || result.t !== TokenType.operand)
       throw new SyntaxError("Expected expression");
@@ -264,30 +240,27 @@ function parse<OPERAND, RESULT>(
    */
   function processOperand(
     unaryOperator: FLUnaryOperator | null,
-    token: OperandToken<OPERAND, RESULT>,
-  ): OperandToken<OPERAND, RESULT> {
-    if (unaryOperator) {
-      return {
-        t: TokenType.operand,
-        v: (params, context) => {
-          const unaryOperation = context.unaryOperations[unaryOperator];
-          if (!unaryOperation)
-            throw new SyntaxError(
-              `Unsupported unary operator '${unaryOperator}'`,
-            );
-          return unaryOperation(token.v(params, context));
-        },
-      };
-    }
-    return token;
+    token: OperandToken,
+  ): OperandToken {
+    return unaryOperator
+      ? {
+          t: TokenType.operand,
+          v: (params, context) => {
+            const unaryOperation = context.unaryOperations[unaryOperator];
+            if (!unaryOperation)
+              throw new SyntaxError(
+                `Unsupported unary operator '${unaryOperator}'`,
+              );
+            return unaryOperation(token.v(params, context));
+          },
+        }
+      : token;
   }
 
   /**
    * Process for binary expression
    */
-  function processBinary(
-    stack: Token<OPERAND, RESULT>[],
-  ): OperandToken<OPERAND, RESULT> {
+  function processBinary(stack: Token[]): OperandToken {
     const right = stack.pop();
     const op = stack.pop();
     const left = stack.pop();
@@ -300,9 +273,8 @@ function parse<OPERAND, RESULT>(
       !BINARY_OPERATORS.has(op.v) ||
       !right ||
       right.t !== TokenType.operand
-    ) {
+    )
       throw new SyntaxError(`Parsing error`);
-    }
     return {
       t: TokenType.operand,
       v: (params, context) => {
@@ -320,15 +292,12 @@ function parse<OPERAND, RESULT>(
   /**
    * Parse function arguments
    */
-  function parseFnArgs(): FLCompiled<OPERAND, RESULT>[] | null {
-    if (tokenizer.finished()) return null;
-    const firstToken = tokenizer.lookahead();
-    if (firstToken.t !== TokenType.punctuator || firstToken.v !== "(")
-      return null;
-
-    const args: FLCompiled<OPERAND, RESULT>[] = [];
+  function parseFnArgs(): FLCompiled[] {
+    tokenizer.next(); // consume open paren
+    if (tokenizer.finished()) throw new SyntaxError(`Unterminated paren`);
+    const args: FLCompiled[] = [];
     let closed = false;
-    if (!isCloseParen(tokenizer.lookahead())) {
+    if (isCloseParen(tokenizer.lookahead())) {
       tokenizer.next();
       closed = true;
     } else {
@@ -336,12 +305,8 @@ function parse<OPERAND, RESULT>(
         args.push(parseOperand().v);
         if (tokenizer.finished()) break;
         const nextToken = tokenizer.next();
-        if (isComma(nextToken)) {
-          continue;
-        }
-        if (isCloseParen(nextToken)) {
-          closed = true;
-        }
+        if (isComma(nextToken)) continue;
+        if (isCloseParen(nextToken)) closed = true;
         break;
       }
     }
@@ -353,13 +318,13 @@ function parse<OPERAND, RESULT>(
 /**
  * Checks whether the token is a close parenthesis.
  */
-function isCloseParen(token: Token<any, any>): token is PunctuatorToken {
-  return token.t === TokenType.punctuator && token.v === ")";
+function isCloseParen(token: Token | null): token is PunctuatorToken {
+  return token?.t === TokenType.punctuator && token.v === ")";
 }
 
 /**
  * Checks whether the token is a comma.
  */
-function isComma(token: Token<any, any>): token is PunctuatorToken {
+function isComma(token: Token): token is PunctuatorToken {
   return token.t === TokenType.punctuator && token.v === ",";
 }
