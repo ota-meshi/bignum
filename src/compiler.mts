@@ -4,6 +4,7 @@ import {
   type FLCompiled,
   type FLBinaryOperator,
   type FLUnaryOperator,
+  PRECEDENCE,
 } from "./commons.mjs";
 
 const reId = /^[\p{ID_Start}$_][\p{ID_Continue}$\u200c\u200d]*$/u;
@@ -135,21 +136,6 @@ export function compile(templateElements: readonly string[]): FLCompiled {
   if (!tokenizer.finished()) throw new SyntaxError(`Parsing error`);
   return result;
 }
-
-const PRECEDENCE = {
-  "**": 14,
-  "*": 13,
-  "/": 13,
-  "%": 13,
-  "+": 12,
-  "-": 12,
-  "<": 10,
-  "<=": 10,
-  ">": 10,
-  ">=": 10,
-  "==": 9,
-  "!=": 9,
-} satisfies Record<FLBinaryOperator, number>;
 
 /**
  * Parse a template string.

@@ -28,24 +28,45 @@ export type FLCompiled = <OPERAND, RESULT>(
   context: FLContext<OPERAND, RESULT, unknown>,
 ) => RESULT | OPERAND | string;
 
-const BINARY_OPERATOR_ARRAY = [
-  // Arithmetic operators
-  "+",
-  "-",
-  "*",
-  "/",
-  "%",
-  "**",
-  // Logical operators
-  "<",
-  "<=",
-  ">",
-  ">=",
-  "==",
-  "!=",
-] as const;
-export type FLBinaryOperator = (typeof BINARY_OPERATOR_ARRAY)[number];
-export const BINARY_OPERATORS = new Set(BINARY_OPERATOR_ARRAY);
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
+export const PRECEDENCE = {
+  // 13: exponentiation
+  "**": 13,
+  // 12: multiplicative operators
+  "*": 12,
+  "/": 12,
+  "%": 12,
+  // 11: additive operators
+  "+": 11,
+  "-": 11,
+  // 10: bitwise shift
+  "<<": 10,
+  ">>": 10,
+  ">>>": 10,
+  // 9: relational operators
+  "<": 9,
+  "<=": 9,
+  ">": 9,
+  ">=": 9,
+  // 8: equality operators
+  "==": 8,
+  "!=": 8,
+  // 7: bitwise AND
+  "&": 7,
+  // 6: bitwise XOR
+  "^": 6,
+  // 5: bitwise OR
+  "|": 5,
+  // 4: logical AND
+  "&&": 4,
+  // 3: logical OR, nullish coalescing
+  "||": 3,
+  "??": 3,
+} as const;
+export type FLBinaryOperator = keyof typeof PRECEDENCE;
+export const BINARY_OPERATORS = new Set(
+  Object.keys(PRECEDENCE) as FLBinaryOperator[],
+);
 const UNARY_OPERATOR_ARRAY = ["+", "-"] as const;
 export type FLUnaryOperator = (typeof UNARY_OPERATOR_ARRAY)[number];
 export const UNARY_OPERATORS = new Set(UNARY_OPERATOR_ARRAY);
