@@ -43,6 +43,11 @@ type Tokenizer = {
   lookahead: () => Token | null;
 };
 
+/** Identity function */
+function identity(token: OperandToken): OperandToken {
+  return token;
+}
+
 /**
  * Build Tokenizer
  */
@@ -81,7 +86,7 @@ function buildTokenizer(elements: ArrayLike<string>): Tokenizer {
 
   /** Lookahead token */
   function lookahead(): Token | null {
-    if (buffer.length >= 1) return buffer[0];
+    if (buffer.length) return buffer[0];
     if (finished) return null;
     const nextToken = next();
     buffer.unshift(nextToken);
@@ -155,7 +160,8 @@ function parse(tokenizer: Tokenizer): FLCompiled {
   /** Parse for operand */
   function parseOperand(): OperandToken {
     const stack: Token[] = [];
-    let unaryOperator: FLUnaryOperator | null = null;
+
+    let processOperand = identity;
 
     while (!tokenizer.finished() && !isCloseParen(tokenizer.lookahead())) {
       const token = tokenizer.next();
@@ -164,18 +170,22 @@ function parse(tokenizer: Tokenizer): FLCompiled {
         const operand = parseOperand();
         if (tokenizer.finished() || !isCloseParen(tokenizer.next()))
           throw new SyntaxError(`Unterminated paren`);
-        stack.push(processOperand(unaryOperator, operand));
-        unaryOperator = null;
+        stack.push(processOperand(operand));
       } else if (token.t === TokenType.operator) {
-        if (unaryOperator)
-          // Unary operator that was not consumed.
-          throw new SyntaxError(`Unexpected '${token.v}'`);
         if (!stack.length || stack[stack.length - 1].t === TokenType.operator) {
           if (!UNARY_OPERATORS.has(token.v as FLUnaryOperator))
             // It is not Unary operator
             throw new SyntaxError(`Unexpected '${token.v}'`);
+          const next = tokenizer.lookahead();
+          if (next?.t === TokenType.operator)
+            // Unary operator that was not consumed.
+            throw new SyntaxError(`Unexpected '${token.v}'`);
           // It is Unary operator
-          unaryOperator = token.v as FLUnaryOperator;
+          const unaryOperator = token.v as FLUnaryOperator;
+          processOperand = (t) => {
+            processOperand = identity;
+            return processUnary(unaryOperator, t);
+          };
         } else {
           if (stack.length >= 3) {
             const beforeOpToken = stack[stack.length - 2];
@@ -188,13 +198,12 @@ function parse(tokenizer: Tokenizer): FLCompiled {
           stack.push(token);
         }
       } else if (token.t === TokenType.operand) {
-        stack.push(processOperand(unaryOperator, token));
-        unaryOperator = null;
+        stack.push(processOperand(token));
       } else if (token.t === TokenType.identifier) {
         const firstToken = tokenizer.lookahead();
         if (firstToken?.t !== TokenType.punctuator || firstToken.v !== "(") {
           stack.push(
-            processOperand(unaryOperator, {
+            processOperand({
               t: TokenType.operand,
               v: (_, context) => {
                 if (!context.variables || !(token.v in context.variables)) {
@@ -207,7 +216,7 @@ function parse(tokenizer: Tokenizer): FLCompiled {
         } else {
           const args = parseFnArgs();
           stack.push(
-            processOperand(unaryOperator, {
+            processOperand({
               t: TokenType.operand,
               v: (params, context) => {
                 if (!context.functions || !(token.v in context.functions)) {
@@ -225,9 +234,6 @@ function parse(tokenizer: Tokenizer): FLCompiled {
         throw new SyntaxError("Unexpected token");
       }
     }
-    if (unaryOperator)
-      // Unary operator that was not consumed.
-      throw new SyntaxError(`Unexpected '${unaryOperator}'`);
     while (stack.length > 1) stack.push(processBinary(stack));
     const result = stack[0];
     if (!stack.length || result.t !== TokenType.operand)
@@ -236,25 +242,23 @@ function parse(tokenizer: Tokenizer): FLCompiled {
   }
 
   /**
-   * Process for operand token
+   * Process for unary expression
    */
-  function processOperand(
-    unaryOperator: FLUnaryOperator | null,
+  function processUnary(
+    unaryOperator: FLUnaryOperator,
     token: OperandToken,
   ): OperandToken {
-    return unaryOperator
-      ? {
-          t: TokenType.operand,
-          v: (params, context) => {
-            const unaryOperation = context.unaryOperations[unaryOperator];
-            if (!unaryOperation)
-              throw new SyntaxError(
-                `Unsupported unary operator '${unaryOperator}'`,
-              );
-            return unaryOperation(token.v(params, context));
-          },
-        }
-      : token;
+    return {
+      t: TokenType.operand,
+      v: (params, context) => {
+        const unaryOperation = context.unaryOperations[unaryOperator];
+        if (!unaryOperation)
+          throw new SyntaxError(
+            `Unsupported unary operator '${unaryOperator}'`,
+          );
+        return unaryOperation(token.v(params, context));
+      },
+    };
   }
 
   /**

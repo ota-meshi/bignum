@@ -13,6 +13,7 @@ describe("standard tests", () => {
     test`1 + ${3}`,
     test`1 + ${2} * 3`,
     test`(1 + ${2}) * 3`,
+    test`1 * -(23 % 4)`,
     test`3*3*PI`,
     test`trunc(300*1.08)`,
     test`trunc(320*1.08)`,

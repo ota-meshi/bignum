@@ -19,8 +19,14 @@ const result = f`1 + 2 * ${num}`;
 console.log(result); // 21
 ```
 
-## Features
+## 🚀 Features
 
+- You can write formulas with template literals.
+- The calculation engine is customizable.
+
+## 🛸 Prior Art
+
+- [bigjs-literal]\
 This package is similar to [bigjs-literal] in that it uses template literals for calculations, but [bigjs-literal] has a 49kB file for the parser alone.\
 The JavaScript file for the compiler that `formula-literal` has is 8kB.
 

@@ -27,6 +27,7 @@ module.exports = {
         "@typescript-eslint/explicit-member-accessibility": "off",
         complexity: "off",
         "no-loop-func": "off",
+        "func-style": "off",
       },
     },
     {
