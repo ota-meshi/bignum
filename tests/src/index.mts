@@ -4,7 +4,7 @@ import { setupEngine } from "../../src/index.mjs";
 
 chai.use(jestSnapshotPlugin());
 describe("standard tests", () => {
-  const e = setupEngine();
+  const f = setupEngine();
   for (const t of [
     test`1 + 2`,
     test`1+2`,
@@ -17,9 +17,17 @@ describe("standard tests", () => {
     test`3*3*PI`,
     test`trunc(300*1.08)`,
     test`trunc(320*1.08)`,
+    test`1 + 2 * 3`,
+    test`3 - 3 / 3`,
+    test`(1 + 2) * 3`,
+    test`2 * 2 ** 3`,
+    test`4 / 2 ** 2`,
+    test`(2 * 2) ** 3`,
+    test`sqrt(9)`,
+    test`abs(-10)`,
   ]) {
     it(t.name, () => {
-      chai.expect(e(...t.param)).toMatchSnapshot();
+      chai.expect(f(...t.param)).toMatchSnapshot();
     });
   }
 });
