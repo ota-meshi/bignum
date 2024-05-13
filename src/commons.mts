@@ -23,22 +23,10 @@ export type FLEngine<OPERAND, NORMALIZE> = (
 export type FLFunction<OPERAND, RESULT> = (
   ...args: (OPERAND | RESULT | string)[]
 ) => RESULT;
-
-export const numberContext: FLContext<unknown, number, number> = {
-  binaryOperations: {
-    "*": (a, b) => Number(a) * Number(b),
-    "+": (a, b) => Number(a) + Number(b),
-    "-": (a, b) => Number(a) - Number(b),
-    "/": (a, b) => Number(a) / Number(b),
-    "%": (a, b) => Number(a) % Number(b),
-    "**": (a, b) => Number(a) ** Number(b),
-  },
-  unaryOperations: {
-    "-": (a) => -Number(a),
-    "+": (a) => Number(a),
-  },
-  normalizeResult: (value) => Number(value),
-};
+export type FLCompiled<OPERAND, RESULT> = (
+  params: OPERAND[],
+  context: FLContext<OPERAND, RESULT, unknown>,
+) => RESULT | OPERAND | string;
 
 const BINARY_OPERATOR_ARRAY = [
   // Arithmetic operators
