@@ -28,6 +28,7 @@ module.exports = {
         complexity: "off",
         "no-loop-func": "off",
         "func-style": "off",
+        "no-constant-condition": "off",
       },
     },
     {

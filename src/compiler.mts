@@ -100,9 +100,7 @@ function buildTokenizer(elements: ArrayLike<string>): Tokenizer {
     lookahead,
   };
 
-  /**
-   * Postprocess for updated position.
-   */
+  /** Postprocess for updated position. */
   function updated() {
     if (position < curr.length) {
       if (!curr[position].trim()) {

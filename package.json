@@ -13,6 +13,14 @@
       "import": "./lib/index.mjs",
       "require": "./lib/index.js",
       "default": "./lib/index.mjs"
+    },
+    "./decimal": {
+      "import": "./lib/decimal.mjs",
+      "default": "./lib/decimal.mjs"
+    },
+    "./compiler": {
+      "import": "./lib/compiler.mjs",
+      "default": "./lib/compiler.mjs"
     }
   },
   "types": "./lib/index.d.ts",
