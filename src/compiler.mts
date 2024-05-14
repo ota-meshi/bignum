@@ -73,11 +73,29 @@ function buildTokenizer(elements: ArrayLike<string>): Tokenizer {
 
     // parse operand
     let value = curr[position++];
+    let numWithExp = false;
     while (position < curr.length) {
-      if (!curr[position].trim()) break;
-      if (WELLKNOWN_TOKEN.some((token) => curr.startsWith(token.v, position)))
+      const c = curr[position];
+      if (!c.trim()) break;
+      if ((c === "+" || c === "-") && !numWithExp) {
+        // Continue the token if there is a possibility of a number with an exponent.
+        const nextCp = curr.codePointAt(position + 1);
+        if (nextCp == null || nextCp < 48 || nextCp > 57) break;
+        const lower = value.toLowerCase();
+        if (lower.at(-1) !== "e") break;
+        const maybeNum = lower.slice(0, -1);
+        if (maybeNum.includes("e") || Number.isNaN(Number(maybeNum))) break;
+        numWithExp = true;
+      } else if (numWithExp) {
+        // Only numbers are allowed after the exponent.
+        const cp = c.codePointAt(0)!;
+        if (cp < 48 || cp > 57) break;
+      } else if (
+        WELLKNOWN_TOKEN.some((token) => curr.startsWith(token.v, position))
+      )
         break;
-      value += curr[position++];
+      value += c;
+      position++;
     }
     updated();
     return reId.test(value)

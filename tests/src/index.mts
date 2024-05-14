@@ -10,9 +10,9 @@ describe("standard tests", () => {
     test`1.1 + 2.1`,
     test`1+2`,
     test`1+-2`,
+    test`1-+2`,
     test`1.1+-2.2`,
     test`1.2+0.8`,
-    test`${0.2} + ${0.1}`,
     test`1 + ${3}`,
     test`1 + ${2} * 3`,
     test`1.2 + ${2.3} * 3.4`,
@@ -29,6 +29,7 @@ describe("standard tests", () => {
     test`(1 + 2) * 3`,
     test`2 * 2 ** 3`,
     test`2.1 * 2.3 ** 3`,
+    test`2.1 * 2.3 ** (1.5+1.5)`,
     // test`2.1 * 2.3 ** 3.4`, // Error
     test`4 / 2 ** 2`,
     test`4.1 / 2.2 ** 2`,
@@ -55,6 +56,15 @@ describe("standard tests", () => {
       test`ceil(${v})`,
       test`abs(${v})`,
     ]),
+    test`1e42+1`,
+    test`1e-42+1`,
+    test`1e+42+1`,
+    test`1.23e42+1`,
+    test`1.23e-42+1`,
+    test`1.23e+42+1`,
+    test`-1.23e42+1`,
+    test`-1.23e-42+1`,
+    test`-1.23e+42+1`,
   ]) {
     it(t.name, () => {
       chai.expect(f(...t.param)).toMatchSnapshot();
@@ -68,6 +78,37 @@ describe("Big Number tests", () => {
     test`${0.1} + ${0.1} + ${0.1}`,
     test`0.2 + 0.1`,
     test`${0.2} + ${0.1}`,
+    test`0.3 - 0.1`,
+    test`${0.3} - ${0.1}`,
+  ]) {
+    it(t.name, () => {
+      chai.expect(f(...t.param)).toMatchSnapshot();
+    });
+  }
+});
+describe("Compare tests", () => {
+  const f = setupEngine();
+  for (const t of [
+    test`0.1 + 0.1 + 0.1 <= 0.3`,
+    test`${0.1} + ${0.1} + ${0.1} == ${0.3}`,
+    test`0.2 + 0.1 != 0.3`,
+    test`${0.2} + ${0.1} != ${0.3}`,
+    test`0.3 - 0.1 >= 0.2`,
+    test`${0.3} - ${0.1} >= ${0.2}`,
+    test`${0.3} - ${0.1} < ${0.2}`,
+    test`${0.3} - ${0.1} > ${0.2}`,
+    ...[
+      [0.1, 0.1],
+      [0.1, 0.2],
+      [0.2, 0.1],
+    ].flatMap(([a, b]) => [
+      test`${a} < ${b}`,
+      test`${a} <= ${b}`,
+      test`${a} > ${b}`,
+      test`${a} >= ${b}`,
+      test`${a} == ${b}`,
+      test`${a} != ${b}`,
+    ]),
   ]) {
     it(t.name, () => {
       chai.expect(f(...t.param)).toMatchSnapshot();

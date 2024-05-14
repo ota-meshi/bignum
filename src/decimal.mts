@@ -27,7 +27,8 @@ function parseString(value: string) {
     decimal = RE_NUMBERS.exec(value)?.[0] || "";
   }
   if (!integer && !decimal) return null;
-  const decimalEndIndex = integerEndIndex + 1 /* dot */ + decimal.length;
+  const decimalEndIndex =
+    integerEndIndex + (decimal ? 1 /* dot */ + decimal.length : 0);
 
   const intValue = BigInt(sign + integer + decimal);
   let exponent = -BigInt(decimal.length);
@@ -166,10 +167,6 @@ class DecimalInternal {
   public pow(n: DecimalInternal | bigint): DecimalInternal {
     const bn = typeof n === "bigint" ? n : n.toBigInt();
     return new DecimalInternal(this.i ** bn, this.e * bn);
-  }
-
-  public scaleByPowerOfTen(e: bigint): DecimalInternal {
-    return new DecimalInternal(this.i, this.e * e);
   }
 
   public add(augend: DecimalInternal): DecimalInternal {

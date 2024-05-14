@@ -35,7 +35,7 @@ console.log(0.2 + 0.1); // 0.30000000000000004
 
 - [bigjs-literal]\
 This package is similar to [bigjs-literal] in that it uses template literals for calculations, but [bigjs-literal] has a 49kB file for the parser alone.\
-The JavaScript file for the compiler that `formula-literal` has is 8kB. (However, there is no ability to compile it in advance.)
+The JavaScript file for the compiler that `formula-literal` has is 9kB (without minify). (However, there is no ability to compile it in advance.)
 
 [big.js]: https://github.com/MikeMcl/big.js
 [bigjs-literal]: https://www.npmjs.com/package/bigjs-literal
