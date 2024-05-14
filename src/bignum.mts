@@ -2,7 +2,7 @@ const RE_SIGN = /^[+-]/u;
 const RE_NUMBERS = /\d*/uy;
 const RE_INVALID_INTEGER = /^0\d/u;
 
-/** Parse a value to a Decimal prop */
+/** Parse a value to a BigNum prop */
 function parseValue(value: string | number | bigint | boolean) {
   if (typeof value === "bigint") {
     return { intValue: value, exponent: 0n };
@@ -13,7 +13,7 @@ function parseValue(value: string | number | bigint | boolean) {
   return parseString(String(value));
 }
 
-/** Parse a string to a Decimal prop */
+/** Parse a string to a BigNum prop */
 function parseString(value: string) {
   const sign = RE_SIGN.exec(value)?.[0] || "";
   RE_NUMBERS.lastIndex = sign ? 1 : 0;
@@ -44,7 +44,7 @@ function parseString(value: string) {
   return { intValue, exponent };
 }
 
-class DecimalInternal {
+class Internal {
   /** int value */
   private i: bigint;
 
@@ -70,30 +70,24 @@ class DecimalInternal {
     return this.i === 0n ? 0 : this.i > 0n ? 1 : -1;
   }
 
-  public negate(): DecimalInternal {
-    return new DecimalInternal(-this.i, this.e);
+  public negate(): Internal {
+    return new Internal(-this.i, this.e);
   }
 
-  public abs(): DecimalInternal {
+  public abs(): Internal {
     if (this.i >= 0n) return this;
-    return new DecimalInternal(-this.i, this.e);
+    return new Internal(-this.i, this.e);
   }
 
-  public multiply(multiplicand: DecimalInternal): DecimalInternal {
-    return new DecimalInternal(
-      this.i * multiplicand.i,
-      this.e + multiplicand.e,
-    );
+  public multiply(multiplicand: Internal): Internal {
+    return new Internal(this.i * multiplicand.i, this.e + multiplicand.e);
   }
 
-  public divide(divisor: DecimalInternal, maxDp?: bigint): DecimalInternal {
+  public divide(divisor: Internal, maxDp?: bigint): Internal {
     if (divisor.i === 0n) throw new Error("Division by zero");
     if (this.i === 0n) return this;
-    const alignMultiplicand = new DecimalInternal(
-      10n ** divisor.#decimalCount(),
-      0n,
-    );
-    const alignedTarget: DecimalInternal =
+    const alignMultiplicand = new Internal(10n ** divisor.#decimalCount(), 0n);
+    const alignedTarget: Internal =
       this.multiply(alignMultiplicand).#simplify();
     const alignedDivisor = divisor.multiply(alignMultiplicand).#simplify();
 
@@ -102,7 +96,7 @@ class DecimalInternal {
       minQuotientExponent = maxDp;
     }
     if (alignedTarget.i % alignedDivisor.i === 0n) {
-      const candidate = new DecimalInternal(
+      const candidate = new Internal(
         alignedTarget.i / alignedDivisor.i,
         alignedTarget.e - alignedDivisor.e,
       );
@@ -153,38 +147,38 @@ class DecimalInternal {
       }
     }
 
-    return new DecimalInternal(
+    return new Internal(
       BigInt(quotientSign + (quotientNumbers.join("") || "0")),
       quotientExponent,
     );
   }
 
-  public modulo(divisor: DecimalInternal): DecimalInternal {
+  public modulo(divisor: Internal): Internal {
     const times = this.divide(divisor, 0n);
     return this.subtract(divisor.multiply(times));
   }
 
-  public pow(n: DecimalInternal | bigint): DecimalInternal {
+  public pow(n: Internal | bigint): Internal {
     const bn = typeof n === "bigint" ? n : n.toBigInt();
-    return new DecimalInternal(this.i ** bn, this.e * bn);
+    return new Internal(this.i ** bn, this.e * bn);
   }
 
-  public add(augend: DecimalInternal): DecimalInternal {
+  public add(augend: Internal): Internal {
     this.#alignExponent(augend);
-    return new DecimalInternal(this.i + augend.i, this.e);
+    return new Internal(this.i + augend.i, this.e);
   }
 
-  public subtract(subtrahend: DecimalInternal): DecimalInternal {
+  public subtract(subtrahend: Internal): Internal {
     this.#alignExponent(subtrahend);
-    return new DecimalInternal(this.i - subtrahend.i, this.e);
+    return new Internal(this.i - subtrahend.i, this.e);
   }
 
   public trunc() {
     if (this.i === 0n || this.e === 0n) return this;
-    return new DecimalInternal(this.#truncInt(), 0n);
+    return new Internal(this.#truncInt(), 0n);
   }
 
-  public round(): DecimalInternal {
+  public round(): Internal {
     if (this.i === 0n || this.e === 0n) return this;
     const target = this.i % this.d;
     const h = 10n ** (-this.e - 1n) * 5n;
@@ -194,27 +188,27 @@ class DecimalInternal {
     return target < h ? this.floor() : this.ceil();
   }
 
-  public floor(): DecimalInternal {
+  public floor(): Internal {
     if (this.i === 0n || this.e === 0n) return this;
     if (this.i >= 0n) {
       // Plus
       return this.trunc();
     }
     const value = this.#truncInt() - 1n;
-    return new DecimalInternal(value, 0n);
+    return new Internal(value, 0n);
   }
 
-  public ceil(): DecimalInternal {
+  public ceil(): Internal {
     if (this.i === 0n || this.e === 0n) return this;
     if (this.i < 0n) {
       // Minus
       return this.trunc();
     }
     const value = this.#truncInt() + 1n;
-    return new DecimalInternal(value, 0n);
+    return new Internal(value, 0n);
   }
 
-  public compareTo(other: DecimalInternal): 0 | -1 | 1 {
+  public compareTo(other: Internal): 0 | -1 | 1 {
     this.#alignExponent(other);
     return compare(this.i, other.i);
   }
@@ -258,7 +252,7 @@ class DecimalInternal {
     return this.i / this.d;
   }
 
-  #alignExponent(other: DecimalInternal) {
+  #alignExponent(other: Internal) {
     if (this.e === other.e) return;
     if (this.e > other.e) {
       this.#updateExponent(other.e);
@@ -280,18 +274,18 @@ class DecimalInternal {
     return this.i % this.d > 0n;
   }
 }
-export class Decimal {
-  static readonly #nan = new Decimal(NaN);
+export class BigNum {
+  static readonly #nan = new BigNum(NaN);
 
-  readonly #p: DecimalInternal | null;
+  readonly #p: Internal | null;
 
   public static valueOf(
-    value: string | number | bigint | boolean | Decimal,
-  ): Decimal {
-    if (typeof value === "object" && value instanceof Decimal) {
+    value: string | number | bigint | boolean | BigNum,
+  ): BigNum {
+    if (typeof value === "object" && value instanceof BigNum) {
       return value;
     }
-    return new Decimal(value);
+    return new BigNum(value);
   }
 
   public constructor(
@@ -300,8 +294,8 @@ export class Decimal {
       | number
       | bigint
       | boolean
-      | Decimal
-      | DecimalInternal
+      | BigNum
+      | Internal
       | null
       | undefined,
   ) {
@@ -309,11 +303,11 @@ export class Decimal {
       this.#p = null;
       return;
     }
-    if (value instanceof DecimalInternal) {
+    if (value instanceof Internal) {
       this.#p = value;
       return;
     }
-    if (value instanceof Decimal) {
+    if (value instanceof BigNum) {
       this.#p = value.#p;
       return;
     }
@@ -322,88 +316,88 @@ export class Decimal {
       this.#p = null;
       return;
     }
-    this.#p = new DecimalInternal(prop.intValue, prop.exponent);
+    this.#p = new Internal(prop.intValue, prop.exponent);
   }
 
-  /** Returns the signum function of this Decimal. */
+  /** Returns the signum function of this BigNum. */
   public signum(): -1 | 0 | 1 | typeof NaN {
     return this.#p?.signum() ?? NaN;
   }
 
-  /** Returns a Decimal whose value is (-this). */
-  public negate(): Decimal {
-    return new Decimal(this.#p?.negate());
+  /** Returns a BigNum whose value is (-this). */
+  public negate(): BigNum {
+    return new BigNum(this.#p?.negate());
   }
 
-  /** Returns a Decimal whose value is (this + augend) */
-  public add(augend: Decimal): Decimal {
+  /** Returns a BigNum whose value is (this + augend) */
+  public add(augend: BigNum): BigNum {
     const b = augend.#p;
-    return b ? new Decimal(this.#p?.add(b)) : Decimal.#nan;
+    return b ? new BigNum(this.#p?.add(b)) : BigNum.#nan;
   }
 
-  /** Returns a Decimal whose value is (this - subtrahend) */
-  public subtract(subtrahend: Decimal): Decimal {
+  /** Returns a BigNum whose value is (this - subtrahend) */
+  public subtract(subtrahend: BigNum): BigNum {
     const b = subtrahend.#p;
-    return b ? new Decimal(this.#p?.subtract(b)) : Decimal.#nan;
+    return b ? new BigNum(this.#p?.subtract(b)) : BigNum.#nan;
   }
 
-  /** Returns a Decimal whose value is (this × multiplicand). */
-  public multiply(multiplicand: Decimal): Decimal {
+  /** Returns a BigNum whose value is (this × multiplicand). */
+  public multiply(multiplicand: BigNum): BigNum {
     const b = multiplicand.#p;
-    return b ? new Decimal(this.#p?.multiply(b)) : Decimal.#nan;
+    return b ? new BigNum(this.#p?.multiply(b)) : BigNum.#nan;
   }
 
   /**
-   * Returns a Decimal whose value is (this / divisor)
+   * Returns a BigNum whose value is (this / divisor)
    * @param options.maxDp The maximum number of decimal places. Default is 20.
    */
-  public divide(divisor: Decimal, options?: { maxDp?: bigint }): Decimal {
+  public divide(divisor: BigNum, options?: { maxDp?: bigint }): BigNum {
     const b = divisor.#p;
-    return b ? new Decimal(this.#p?.divide(b, options?.maxDp)) : Decimal.#nan;
+    return b ? new BigNum(this.#p?.divide(b, options?.maxDp)) : BigNum.#nan;
   }
 
   /**
-   * Returns a Decimal whose value is (this % divisor)
+   * Returns a BigNum whose value is (this % divisor)
    */
-  modulo(divisor: Decimal): Decimal {
+  modulo(divisor: BigNum): BigNum {
     const b = divisor.#p;
-    return b ? new Decimal(this.#p?.modulo(b)) : Decimal.#nan;
+    return b ? new BigNum(this.#p?.modulo(b)) : BigNum.#nan;
   }
 
-  /** Returns a Decimal whose value is (this**n). */
-  public pow(n: Decimal | bigint): Decimal {
-    if (typeof n === "bigint") return new Decimal(this.#p?.pow(n));
+  /** Returns a BigNum whose value is (this**n). */
+  public pow(n: BigNum | bigint): BigNum {
+    if (typeof n === "bigint") return new BigNum(this.#p?.pow(n));
     const b = n.#p;
-    return b ? new Decimal(this.#p?.pow(n.#p)) : Decimal.#nan;
+    return b ? new BigNum(this.#p?.pow(n.#p)) : BigNum.#nan;
   }
 
-  /** Returns a Decimal whose value is the absolute value of this Decimal. */
-  public abs(): Decimal {
-    return new Decimal(this.#p?.abs());
+  /** Returns a BigNum whose value is the absolute value of this BigNum. */
+  public abs(): BigNum {
+    return new BigNum(this.#p?.abs());
   }
 
-  /** Returns a Decimal that is the integral part of this Decimal, with removing any fractional digits. */
-  public trunc(): Decimal {
-    return new Decimal(this.#p?.trunc());
+  /** Returns a BigNum that is the integral part of this BigNum, with removing any fractional digits. */
+  public trunc(): BigNum {
+    return new BigNum(this.#p?.trunc());
   }
 
-  /** Returns this Decimal rounded to the nearest integer. */
-  public round(): Decimal {
-    return new Decimal(this.#p?.round());
+  /** Returns this BigNum rounded to the nearest integer. */
+  public round(): BigNum {
+    return new BigNum(this.#p?.round());
   }
 
-  /** Returns the greatest integer less than or equal to this Decimal. */
-  public floor(): Decimal {
-    return new Decimal(this.#p?.floor());
+  /** Returns the greatest integer less than or equal to this BigNum. */
+  public floor(): BigNum {
+    return new BigNum(this.#p?.floor());
   }
 
-  /** Returns the smallest integer greater than or equal to this Decimal. */
-  public ceil(): Decimal {
-    return new Decimal(this.#p?.ceil());
+  /** Returns the smallest integer greater than or equal to this BigNum. */
+  public ceil(): BigNum {
+    return new BigNum(this.#p?.ceil());
   }
 
-  /** Compares this Decimal with the specified Decimal. */
-  public compareTo(other: Decimal): 0 | -1 | 1 | typeof NaN {
+  /** Compares this BigNum with the specified BigNum. */
+  public compareTo(other: BigNum): 0 | -1 | 1 | typeof NaN {
     const a = this.#p;
     const b = other.#p;
     if (!a || !b) return NaN;

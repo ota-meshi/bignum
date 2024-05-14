@@ -14,9 +14,9 @@
       "require": "./lib/index.js",
       "default": "./lib/index.mjs"
     },
-    "./decimal": {
-      "import": "./lib/decimal.mjs",
-      "default": "./lib/decimal.mjs"
+    "./bignum": {
+      "import": "./lib/bignum.mjs",
+      "default": "./lib/bignum.mjs"
     },
     "./compiler": {
       "import": "./lib/compiler.mjs",

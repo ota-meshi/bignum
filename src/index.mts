@@ -5,7 +5,7 @@ import {
   type FLFunction,
 } from "./commons.mjs";
 import { compile } from "./compiler.mjs";
-import { Decimal } from "./decimal.mjs";
+import { BigNum } from "./bignum.mjs";
 export type {
   FLEngine,
   FLContext,
@@ -20,23 +20,23 @@ export type {
 const RE_VALID_INTEGER = /^[+-]?[1-9]\d*$/u;
 
 /** Normalize value */
-function normalize(value: Decimal | string | number | bigint) {
-  if (value instanceof Decimal || typeof value === "bigint") return value;
+function normalize(value: BigNum | string | number | bigint) {
+  if (value instanceof BigNum || typeof value === "bigint") return value;
   if (typeof value === "number") {
     if (Math.trunc(value) === value) return BigInt(value);
   } else if (typeof value === "string") {
     if (RE_VALID_INTEGER.test(value)) return BigInt(value);
   }
-  return Decimal.valueOf(value);
+  return BigNum.valueOf(value);
 }
 
 /**
  * Build evaluator function
  */
 function buildEvaluator(
-  evaluateForD: (a: bigint | Decimal, b: bigint | Decimal) => Decimal,
+  evaluateForD: (a: bigint | BigNum, b: bigint | BigNum) => BigNum,
   evaluateForB?: (a: bigint, b: bigint) => bigint,
-): FLBinaryOperation<string | number | bigint, Decimal | bigint> {
+): FLBinaryOperation<string | number | bigint, BigNum | bigint> {
   const forB = evaluateForB || evaluateForD;
   return (a, b) => {
     const na = normalize(a);
@@ -52,14 +52,14 @@ function buildEvaluator(
  */
 function buildCompare(
   compare: <T extends bigint | number>(a: T, b: T) => boolean,
-): FLBinaryOperation<string | number | bigint, Decimal | bigint> {
+): FLBinaryOperation<string | number | bigint, BigNum | bigint> {
   return (a, b) => {
     const na = normalize(a);
     const nb = normalize(b);
     return BigInt(
       typeof na === "bigint" && typeof nb === "bigint"
         ? compare(na, nb)
-        : compare(Decimal.valueOf(na).compareTo(Decimal.valueOf(nb)), 0),
+        : compare(BigNum.valueOf(na).compareTo(BigNum.valueOf(nb)), 0),
     );
   };
 }
@@ -68,9 +68,9 @@ function buildCompare(
  * Build operation function
  */
 function buildOperation(
-  opForD: (a: Decimal) => Decimal,
+  opForD: (a: BigNum) => BigNum,
   opForB?: (a: bigint) => bigint,
-): FLFunction<string | number | bigint, Decimal | bigint> {
+): FLFunction<string | number | bigint, BigNum | bigint> {
   const forB = opForB || ((a) => a);
   return (a) => {
     const na = normalize(a);
@@ -80,31 +80,29 @@ function buildOperation(
 
 const defaultContext: FLContext<
   string | number | bigint,
-  Decimal | bigint,
+  BigNum | bigint,
   number | string
 > = {
   binaryOperations: {
     "*": buildEvaluator(
-      (a, b) => Decimal.valueOf(a).multiply(Decimal.valueOf(b)),
+      (a, b) => BigNum.valueOf(a).multiply(BigNum.valueOf(b)),
       (a, b) => a * b,
     ),
     "+": buildEvaluator(
-      (a, b) => Decimal.valueOf(a).add(Decimal.valueOf(b)),
+      (a, b) => BigNum.valueOf(a).add(BigNum.valueOf(b)),
       (a, b) => a + b,
     ),
     "-": buildEvaluator(
-      (a, b) => Decimal.valueOf(a).subtract(Decimal.valueOf(b)),
+      (a, b) => BigNum.valueOf(a).subtract(BigNum.valueOf(b)),
       (a, b) => a - b,
     ),
-    "/": buildEvaluator((a, b) =>
-      Decimal.valueOf(a).divide(Decimal.valueOf(b)),
-    ),
+    "/": buildEvaluator((a, b) => BigNum.valueOf(a).divide(BigNum.valueOf(b))),
     "%": buildEvaluator(
-      (a, b) => Decimal.valueOf(a).modulo(Decimal.valueOf(b)),
+      (a, b) => BigNum.valueOf(a).modulo(BigNum.valueOf(b)),
       (a, b) => a % b,
     ),
     "**": buildEvaluator(
-      (a, b) => Decimal.valueOf(a).pow(b),
+      (a, b) => BigNum.valueOf(a).pow(b),
       (a, b) => a ** b,
     ),
     "==": buildCompare((a, b) => a === b),
@@ -143,7 +141,7 @@ const defaultContext: FLContext<
   },
 };
 
-export { compile, Decimal };
+export { compile, BigNum };
 
 export function setupEngine(): FLEngine<
   string | number | bigint,
