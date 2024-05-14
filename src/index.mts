@@ -65,16 +65,16 @@ function buildCompare(
 }
 
 /**
- * Build call function
+ * Build operation function
  */
-function buildCall(
-  callForD: (a: Decimal) => Decimal,
-  callForB?: (a: bigint) => bigint,
+function buildOperation(
+  opForD: (a: Decimal) => Decimal,
+  opForB?: (a: bigint) => bigint,
 ): FLFunction<string | number | bigint, Decimal | bigint> {
-  const forB = callForB || ((a) => a);
+  const forB = opForB || ((a) => a);
   return (a) => {
     const na = normalize(a);
-    return typeof na === "bigint" ? forB(na) : callForD(na);
+    return typeof na === "bigint" ? forB(na) : opForD(na);
   };
 }
 
@@ -115,10 +115,10 @@ const defaultContext: FLContext<
     ">": buildCompare((a, b) => a > b),
   },
   unaryOperations: {
-    "-": (a) => {
-      const na = normalize(a);
-      return typeof na === "bigint" ? -na : na.negate();
-    },
+    "-": buildOperation(
+      (a) => a.negate(),
+      (a) => -a,
+    ),
     "+": (a) => normalize(a),
   },
   normalizeResult: (value) => {
@@ -132,14 +132,14 @@ const defaultContext: FLContext<
     ).map((k) => [k, Math[k]]),
   ),
   functions: {
-    abs: buildCall(
+    abs: buildOperation(
       (a) => a.abs(),
       (a) => (a < 0 ? -a : a),
     ),
-    trunc: buildCall((a) => a.trunc()),
-    round: buildCall((a) => a.round()),
-    floor: buildCall((a) => a.floor()),
-    ceil: buildCall((a) => a.ceil()),
+    trunc: buildOperation((a) => a.trunc()),
+    round: buildOperation((a) => a.round()),
+    floor: buildOperation((a) => a.floor()),
+    ceil: buildOperation((a) => a.ceil()),
   },
 };
 
