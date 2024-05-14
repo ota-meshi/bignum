@@ -122,7 +122,7 @@ const defaultContext: FLContext<
     "+": (a) => normalize(a),
   },
   normalizeResult: (value) => {
-    const str = String(value);
+    const str = String(normalize(value));
     const num = Number(str);
     return String(num) === str ? num : str;
   },
