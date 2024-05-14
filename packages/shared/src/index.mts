@@ -1,31 +1,35 @@
-export type FLBinaryOperation<OPERAND, RESULT> = (
+export type BTBinaryOperation<OPERAND, RESULT> = (
   a: OPERAND | RESULT | string,
   b: OPERAND | RESULT | string,
 ) => RESULT;
-export type FLUnaryOperation<OPERAND, RESULT> = (
+export type BTUnaryOperation<OPERAND, RESULT> = (
   a: OPERAND | RESULT | string,
 ) => RESULT;
-export type FLContext<OPERAND, RESULT, NORMALIZED> = {
-  binaryOperations: {
-    [k in FLBinaryOperator]?: FLBinaryOperation<OPERAND, RESULT>;
+export type BTContext<
+  OPERAND,
+  RESULT,
+  NORMALIZED = OPERAND | RESULT | string,
+> = {
+  binaryOperations?: {
+    [k in BTBinaryOperator]?: BTBinaryOperation<OPERAND, RESULT>;
   };
-  unaryOperations: {
-    [k in FLUnaryOperator]?: FLUnaryOperation<OPERAND, RESULT>;
+  unaryOperations?: {
+    [k in BTUnaryOperator]?: BTUnaryOperation<OPERAND, RESULT>;
   };
   variables?: Record<string, OPERAND>;
-  functions?: Record<string, FLFunction<OPERAND, RESULT>>;
-  normalizeResult: (value: OPERAND | RESULT | string) => NORMALIZED;
+  functions?: Record<string, BTFunction<OPERAND, RESULT>>;
+  normalizeResult?: (value: OPERAND | RESULT | string) => NORMALIZED;
 };
-export type FLEngine<OPERAND, NORMALIZE> = (
+export type BTEngine<OPERAND, NORMALIZE> = (
   template: TemplateStringsArray,
   ...substitutions: OPERAND[]
 ) => NORMALIZE;
-export type FLFunction<OPERAND, RESULT> = (
+export type BTFunction<OPERAND, RESULT> = (
   ...args: (OPERAND | RESULT | string)[]
 ) => RESULT;
-export type FLCompiled = <OPERAND, RESULT>(
+export type BTCompiled = <OPERAND, RESULT>(
   params: OPERAND[],
-  context: FLContext<OPERAND, RESULT, unknown>,
+  context: BTContext<OPERAND, RESULT, unknown>,
 ) => RESULT | OPERAND | string;
 
 // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
@@ -63,10 +67,10 @@ export const PRECEDENCE = {
   "||": 3,
   "??": 3,
 } as const;
-export type FLBinaryOperator = keyof typeof PRECEDENCE;
+export type BTBinaryOperator = keyof typeof PRECEDENCE;
 export const BINARY_OPERATORS = new Set(
-  Object.keys(PRECEDENCE) as FLBinaryOperator[],
+  Object.keys(PRECEDENCE) as BTBinaryOperator[],
 );
 const UNARY_OPERATOR_ARRAY = ["+", "-"] as const;
-export type FLUnaryOperator = (typeof UNARY_OPERATOR_ARRAY)[number];
+export type BTUnaryOperator = (typeof UNARY_OPERATOR_ARRAY)[number];
 export const UNARY_OPERATORS = new Set(UNARY_OPERATOR_ARRAY);

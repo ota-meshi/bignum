@@ -1,21 +1,21 @@
 import {
-  type FLEngine,
-  type FLContext,
-  type FLBinaryOperation,
-  type FLFunction,
-} from "./commons.mjs";
-import { compile } from "./compiler.mjs";
-import { BigNum } from "./bignum.mjs";
+  type BTEngine,
+  type BTContext,
+  type BTBinaryOperation,
+  type BTFunction,
+} from "@bignum/shared";
+import { compile } from "@bignum/template-compiler";
+import { BigNum } from "@bignum/core";
 export type {
-  FLEngine,
-  FLContext,
-  FLBinaryOperation,
-  FLUnaryOperation,
-  FLBinaryOperator,
-  FLUnaryOperator,
-  FLFunction,
-  FLCompiled,
-} from "./commons.mjs";
+  BTEngine,
+  BTContext,
+  BTBinaryOperation,
+  BTUnaryOperation,
+  BTBinaryOperator,
+  BTUnaryOperator,
+  BTFunction,
+  BTCompiled,
+} from "@bignum/shared";
 
 const RE_VALID_INTEGER = /^[+-]?(?:[1-9]\d*|0)$/u;
 
@@ -36,7 +36,7 @@ function normalize(value: BigNum | string | number | bigint) {
 function buildEvaluator(
   evaluateForD: (a: bigint | BigNum, b: bigint | BigNum) => BigNum,
   evaluateForB?: (a: bigint, b: bigint) => bigint,
-): FLBinaryOperation<string | number | bigint, BigNum | bigint> {
+): BTBinaryOperation<string | number | bigint, BigNum | bigint> {
   const forB = evaluateForB || evaluateForD;
   return (a, b) => {
     const na = normalize(a);
@@ -52,7 +52,7 @@ function buildEvaluator(
  */
 function buildCompare(
   compare: <T extends bigint | number>(a: T, b: T) => boolean,
-): FLBinaryOperation<string | number | bigint, BigNum | bigint> {
+): BTBinaryOperation<string | number | bigint, BigNum | bigint> {
   return (a, b) => {
     const na = normalize(a);
     const nb = normalize(b);
@@ -76,7 +76,7 @@ function buildOperation(
     a: bigint,
     ...options: (string | number | bigint | BigNum | bigint)[]
   ) => bigint,
-): FLFunction<string | number | bigint, BigNum | bigint> {
+): BTFunction<string | number | bigint, BigNum | bigint> {
   const forB = opForB || ((a) => a);
   return (a, ...options) => {
     const na = normalize(a);
@@ -86,7 +86,7 @@ function buildOperation(
   };
 }
 
-const defaultContext: FLContext<
+const defaultContext: BTContext<
   string | number | bigint,
   BigNum | bigint,
   number | string
@@ -149,30 +149,35 @@ const defaultContext: FLContext<
   },
 };
 
-export { compile, BigNum };
-
-export function setupEngine(): FLEngine<
+export function setupEngine(): BTEngine<
   string | number | bigint,
   number | string
 >;
 export function setupEngine<
   OPERAND = unknown,
   RESULT = unknown,
-  NORMALIZED = unknown,
+  NORMALIZED = OPERAND | RESULT | string,
 >(
-  context: FLContext<OPERAND, RESULT, NORMALIZED>,
-): FLEngine<OPERAND, NORMALIZED>;
+  context: BTContext<OPERAND, RESULT, NORMALIZED>,
+): BTEngine<OPERAND, NORMALIZED>;
 /**
  * Setup Formula Literal Engine
  */
-export function setupEngine<OPERAND, RESULT, NORMALIZED>(
-  context?: FLContext<OPERAND, RESULT, NORMALIZED>,
-): FLEngine<OPERAND, NORMALIZED> {
+export function setupEngine<
+  OPERAND,
+  RESULT,
+  NORMALIZED = OPERAND | RESULT | string,
+>(
+  context?: BTContext<OPERAND, RESULT, NORMALIZED>,
+): BTEngine<OPERAND, NORMALIZED> {
   if (!context) {
     return setupEngine(defaultContext) as any;
   }
   return (template, ...substitutions) => {
     const fn = compile(template);
-    return context.normalizeResult(fn(substitutions, context));
+    const result = fn(substitutions, context);
+    return context.normalizeResult
+      ? context.normalizeResult(result)
+      : (result as NORMALIZED);
   };
 }

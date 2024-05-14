@@ -13,11 +13,5 @@
     "esModuleInterop": true,
     "moduleResolution": "NodeNext",
     "skipLibCheck": true
-  },
-  "include": [
-    "src/**/*.mts",
-    "tests/src/**/*.mts",
-    "scripts/**/*.mts",
-    "tsup.config.ts"
-  ]
+  }
 }

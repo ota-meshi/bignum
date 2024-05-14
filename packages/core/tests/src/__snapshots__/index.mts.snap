@@ -1,0 +1,187 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`standard tests () => 1 1`] = `"1"`;
+
+exports[`standard tests () => 1.1 1`] = `"1.1"`;
+
+exports[`standard tests () => 2.1 1`] = `"2.1"`;
+
+exports[`standard tests () => BigNum.valueOf("2e2").divide(1000).add(0.1) 1`] = `"0.3"`;
+
+exports[`standard tests () => BigNum.valueOf(-0).ceil() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(-0).floor() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(-0).round() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(-0).trunc() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(-0.001).divide(-0.003) 1`] = `"0.33333333333333333333"`;
+
+exports[`standard tests () => BigNum.valueOf(-0.001).divide(0.003) 1`] = `"-0.33333333333333333333"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).abs() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).ceil() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).divide(-3) 1`] = `"0.33333333333333333333"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).divide(3) 1`] = `"-0.33333333333333333333"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).floor() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).modulo(3) 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).negate() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).round() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).signum() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1).trunc() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.5).ceil() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.5).floor() 1`] = `"-2"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.5).round() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.5).trunc() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.499).ceil() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.499).floor() 1`] = `"-2"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.499).round() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.499).trunc() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.501).ceil() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.501).floor() 1`] = `"-2"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.501).round() 1`] = `"-2"`;
+
+exports[`standard tests () => BigNum.valueOf(-1.501).trunc() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(-3).modulo(3) 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(-10).modulo(3) 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(0).abs() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(0).ceil() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(0).floor() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(0).negate() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(0).round() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(0).signum() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(0).trunc() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(0.001).compareTo(0.001) 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(0.001).compareTo(0.002) 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(0.002).compareTo(0.001) 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(0.02).add(0.1) 1`] = `"0.12"`;
+
+exports[`standard tests () => BigNum.valueOf(0.02).subtract(0.1) 1`] = `"-0.08"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).add(0.01) 1`] = `"0.21"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).add(0.1) 1`] = `"0.3"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).pow(2) 1`] = `"0.04"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).pow(3) 1`] = `"0.008"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).pow(4) 1`] = `"0.0016"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).pow(BigNum.valueOf(0.2).add(3.8)) 1`] = `"0.0016"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).scaleByPowerOfTen(2) 1`] = `"20"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).scaleByPowerOfTen(3) 1`] = `"200"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).scaleByPowerOfTen(4) 1`] = `"2000"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).subtract(0.01) 1`] = `"0.19"`;
+
+exports[`standard tests () => BigNum.valueOf(0.3).subtract(0.1) 1`] = `"0.2"`;
+
+exports[`standard tests () => BigNum.valueOf(1).abs() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1).ceil() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1).divide(3) 1`] = `"0.33333333333333333333"`;
+
+exports[`standard tests () => BigNum.valueOf(1).floor() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1).modulo(3) 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1).negate() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf(1).round() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1).signum() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1).trunc() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1.5).ceil() 1`] = `"2"`;
+
+exports[`standard tests () => BigNum.valueOf(1.5).floor() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1.5).round() 1`] = `"2"`;
+
+exports[`standard tests () => BigNum.valueOf(1.5).trunc() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1.499).ceil() 1`] = `"2"`;
+
+exports[`standard tests () => BigNum.valueOf(1.499).floor() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1.499).round() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1.499).trunc() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1.501).ceil() 1`] = `"2"`;
+
+exports[`standard tests () => BigNum.valueOf(1.501).floor() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(1.501).round() 1`] = `"2"`;
+
+exports[`standard tests () => BigNum.valueOf(1.501).trunc() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(2).multiply(0.1).add(0.1) 1`] = `"0.3"`;
+
+exports[`standard tests () => BigNum.valueOf(2).pow(2) 1`] = `"4"`;
+
+exports[`standard tests () => BigNum.valueOf(2).pow(3) 1`] = `"8"`;
+
+exports[`standard tests () => BigNum.valueOf(2).pow(4) 1`] = `"16"`;
+
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-2) 1`] = `"0.02"`;
+
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-3) 1`] = `"0.002"`;
+
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-4) 1`] = `"0.0002"`;
+
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(2) 1`] = `"200"`;
+
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(3) 1`] = `"2000"`;
+
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(4) 1`] = `"20000"`;
+
+exports[`standard tests () => BigNum.valueOf(3).modulo(3) 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(10).modulo(3) 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(123.456).isNaN() 1`] = `"false"`;
+
+exports[`standard tests () => BigNum.valueOf(200).divide(100).add(0.1) 1`] = `"2.1"`;
+
+exports[`standard tests () => BigNum.valueOf(NaN).isNaN() 1`] = `"true"`;

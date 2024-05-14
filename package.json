@@ -1,56 +1,39 @@
 {
-  "name": "formula-literal",
+  "name": "@bignum/monorepo",
+  "private": true,
   "version": "0.0.0",
-  "description": "Write formulas with template literals.",
+  "description": "JavaScript bignum utilities.",
   "type": "module",
-  "files": [
-    "lib"
+  "workspaces": [
+    "packages/core",
+    "packages/shared",
+    "packages/template-compiler",
+    "packages/template",
+    "packages/*"
   ],
-  "main": "./lib/index.js",
-  "module": "./lib/index.mjs",
-  "exports": {
-    ".": {
-      "import": "./lib/index.mjs",
-      "require": "./lib/index.js",
-      "default": "./lib/index.mjs"
-    },
-    "./bignum": {
-      "import": "./lib/bignum.mjs",
-      "default": "./lib/bignum.mjs"
-    },
-    "./compiler": {
-      "import": "./lib/compiler.mjs",
-      "default": "./lib/compiler.mjs"
-    }
-  },
-  "types": "./lib/index.d.ts",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "prebuild": "npm run -s clean",
-    "build": "npm run bundle",
-    "bundle": "tsup",
+    "build": "npm run build --workspaces --if-present",
     "clean": "rimraf .nyc_output lib coverage",
     "lint": "eslint . --ext .js,.ts,.json",
-    "eslint-fix": "npm run lint -- --fix",
-    "format:docs": "prettier README.md --write",
-    "test": "mocha --loader=ts-node/esm \"tests/src/**/*.mts\" --reporter dot --timeout 60000",
-    "cover": "c8 --reporter=lcov npm run test",
-    "debug": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot",
-    "update-snap": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot --update",
-    "update-snap-cov": "c8 --reporter=lcov npm run update-snap",
+    "eslint-fix": "npm run lint -- --fix && prettier **/README.md --write",
+    "test": "npm run test --workspaces --if-present",
+    "update-snap": "npm run update-snap --workspaces --if-present",
+    "cover": "npm run cover --workspaces --if-present",
     "preversion": "npm run lint && npm test",
     "update-visitor": "node --loader=ts-node/esm/transpile-only scripts/update-visitor.mts && eslint src/visitor.mts --fix",
     "prerelease": "npm run clean && npm run build",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "postinstall": "npm run build"
   },
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ota-meshi/formula-literal.git"
+    "url": "git+https://github.com/ota-meshi/bignum.git"
   },
   "keywords": [
     "formula",
@@ -60,9 +43,9 @@
   "funding": "https://github.com/sponsors/ota-meshi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ota-meshi/formula-literal/issues"
+    "url": "https://github.com/ota-meshi/bignum/issues"
   },
-  "homepage": "https://github.com/ota-meshi/formula-literal#readme",
+  "homepage": "https://github.com/ota-meshi/bignum#readme",
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@ota-meshi/eslint-plugin": "^0.15.2",

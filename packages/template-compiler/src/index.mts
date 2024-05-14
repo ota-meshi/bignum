@@ -1,11 +1,11 @@
 import {
   BINARY_OPERATORS,
   UNARY_OPERATORS,
-  type FLCompiled,
-  type FLBinaryOperator,
-  type FLUnaryOperator,
+  type BTCompiled,
+  type BTBinaryOperator,
+  type BTUnaryOperator,
   PRECEDENCE,
-} from "./commons.mjs";
+} from "@bignum/shared";
 
 const enum TokenType {
   punctuator,
@@ -16,11 +16,11 @@ const enum TokenType {
 type PunctuatorToken = { t: TokenType.punctuator; v: "(" | ")" | "," };
 type OperatorToken = {
   t: TokenType.operator;
-  v: FLBinaryOperator | FLUnaryOperator;
+  v: BTBinaryOperator | BTUnaryOperator;
 };
 type OperandToken = {
   t: TokenType.operand;
-  v: FLCompiled;
+  v: BTCompiled;
 };
 type IdentifierToken = { t: TokenType.identifier; v: string };
 type Token = PunctuatorToken | OperatorToken | OperandToken | IdentifierToken;
@@ -140,7 +140,7 @@ function buildTokenizer(elements: ArrayLike<string>): Tokenizer {
 /**
  * Parse and evaluate a template string with operands.
  */
-export function compile(templateElements: readonly string[]): FLCompiled {
+export function compile(templateElements: readonly string[]): BTCompiled {
   const tokenizer = buildTokenizer(templateElements);
   const result = parse(tokenizer);
   if (!tokenizer.finished()) throw new SyntaxError(`Parsing error`);
@@ -150,7 +150,7 @@ export function compile(templateElements: readonly string[]): FLCompiled {
 /**
  * Parse a template string.
  */
-function parse(tokenizer: Tokenizer): FLCompiled {
+function parse(tokenizer: Tokenizer): BTCompiled {
   return parseOperand().v;
 
   /** Parse for operand */
@@ -159,8 +159,10 @@ function parse(tokenizer: Tokenizer): FLCompiled {
 
     let processOperand = identity;
 
-    while (!tokenizer.finished() && !isCloseParen(tokenizer.lookahead())) {
-      const token = tokenizer.next();
+    while (!tokenizer.finished()) {
+      const token = tokenizer.lookahead();
+      if (!token || isCloseParen(token) || isComma(token)) break;
+      tokenizer.next();
       if (token.t === TokenType.punctuator) {
         if (token.v !== "(") throw new SyntaxError(`Unexpected '${token.v}'`);
         const operand = parseOperand();
@@ -169,7 +171,7 @@ function parse(tokenizer: Tokenizer): FLCompiled {
         stack.push(processOperand(operand));
       } else if (token.t === TokenType.operator) {
         if (!stack.length || stack.at(-1)!.t === TokenType.operator) {
-          if (!UNARY_OPERATORS.has(token.v as FLUnaryOperator))
+          if (!UNARY_OPERATORS.has(token.v as BTUnaryOperator))
             // It is not Unary operator
             throw new SyntaxError(`Unexpected '${token.v}'`);
           const next = tokenizer.lookahead();
@@ -177,7 +179,7 @@ function parse(tokenizer: Tokenizer): FLCompiled {
             // Unary operator that was not consumed.
             throw new SyntaxError(`Unexpected '${token.v}'`);
           // It is Unary operator
-          const unaryOperator = token.v as FLUnaryOperator;
+          const unaryOperator = token.v as BTUnaryOperator;
           processOperand = (t) => {
             processOperand = identity;
             return processUnary(unaryOperator, t);
@@ -202,7 +204,7 @@ function parse(tokenizer: Tokenizer): FLCompiled {
             processOperand({
               t: TokenType.operand,
               v: (_, context) => {
-                if (!context.variables || !(token.v in context.variables)) {
+                if (!context?.variables || !(token.v in context.variables)) {
                   throw new SyntaxError(`Unknown identifier '${token.v}'`);
                 }
                 return context.variables[token.v];
@@ -215,7 +217,7 @@ function parse(tokenizer: Tokenizer): FLCompiled {
             processOperand({
               t: TokenType.operand,
               v: (params, context) => {
-                if (!context.functions || !(token.v in context.functions)) {
+                if (!context?.functions || !(token.v in context.functions)) {
                   throw new SyntaxError(`Unknown identifier '${token.v}'`);
                 }
 
@@ -241,13 +243,13 @@ function parse(tokenizer: Tokenizer): FLCompiled {
    * Process for unary expression
    */
   function processUnary(
-    unaryOperator: FLUnaryOperator,
+    unaryOperator: BTUnaryOperator,
     token: OperandToken,
   ): OperandToken {
     return {
       t: TokenType.operand,
       v: (params, context) => {
-        const unaryOperation = context.unaryOperations[unaryOperator];
+        const unaryOperation = context?.unaryOperations?.[unaryOperator];
         if (!unaryOperation)
           throw new SyntaxError(
             `Unsupported unary operator '${unaryOperator}'`,
@@ -278,7 +280,7 @@ function parse(tokenizer: Tokenizer): FLCompiled {
     return {
       t: TokenType.operand,
       v: (params, context) => {
-        const binaryOperation = context.binaryOperations[op.v];
+        const binaryOperation = context?.binaryOperations?.[op.v];
         if (!binaryOperation)
           throw new SyntaxError(`Unsupported binary operator '${op.v}'`);
         return binaryOperation(
@@ -292,10 +294,10 @@ function parse(tokenizer: Tokenizer): FLCompiled {
   /**
    * Parse function arguments
    */
-  function parseFnArgs(): FLCompiled[] {
+  function parseFnArgs(): BTCompiled[] {
     tokenizer.next(); // consume open paren
     if (tokenizer.finished()) throw new SyntaxError(`Unterminated paren`);
-    const args: FLCompiled[] = [];
+    const args: BTCompiled[] = [];
     let closed = false;
     if (isCloseParen(tokenizer.lookahead())) {
       tokenizer.next();
@@ -318,13 +320,15 @@ function parse(tokenizer: Tokenizer): FLCompiled {
 /**
  * Checks whether the token is a close parenthesis.
  */
-function isCloseParen(token: Token | null): token is PunctuatorToken {
+function isCloseParen(
+  token: Token | null,
+): token is PunctuatorToken & { v: ")" } {
   return token?.t === TokenType.punctuator && token.v === ")";
 }
 
 /**
  * Checks whether the token is a comma.
  */
-function isComma(token: Token): token is PunctuatorToken {
+function isComma(token: Token): token is PunctuatorToken & { v: "," } {
   return token.t === TokenType.punctuator && token.v === ",";
 }

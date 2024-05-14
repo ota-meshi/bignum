@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   stale:
-    if: github.repository == 'ota-meshi/formula-literal'
+    if: github.repository == 'ota-meshi/bignum'
     name: Close stale issues with missing information
     runs-on: ubuntu-latest
     steps:

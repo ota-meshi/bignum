@@ -19,7 +19,7 @@ module.exports = {
       parser: "@typescript-eslint/parser",
       parserOptions: {
         sourceType: "module",
-        project: "./tsconfig.json",
+        project: "./tsconfig.base.json",
       },
       rules: {
         "no-shadow": "off",
@@ -32,7 +32,12 @@ module.exports = {
       },
     },
     {
-      files: ["scripts/**/*.ts", "tests/**/*.ts"],
+      files: [
+        "**/scripts/**/*.ts",
+        "**/scripts/**/*.mts",
+        "**/tests/**/*.ts",
+        "**/tests/**/*.mts",
+      ],
       rules: {
         "require-jsdoc": "off",
         "no-console": "off",

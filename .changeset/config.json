@@ -3,14 +3,13 @@
   "changelog": [
     "@svitejs/changesets-changelog-github-compact",
     {
-      "repo": "ota-meshi/formula-literal"
+      "repo": "ota-meshi/bignum"
     }
   ],
   "commit": false,
   "linked": [],
-  "access": "restricted",
+  "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "bumpVersionsWithWorkspaceProtocolOnly": true,
   "ignore": []
 }
