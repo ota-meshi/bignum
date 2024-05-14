@@ -295,8 +295,20 @@ export class Decimal {
   }
 
   public constructor(
-    value: string | number | bigint | boolean | Decimal | DecimalInternal,
+    value:
+      | string
+      | number
+      | bigint
+      | boolean
+      | Decimal
+      | DecimalInternal
+      | null
+      | undefined,
   ) {
+    if (value == null) {
+      this.#p = null;
+      return;
+    }
     if (value instanceof DecimalInternal) {
       this.#p = value;
       return;
@@ -315,38 +327,30 @@ export class Decimal {
 
   /** Returns the signum function of this Decimal. */
   public signum(): -1 | 0 | 1 | typeof NaN {
-    if (!this.#p) return NaN;
-    return this.#p.signum();
+    return this.#p?.signum() ?? NaN;
   }
 
   /** Returns a Decimal whose value is (-this). */
   public negate(): Decimal {
-    if (!this.#p) return this;
-    return new Decimal(this.#p.negate());
+    return new Decimal(this.#p?.negate());
   }
 
   /** Returns a Decimal whose value is (this + augend) */
   public add(augend: Decimal): Decimal {
-    const a = this.#p;
     const b = augend.#p;
-    if (!a || !b) return Decimal.#nan;
-    return new Decimal(a.add(b));
+    return b ? new Decimal(this.#p?.add(b)) : Decimal.#nan;
   }
 
   /** Returns a Decimal whose value is (this - subtrahend) */
   public subtract(subtrahend: Decimal): Decimal {
-    const a = this.#p;
     const b = subtrahend.#p;
-    if (!a || !b) return Decimal.#nan;
-    return new Decimal(a.subtract(b));
+    return b ? new Decimal(this.#p?.subtract(b)) : Decimal.#nan;
   }
 
   /** Returns a Decimal whose value is (this × multiplicand). */
   public multiply(multiplicand: Decimal): Decimal {
-    const a = this.#p;
     const b = multiplicand.#p;
-    if (!a || !b) return Decimal.#nan;
-    return new Decimal(a.multiply(b));
+    return b ? new Decimal(this.#p?.multiply(b)) : Decimal.#nan;
   }
 
   /**
@@ -354,60 +358,48 @@ export class Decimal {
    * @param options.maxDp The maximum number of decimal places. Default is 20.
    */
   public divide(divisor: Decimal, options?: { maxDp?: bigint }): Decimal {
-    const a = this.#p;
     const b = divisor.#p;
-    if (!a || !b) return Decimal.#nan;
-    return new Decimal(a.divide(b, options?.maxDp));
+    return b ? new Decimal(this.#p?.divide(b, options?.maxDp)) : Decimal.#nan;
   }
 
   /**
    * Returns a Decimal whose value is (this % divisor)
    */
   modulo(divisor: Decimal): Decimal {
-    const a = this.#p;
     const b = divisor.#p;
-    if (!a || !b) return Decimal.#nan;
-    return new Decimal(a.modulo(b));
+    return b ? new Decimal(this.#p?.modulo(b)) : Decimal.#nan;
   }
 
   /** Returns a Decimal whose value is (this**n). */
   public pow(n: Decimal | bigint): Decimal {
-    const a = this.#p;
-    if (!a) return this;
-    if (typeof n === "bigint") return new Decimal(a.pow(n));
+    if (typeof n === "bigint") return new Decimal(this.#p?.pow(n));
     const b = n.#p;
-    if (!b) return n;
-    return new Decimal(a.pow(b));
+    return b ? new Decimal(this.#p?.pow(n.#p)) : Decimal.#nan;
   }
 
   /** Returns a Decimal whose value is the absolute value of this Decimal. */
   public abs(): Decimal {
-    if (!this.#p || this.signum() !== -1) return this;
-    return new Decimal(this.#p.abs());
+    return new Decimal(this.#p?.abs());
   }
 
   /** Returns a Decimal that is the integral part of this Decimal, with removing any fractional digits. */
   public trunc(): Decimal {
-    if (!this.#p) return this;
-    return new Decimal(this.#p.trunc());
+    return new Decimal(this.#p?.trunc());
   }
 
   /** Returns this Decimal rounded to the nearest integer. */
   public round(): Decimal {
-    if (!this.#p) return this;
-    return new Decimal(this.#p.round());
+    return new Decimal(this.#p?.round());
   }
 
   /** Returns the greatest integer less than or equal to this Decimal. */
   public floor(): Decimal {
-    if (!this.#p) return this;
-    return new Decimal(this.#p.floor());
+    return new Decimal(this.#p?.floor());
   }
 
   /** Returns the smallest integer greater than or equal to this Decimal. */
   public ceil(): Decimal {
-    if (!this.#p) return this;
-    return new Decimal(this.#p.ceil());
+    return new Decimal(this.#p?.ceil());
   }
 
   /** Compares this Decimal with the specified Decimal. */
@@ -418,9 +410,12 @@ export class Decimal {
     return a.compareTo(b);
   }
 
+  public isNaN(): boolean {
+    return !this.#p;
+  }
+
   public toString(): string {
-    if (!this.#p) return "NaN";
-    return this.#p.toString();
+    return this.#p?.toString() ?? "NaN";
   }
 }
 
