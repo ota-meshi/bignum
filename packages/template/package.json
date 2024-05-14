@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/ota-meshi/bignum#readme",
   "dependencies": {
-    "@bigint/core": "^0.0.0",
+    "@bignum/core": "^0.0.0",
     "@bignum/shared": "^0.0.0",
     "@bignum/template-compiler": "^0.0.0"
   },
