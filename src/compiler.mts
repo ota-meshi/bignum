@@ -7,7 +7,6 @@ import {
   PRECEDENCE,
 } from "./commons.mjs";
 
-const reId = /^[\p{ID_Start}$_][\p{ID_Continue}$\u200c\u200d]*$/u;
 const enum TokenType {
   punctuator,
   operator,
@@ -26,17 +25,44 @@ type OperandToken = {
 type IdentifierToken = { t: TokenType.identifier; v: string };
 type Token = PunctuatorToken | OperatorToken | OperandToken | IdentifierToken;
 
-const WELLKNOWN_TOKEN: (PunctuatorToken | OperatorToken)[] = [
-  ...[...BINARY_OPERATORS, ...UNARY_OPERATORS].map(
-    (v): OperatorToken => ({
-      t: TokenType.operator,
-      v,
-    }),
-  ),
-  { t: TokenType.punctuator, v: "(" } satisfies PunctuatorToken,
-  { t: TokenType.punctuator, v: ")" } satisfies PunctuatorToken,
-  { t: TokenType.punctuator, v: "," } satisfies PunctuatorToken,
-].sort((a, b) => b.v.length - a.v.length);
+const RE_SP = /\s*/uy;
+type TokenProcessor = {
+  re: { lastIndex: number; exec(s: string): null | string[] };
+  create: (v: string) => Token;
+};
+
+/** Token to TokenProcessor  */
+function t2p(t: PunctuatorToken | OperatorToken): TokenProcessor {
+  const match = [t.v];
+  const re = {
+    lastIndex: 0,
+    exec: (s: string) => (s.startsWith(t.v, re.lastIndex) ? match : null),
+  };
+  return { re, create: () => t };
+}
+
+const TOKEN_PROC: TokenProcessor[] = [
+  t2p({ t: TokenType.punctuator, v: "(" }),
+  t2p({ t: TokenType.punctuator, v: ")" }),
+  t2p({ t: TokenType.punctuator, v: "," }),
+  ...[...BINARY_OPERATORS, ...UNARY_OPERATORS]
+    .map(
+      (v): OperatorToken => ({
+        t: TokenType.operator,
+        v,
+      }),
+    )
+    .sort((a, b) => b.v.length - a.v.length)
+    .map(t2p),
+  {
+    re: /(?:\.\d+|(?:0|[1-9]\d*)(?:\.\d+)?)(?:e[+-]?\d+)?/iuy,
+    create: (v: string): OperandToken => ({ t: TokenType.operand, v: () => v }),
+  },
+  {
+    re: /[\p{ID_Start}$_][\p{ID_Continue}$\u200c\u200d]*/uy,
+    create: (v: string): IdentifierToken => ({ t: TokenType.identifier, v }),
+  },
+];
 
 type Tokenizer = {
   finished: () => boolean;
@@ -63,44 +89,16 @@ function buildTokenizer(elements: ArrayLike<string>): Tokenizer {
   /** Get next token and consume */
   function next(): Token {
     if (buffer.length) return buffer.shift()!;
-    for (const token of WELLKNOWN_TOKEN) {
-      if (curr.startsWith(token.v, position)) {
-        position += token.v.length;
+    for (const { re, create } of TOKEN_PROC) {
+      re.lastIndex = position;
+      const token = re.exec(curr)?.[0];
+      if (token) {
+        position += token.length;
         updated();
-        return token;
+        return create(token);
       }
     }
-
-    // parse operand
-    let value = curr[position++];
-    let numWithExp = false;
-    while (position < curr.length) {
-      const c = curr[position];
-      if (!c.trim()) break;
-      if ((c === "+" || c === "-") && !numWithExp) {
-        // Continue the token if there is a possibility of a number with an exponent.
-        const nextCp = curr.codePointAt(position + 1);
-        if (nextCp == null || nextCp < 48 || nextCp > 57) break;
-        const lower = value.toLowerCase();
-        if (lower.at(-1) !== "e") break;
-        const maybeNum = lower.slice(0, -1);
-        if (maybeNum.includes("e") || Number.isNaN(Number(maybeNum))) break;
-        numWithExp = true;
-      } else if (numWithExp) {
-        // Only numbers are allowed after the exponent.
-        const cp = c.codePointAt(0)!;
-        if (cp < 48 || cp > 57) break;
-      } else if (
-        WELLKNOWN_TOKEN.some((token) => curr.startsWith(token.v, position))
-      )
-        break;
-      value += c;
-      position++;
-    }
-    updated();
-    return reId.test(value)
-      ? { t: TokenType.identifier, v: value }
-      : { t: TokenType.operand, v: () => value };
+    throw new SyntaxError(`Unexpected token`);
   }
 
   /** Lookahead token */
@@ -120,13 +118,9 @@ function buildTokenizer(elements: ArrayLike<string>): Tokenizer {
 
   /** Postprocess for updated position. */
   function updated() {
-    if (position < curr.length) {
-      if (!curr[position].trim()) {
-        // skip spaces
-        position++;
-        updated();
-      }
-    } else {
+    RE_SP.lastIndex = position;
+    position += RE_SP.exec(curr)![0].length;
+    if (position >= curr.length) {
       const curIndex = index;
       if (elements.length <= curIndex + 1) {
         finished = true;
@@ -174,7 +168,7 @@ function parse(tokenizer: Tokenizer): FLCompiled {
           throw new SyntaxError(`Unterminated paren`);
         stack.push(processOperand(operand));
       } else if (token.t === TokenType.operator) {
-        if (!stack.length || stack[stack.length - 1].t === TokenType.operator) {
+        if (!stack.length || stack.at(-1)!.t === TokenType.operator) {
           if (!UNARY_OPERATORS.has(token.v as FLUnaryOperator))
             // It is not Unary operator
             throw new SyntaxError(`Unexpected '${token.v}'`);
@@ -238,7 +232,7 @@ function parse(tokenizer: Tokenizer): FLCompiled {
     }
     while (stack.length > 1) stack.push(processBinary(stack));
     const result = stack[0];
-    if (!stack.length || result.t !== TokenType.operand)
+    if (result?.t !== TokenType.operand)
       throw new SyntaxError("Expected expression");
     return result;
   }

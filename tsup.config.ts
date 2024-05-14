@@ -4,7 +4,7 @@ export default defineConfig([
   {
     clean: true,
     dts: true,
-    entryPoints: ["src/index.mts", "src/compiler.mts", "src/decimal.mts"],
+    entryPoints: ["src/index.mts", "src/compiler.mts", "src/bignum.mts"],
     format: ["esm"],
     outDir: "lib",
     target: "node18",
