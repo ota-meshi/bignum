@@ -10,6 +10,9 @@
       "default": "./lib/index.js"
     }
   },
+  "files": [
+    "lib"
+  ],
   "engines": {
     "node": ">=18"
   },

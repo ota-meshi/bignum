@@ -10,6 +10,9 @@
       "default": "./lib/index.js"
     }
   },
+  "files": [
+    "lib"
+  ],
   "engines": {
     "node": ">=18"
   },
@@ -31,8 +34,9 @@
     "url": "git+https://github.com/ota-meshi/bignum.git"
   },
   "keywords": [
-    "formula",
-    "template-literal"
+    "bignum",
+    "bigdecimal",
+    "arbitrary-precision"
   ],
   "author": "Yosuke Ota",
   "funding": "https://github.com/sponsors/ota-meshi",

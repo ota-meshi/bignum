@@ -35,10 +35,6 @@
     "type": "git",
     "url": "git+https://github.com/ota-meshi/bignum.git"
   },
-  "keywords": [
-    "formula",
-    "template-literal"
-  ],
   "author": "Yosuke Ota",
   "funding": "https://github.com/sponsors/ota-meshi",
   "license": "MIT",
