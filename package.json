@@ -48,7 +48,7 @@
   "homepage": "https://github.com/ota-meshi/bignum#readme",
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
-    "@ota-meshi/eslint-plugin": "^0.15.2",
+    "@ota-meshi/eslint-plugin": "^0.17.0",
     "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "@types/chai": "^4.3.0",
     "@types/estree": "^1.0.0",
@@ -60,6 +60,7 @@
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-jsdoc": "^48.2.4",
     "eslint-plugin-json-schema-validator": "^5.0.0",
     "eslint-plugin-jsonc": "^2.5.0",
     "eslint-plugin-n": "^17.0.0",
