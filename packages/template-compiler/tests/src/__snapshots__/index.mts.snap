@@ -1,0 +1,231 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Big Number tests \`\${0.1} + \${0.1} + \${0.1}\` 1`] = `"((0.1 + 0.1) + 0.1)"`;
+
+exports[`Big Number tests \`\${0.2} + \${0.1}\` 1`] = `"(0.2 + 0.1)"`;
+
+exports[`Big Number tests \`\${0.3} - \${0.1}\` 1`] = `"(0.3 - 0.1)"`;
+
+exports[`Big Number tests \`0.1 + 0.1 + 0.1\` 1`] = `"((0.1 + 0.1) + 0.1)"`;
+
+exports[`Big Number tests \`0.2 + 0.1\` 1`] = `"(0.2 + 0.1)"`;
+
+exports[`Big Number tests \`0.3 - 0.1\` 1`] = `"(0.3 - 0.1)"`;
+
+exports[`Compare tests \`\${0.1} != \${0.1}\` 1`] = `"(0.1 != 0.1)"`;
+
+exports[`Compare tests \`\${0.1} != \${0.2}\` 1`] = `"(0.1 != 0.2)"`;
+
+exports[`Compare tests \`\${0.1} + \${0.1} + \${0.1} == \${0.3}\` 1`] = `"(((0.1 + 0.1) + 0.1) == 0.3)"`;
+
+exports[`Compare tests \`\${0.1} < \${0.1}\` 1`] = `"(0.1 < 0.1)"`;
+
+exports[`Compare tests \`\${0.1} < \${0.2}\` 1`] = `"(0.1 < 0.2)"`;
+
+exports[`Compare tests \`\${0.1} <= \${0.1}\` 1`] = `"(0.1 <= 0.1)"`;
+
+exports[`Compare tests \`\${0.1} <= \${0.2}\` 1`] = `"(0.1 <= 0.2)"`;
+
+exports[`Compare tests \`\${0.1} == \${0.1}\` 1`] = `"(0.1 == 0.1)"`;
+
+exports[`Compare tests \`\${0.1} == \${0.2}\` 1`] = `"(0.1 == 0.2)"`;
+
+exports[`Compare tests \`\${0.1} > \${0.1}\` 1`] = `"(0.1 > 0.1)"`;
+
+exports[`Compare tests \`\${0.1} > \${0.2}\` 1`] = `"(0.1 > 0.2)"`;
+
+exports[`Compare tests \`\${0.1} >= \${0.1}\` 1`] = `"(0.1 >= 0.1)"`;
+
+exports[`Compare tests \`\${0.1} >= \${0.2}\` 1`] = `"(0.1 >= 0.2)"`;
+
+exports[`Compare tests \`\${0.2} != \${0.1}\` 1`] = `"(0.2 != 0.1)"`;
+
+exports[`Compare tests \`\${0.2} + \${0.1} != \${0.3}\` 1`] = `"((0.2 + 0.1) != 0.3)"`;
+
+exports[`Compare tests \`\${0.2} < \${0.1}\` 1`] = `"(0.2 < 0.1)"`;
+
+exports[`Compare tests \`\${0.2} <= \${0.1}\` 1`] = `"(0.2 <= 0.1)"`;
+
+exports[`Compare tests \`\${0.2} == \${0.1}\` 1`] = `"(0.2 == 0.1)"`;
+
+exports[`Compare tests \`\${0.2} > \${0.1}\` 1`] = `"(0.2 > 0.1)"`;
+
+exports[`Compare tests \`\${0.2} >= \${0.1}\` 1`] = `"(0.2 >= 0.1)"`;
+
+exports[`Compare tests \`\${0.3} - \${0.1} < \${0.2}\` 1`] = `"((0.3 - 0.1) < 0.2)"`;
+
+exports[`Compare tests \`\${0.3} - \${0.1} > \${0.2}\` 1`] = `"((0.3 - 0.1) > 0.2)"`;
+
+exports[`Compare tests \`\${0.3} - \${0.1} >= \${0.2}\` 1`] = `"((0.3 - 0.1) >= 0.2)"`;
+
+exports[`Compare tests \`0.1 + 0.1 + 0.1 <= 0.3\` 1`] = `"(((0.1 + 0.1) + 0.1) <= 0.3)"`;
+
+exports[`Compare tests \`0.2 + 0.1 != 0.3\` 1`] = `"((0.2 + 0.1) != 0.3)"`;
+
+exports[`Compare tests \`0.3 - 0.1 >= 0.2\` 1`] = `"((0.3 - 0.1) >= 0.2)"`;
+
+exports[`standard tests \`(1 + \${2}) * 3\` 1`] = `"((1 + 2) * 3)"`;
+
+exports[`standard tests \`(1 + 2) * 3\` 1`] = `"((1 + 2) * 3)"`;
+
+exports[`standard tests \`(2 * 2) ** 3\` 1`] = `"((2 * 2) ** 3)"`;
+
+exports[`standard tests \`(2 * 2) / 10 ** 20\` 1`] = `"((2 * 2) / (10 ** 20))"`;
+
+exports[`standard tests \`(2 * 2) / 10 ** 21\` 1`] = `"((2 * 2) / (10 ** 21))"`;
+
+exports[`standard tests \`-1.23e+42+1\` 1`] = `"((-1.23e+42) + 1)"`;
+
+exports[`standard tests \`-1.23e-42+1\` 1`] = `"((-1.23e-42) + 1)"`;
+
+exports[`standard tests \`-1.23e42+1\` 1`] = `"((-1.23e42) + 1)"`;
+
+exports[`standard tests \`1 * -(23 % 4)\` 1`] = `"(1 * (-(23 % 4)))"`;
+
+exports[`standard tests \`1 + \${2} * 3\` 1`] = `"(1 + (2 * 3))"`;
+
+exports[`standard tests \`1 + \${3}\` 1`] = `"(1 + 3)"`;
+
+exports[`standard tests \`1 + 2 * 3\` 1`] = `"(1 + (2 * 3))"`;
+
+exports[`standard tests \`1 + 2\` 1`] = `"(1 + 2)"`;
+
+exports[`standard tests \`1+-2\` 1`] = `"(1 + (-2))"`;
+
+exports[`standard tests \`1+2\` 1`] = `"(1 + 2)"`;
+
+exports[`standard tests \`1.1 + 2.1\` 1`] = `"(1.1 + 2.1)"`;
+
+exports[`standard tests \`1.1+-2.2\` 1`] = `"(1.1 + (-2.2))"`;
+
+exports[`standard tests \`1.2 + \${2.3} * 3.4\` 1`] = `"(1.2 + (2.3 * 3.4))"`;
+
+exports[`standard tests \`1.2+0.8\` 1`] = `"(1.2 + 0.8)"`;
+
+exports[`standard tests \`1.5 * -(23 % 4)\` 1`] = `"(1.5 * (-(23 % 4)))"`;
+
+exports[`standard tests \`1.23e+42+1\` 1`] = `"(1.23e+42 + 1)"`;
+
+exports[`standard tests \`1.23e-42+1\` 1`] = `"(1.23e-42 + 1)"`;
+
+exports[`standard tests \`1.23e42+1\` 1`] = `"(1.23e42 + 1)"`;
+
+exports[`standard tests \`1-+2\` 1`] = `"(1 - (+2))"`;
+
+exports[`standard tests \`1e+42+1\` 1`] = `"(1e+42 + 1)"`;
+
+exports[`standard tests \`1e-42+1\` 1`] = `"(1e-42 + 1)"`;
+
+exports[`standard tests \`1e42+1\` 1`] = `"(1e42 + 1)"`;
+
+exports[`standard tests \`2 * 2 ** 3\` 1`] = `"(2 * (2 ** 3))"`;
+
+exports[`standard tests \`2.1 * 2.3 ** (1.5+1.5)\` 1`] = `"(2.1 * (2.3 ** (1.5 + 1.5)))"`;
+
+exports[`standard tests \`2.1 * 2.3 ** 3\` 1`] = `"(2.1 * (2.3 ** 3))"`;
+
+exports[`standard tests \`2.3 % 1.1\` 1`] = `"(2.3 % 1.1)"`;
+
+exports[`standard tests \`2.3 / 1.1\` 1`] = `"(2.3 / 1.1)"`;
+
+exports[`standard tests \`3 - 3 / 3\` 1`] = `"(3 - (3 / 3))"`;
+
+exports[`standard tests \`3*3*PI\` 1`] = `"((3 * 3) * PI)"`;
+
+exports[`standard tests \`3.2 - 3.2 / 3.2\` 1`] = `"(3.2 - (3.2 / 3.2))"`;
+
+exports[`standard tests \`3.2*3.2*PI\` 1`] = `"((3.2 * 3.2) * PI)"`;
+
+exports[`standard tests \`4 / 2 ** 2\` 1`] = `"(4 / (2 ** 2))"`;
+
+exports[`standard tests \`4.1 / 2.2 ** 2\` 1`] = `"(4.1 / (2.2 ** 2))"`;
+
+exports[`standard tests \`22000000 / 1.1\` 1`] = `"(22000000 / 1.1)"`;
+
+exports[`standard tests \`abs(\${-1.5})\` 1`] = `"abs(-1.5)"`;
+
+exports[`standard tests \`abs(\${-1.49})\` 1`] = `"abs(-1.49)"`;
+
+exports[`standard tests \`abs(\${-1.51})\` 1`] = `"abs(-1.51)"`;
+
+exports[`standard tests \`abs(\${-1.501})\` 1`] = `"abs(-1.501)"`;
+
+exports[`standard tests \`abs(\${1.5})\` 1`] = `"abs(1.5)"`;
+
+exports[`standard tests \`abs(\${1.49})\` 1`] = `"abs(1.49)"`;
+
+exports[`standard tests \`abs(\${1.51})\` 1`] = `"abs(1.51)"`;
+
+exports[`standard tests \`abs(\${1.501})\` 1`] = `"abs(1.501)"`;
+
+exports[`standard tests \`abs(-10)\` 1`] = `"abs((-10))"`;
+
+exports[`standard tests \`ceil(\${-1.5})\` 1`] = `"ceil(-1.5)"`;
+
+exports[`standard tests \`ceil(\${-1.49})\` 1`] = `"ceil(-1.49)"`;
+
+exports[`standard tests \`ceil(\${-1.51})\` 1`] = `"ceil(-1.51)"`;
+
+exports[`standard tests \`ceil(\${-1.501})\` 1`] = `"ceil(-1.501)"`;
+
+exports[`standard tests \`ceil(\${1.5})\` 1`] = `"ceil(1.5)"`;
+
+exports[`standard tests \`ceil(\${1.49})\` 1`] = `"ceil(1.49)"`;
+
+exports[`standard tests \`ceil(\${1.51})\` 1`] = `"ceil(1.51)"`;
+
+exports[`standard tests \`ceil(\${1.501})\` 1`] = `"ceil(1.501)"`;
+
+exports[`standard tests \`floor(\${-1.5})\` 1`] = `"floor(-1.5)"`;
+
+exports[`standard tests \`floor(\${-1.49})\` 1`] = `"floor(-1.49)"`;
+
+exports[`standard tests \`floor(\${-1.51})\` 1`] = `"floor(-1.51)"`;
+
+exports[`standard tests \`floor(\${-1.501})\` 1`] = `"floor(-1.501)"`;
+
+exports[`standard tests \`floor(\${1.5})\` 1`] = `"floor(1.5)"`;
+
+exports[`standard tests \`floor(\${1.49})\` 1`] = `"floor(1.49)"`;
+
+exports[`standard tests \`floor(\${1.51})\` 1`] = `"floor(1.51)"`;
+
+exports[`standard tests \`floor(\${1.501})\` 1`] = `"floor(1.501)"`;
+
+exports[`standard tests \`foo() + foo(1) + foo(1, 2) + foo(1, 2, 3)\` 1`] = `"(((foo() + foo(1)) + foo(1, 2)) + foo(1, 2, 3))"`;
+
+exports[`standard tests \`round(\${-1.5})\` 1`] = `"round(-1.5)"`;
+
+exports[`standard tests \`round(\${-1.49})\` 1`] = `"round(-1.49)"`;
+
+exports[`standard tests \`round(\${-1.51})\` 1`] = `"round(-1.51)"`;
+
+exports[`standard tests \`round(\${-1.501})\` 1`] = `"round(-1.501)"`;
+
+exports[`standard tests \`round(\${1.5})\` 1`] = `"round(1.5)"`;
+
+exports[`standard tests \`round(\${1.49})\` 1`] = `"round(1.49)"`;
+
+exports[`standard tests \`round(\${1.51})\` 1`] = `"round(1.51)"`;
+
+exports[`standard tests \`round(\${1.501})\` 1`] = `"round(1.501)"`;
+
+exports[`standard tests \`trunc(\${-1.5})\` 1`] = `"trunc(-1.5)"`;
+
+exports[`standard tests \`trunc(\${-1.49})\` 1`] = `"trunc(-1.49)"`;
+
+exports[`standard tests \`trunc(\${-1.51})\` 1`] = `"trunc(-1.51)"`;
+
+exports[`standard tests \`trunc(\${-1.501})\` 1`] = `"trunc(-1.501)"`;
+
+exports[`standard tests \`trunc(\${1.5})\` 1`] = `"trunc(1.5)"`;
+
+exports[`standard tests \`trunc(\${1.49})\` 1`] = `"trunc(1.49)"`;
+
+exports[`standard tests \`trunc(\${1.51})\` 1`] = `"trunc(1.51)"`;
+
+exports[`standard tests \`trunc(\${1.501})\` 1`] = `"trunc(1.501)"`;
+
+exports[`standard tests \`trunc(300*1.08)\` 1`] = `"trunc((300 * 1.08))"`;
+
+exports[`standard tests \`trunc(320*1.08)\` 1`] = `"trunc((320 * 1.08))"`;

@@ -1,0 +1,7 @@
+{
+  "eslint.validate": ["javascript", "typescript", "json", "jsonc"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "typescript.tsdk": "./node_modules/typescript/lib"
+}
