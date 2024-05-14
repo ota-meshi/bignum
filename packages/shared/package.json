@@ -1,6 +1,6 @@
 {
   "name": "@bignum/shared",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Internal utility functions and constants shared across @bignum packages.",
   "type": "module",
   "exports": {
