@@ -17,7 +17,7 @@ export type {
   FLCompiled,
 } from "./commons.mjs";
 
-const RE_VALID_INTEGER = /^[+-]?[1-9]\d*$/u;
+const RE_VALID_INTEGER = /^[+-]?(?:[1-9]\d*|0)$/u;
 
 /** Normalize value */
 function normalize(value: BigNum | string | number | bigint) {
@@ -59,7 +59,7 @@ function buildCompare(
     return BigInt(
       typeof na === "bigint" && typeof nb === "bigint"
         ? compare(na, nb)
-        : compare(BigNum.valueOf(na).compareTo(BigNum.valueOf(nb)), 0),
+        : compare(BigNum.valueOf(na).compareTo(nb), 0),
     );
   };
 }
@@ -68,13 +68,21 @@ function buildCompare(
  * Build operation function
  */
 function buildOperation(
-  opForD: (a: BigNum) => BigNum,
-  opForB?: (a: bigint) => bigint,
+  opForD: (
+    a: BigNum,
+    ...options: (string | number | bigint | BigNum | bigint)[]
+  ) => BigNum,
+  opForB?: (
+    a: bigint,
+    ...options: (string | number | bigint | BigNum | bigint)[]
+  ) => bigint,
 ): FLFunction<string | number | bigint, BigNum | bigint> {
   const forB = opForB || ((a) => a);
-  return (a) => {
+  return (a, ...options) => {
     const na = normalize(a);
-    return typeof na === "bigint" ? forB(na) : opForD(na);
+    return typeof na === "bigint"
+      ? forB(na, ...options)
+      : opForD(na, ...options);
   };
 }
 
@@ -85,20 +93,20 @@ const defaultContext: FLContext<
 > = {
   binaryOperations: {
     "*": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).multiply(BigNum.valueOf(b)),
+      (a, b) => BigNum.valueOf(a).multiply(b),
       (a, b) => a * b,
     ),
     "+": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).add(BigNum.valueOf(b)),
+      (a, b) => BigNum.valueOf(a).add(b),
       (a, b) => a + b,
     ),
     "-": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).subtract(BigNum.valueOf(b)),
+      (a, b) => BigNum.valueOf(a).subtract(b),
       (a, b) => a - b,
     ),
-    "/": buildEvaluator((a, b) => BigNum.valueOf(a).divide(BigNum.valueOf(b))),
+    "/": buildEvaluator((a, b) => BigNum.valueOf(a).divide(b)),
     "%": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).modulo(BigNum.valueOf(b)),
+      (a, b) => BigNum.valueOf(a).modulo(b),
       (a, b) => a % b,
     ),
     "**": buildEvaluator(

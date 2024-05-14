@@ -1,47 +1,29 @@
-const RE_SIGN = /^[+-]/u;
-const RE_NUMBERS = /\d*/uy;
-const RE_INVALID_INTEGER = /^0\d/u;
+const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 
 /** Parse a value to a BigNum prop */
-function parseValue(value: string | number | bigint | boolean) {
-  if (typeof value === "bigint") {
-    return { intValue: value, exponent: 0n };
+function parseValue(
+  value: string | number | bigint | boolean,
+): { intValue: bigint; exponent?: bigint } | null {
+  if (
+    typeof value === "boolean" ||
+    typeof value === "bigint" ||
+    (typeof value === "number" && Math.trunc(value) === value)
+  ) {
+    return { intValue: BigInt(value) };
   }
-  if (typeof value === "boolean") {
-    return { intValue: BigInt(value), exponent: 0n };
-  }
-  return parseString(String(value));
-}
+  const match = RE_NUMBER.exec(String(value));
+  if (!match) return null;
+  const integer = match[1];
+  const decimal = match[2] || "";
+  const exponent = match[3] || "0";
+  if ((!integer || integer === "+" || integer === "-") && !decimal)
+    // Empty numbers. e.g. `+`, `-`, `.`, `+.` or `-.`.
+    return null;
 
-/** Parse a string to a BigNum prop */
-function parseString(value: string) {
-  const sign = RE_SIGN.exec(value)?.[0] || "";
-  RE_NUMBERS.lastIndex = sign ? 1 : 0;
-  const integer = RE_NUMBERS.exec(value)?.[0] || "";
-  if (RE_INVALID_INTEGER.test(integer)) return null;
-  const integerEndIndex = sign.length + integer.length;
-  let decimal = "";
-  if (value[integerEndIndex] === ".") {
-    // Parse decimal part
-    RE_NUMBERS.lastIndex = integerEndIndex + 1;
-    decimal = RE_NUMBERS.exec(value)?.[0] || "";
-  }
-  if (!integer && !decimal) return null;
-  const decimalEndIndex =
-    integerEndIndex + (decimal ? 1 /* dot */ + decimal.length : 0);
-
-  const intValue = BigInt(sign + integer + decimal);
-  let exponent = -BigInt(decimal.length);
-  if (decimalEndIndex < value.length) {
-    // Parse exponent part
-    if (value[decimalEndIndex]?.toLowerCase() !== "e") return null;
-    try {
-      exponent += BigInt(value.slice(decimalEndIndex + 1));
-    } catch {
-      return null;
-    }
-  }
-  return { intValue, exponent };
+  return {
+    intValue: BigInt(integer + decimal),
+    exponent: -BigInt(decimal.length) + BigInt(exponent),
+  };
 }
 
 class Internal {
@@ -163,6 +145,11 @@ class Internal {
     return new Internal(this.i ** bn, this.e * bn);
   }
 
+  public scaleByPowerOfTen(n: Internal | bigint): Internal {
+    const bn = typeof n === "bigint" ? n : n.toBigInt();
+    return new Internal(this.i, this.e + bn);
+  }
+
   public add(augend: Internal): Internal {
     this.#alignExponent(augend);
     return new Internal(this.i + augend.i, this.e);
@@ -274,6 +261,7 @@ class Internal {
     return this.i % this.d > 0n;
   }
 }
+
 export class BigNum {
   static readonly #nan = new BigNum(NaN);
 
@@ -282,10 +270,7 @@ export class BigNum {
   public static valueOf(
     value: string | number | bigint | boolean | BigNum,
   ): BigNum {
-    if (typeof value === "object" && value instanceof BigNum) {
-      return value;
-    }
-    return new BigNum(value);
+    return valueOf(value);
   }
 
   public constructor(
@@ -316,7 +301,7 @@ export class BigNum {
       this.#p = null;
       return;
     }
-    this.#p = new Internal(prop.intValue, prop.exponent);
+    this.#p = new Internal(prop.intValue, prop.exponent ?? 0n);
   }
 
   /** Returns the signum function of this BigNum. */
@@ -330,20 +315,20 @@ export class BigNum {
   }
 
   /** Returns a BigNum whose value is (this + augend) */
-  public add(augend: BigNum): BigNum {
-    const b = augend.#p;
+  public add(augend: BigNum | string | number | bigint): BigNum {
+    const b = valueOf(augend).#p;
     return b ? new BigNum(this.#p?.add(b)) : BigNum.#nan;
   }
 
   /** Returns a BigNum whose value is (this - subtrahend) */
-  public subtract(subtrahend: BigNum): BigNum {
-    const b = subtrahend.#p;
+  public subtract(subtrahend: BigNum | string | number | bigint): BigNum {
+    const b = valueOf(subtrahend).#p;
     return b ? new BigNum(this.#p?.subtract(b)) : BigNum.#nan;
   }
 
   /** Returns a BigNum whose value is (this × multiplicand). */
-  public multiply(multiplicand: BigNum): BigNum {
-    const b = multiplicand.#p;
+  public multiply(multiplicand: BigNum | string | number | bigint): BigNum {
+    const b = valueOf(multiplicand).#p;
     return b ? new BigNum(this.#p?.multiply(b)) : BigNum.#nan;
   }
 
@@ -351,24 +336,32 @@ export class BigNum {
    * Returns a BigNum whose value is (this / divisor)
    * @param options.maxDp The maximum number of decimal places. Default is 20.
    */
-  public divide(divisor: BigNum, options?: { maxDp?: bigint }): BigNum {
-    const b = divisor.#p;
+  public divide(
+    divisor: BigNum | string | number | bigint,
+    options?: { maxDp?: bigint },
+  ): BigNum {
+    const b = valueOf(divisor).#p;
     return b ? new BigNum(this.#p?.divide(b, options?.maxDp)) : BigNum.#nan;
   }
 
   /**
    * Returns a BigNum whose value is (this % divisor)
    */
-  modulo(divisor: BigNum): BigNum {
-    const b = divisor.#p;
+  public modulo(divisor: BigNum | string | number | bigint): BigNum {
+    const b = valueOf(divisor).#p;
     return b ? new BigNum(this.#p?.modulo(b)) : BigNum.#nan;
   }
 
   /** Returns a BigNum whose value is (this**n). */
-  public pow(n: BigNum | bigint): BigNum {
-    if (typeof n === "bigint") return new BigNum(this.#p?.pow(n));
-    const b = n.#p;
-    return b ? new BigNum(this.#p?.pow(n.#p)) : BigNum.#nan;
+  public pow(n: BigNum | string | number | bigint): BigNum {
+    const b = typeof n === "bigint" ? n : valueOf(n).#p;
+    return b != null ? new BigNum(this.#p?.pow(b)) : BigNum.#nan;
+  }
+
+  /** Returns a BigNum whose numerical value is equal to (this * 10 ** n). */
+  public scaleByPowerOfTen(n: BigNum | string | number | bigint): BigNum {
+    const b = typeof n === "bigint" ? n : valueOf(n).#p;
+    return b != null ? new BigNum(this.#p?.scaleByPowerOfTen(b)) : BigNum.#nan;
   }
 
   /** Returns a BigNum whose value is the absolute value of this BigNum. */
@@ -397,9 +390,11 @@ export class BigNum {
   }
 
   /** Compares this BigNum with the specified BigNum. */
-  public compareTo(other: BigNum): 0 | -1 | 1 | typeof NaN {
+  public compareTo(
+    other: BigNum | string | number | bigint,
+  ): 0 | -1 | 1 | typeof NaN {
     const a = this.#p;
-    const b = other.#p;
+    const b = valueOf(other).#p;
     if (!a || !b) return NaN;
     return a.compareTo(b);
   }
@@ -411,6 +406,14 @@ export class BigNum {
   public toString(): string {
     return this.#p?.toString() ?? "NaN";
   }
+}
+
+/** Get a BigNum from the given value */
+function valueOf(value: string | number | bigint | boolean | BigNum): BigNum {
+  if (typeof value === "object" && value instanceof BigNum) {
+    return value;
+  }
+  return new BigNum(value);
 }
 
 /** compare function */
