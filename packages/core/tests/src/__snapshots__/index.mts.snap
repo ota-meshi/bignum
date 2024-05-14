@@ -16,17 +16,17 @@ exports[`standard tests () => BigNum.valueOf(-0).round() 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(-0).trunc() 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(-0.001).divide(-0.003) 1`] = `"0.33333333333333333333"`;
+exports[`standard tests () => BigNum.valueOf(-0.001).divide(-0.003) 1`] = `"\\"0.33333333333333333333\\""`;
 
-exports[`standard tests () => BigNum.valueOf(-0.001).divide(0.003) 1`] = `"-0.33333333333333333333"`;
+exports[`standard tests () => BigNum.valueOf(-0.001).divide(0.003) 1`] = `"\\"-0.33333333333333333333\\""`;
 
 exports[`standard tests () => BigNum.valueOf(-1).abs() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(-1).ceil() 1`] = `"-1"`;
 
-exports[`standard tests () => BigNum.valueOf(-1).divide(-3) 1`] = `"0.33333333333333333333"`;
+exports[`standard tests () => BigNum.valueOf(-1).divide(-3) 1`] = `"\\"0.33333333333333333333\\""`;
 
-exports[`standard tests () => BigNum.valueOf(-1).divide(3) 1`] = `"-0.33333333333333333333"`;
+exports[`standard tests () => BigNum.valueOf(-1).divide(3) 1`] = `"\\"-0.33333333333333333333\\""`;
 
 exports[`standard tests () => BigNum.valueOf(-1).floor() 1`] = `"-1"`;
 
@@ -118,7 +118,7 @@ exports[`standard tests () => BigNum.valueOf(1).abs() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(1).ceil() 1`] = `"1"`;
 
-exports[`standard tests () => BigNum.valueOf(1).divide(3) 1`] = `"0.33333333333333333333"`;
+exports[`standard tests () => BigNum.valueOf(1).divide(3) 1`] = `"\\"0.33333333333333333333\\""`;
 
 exports[`standard tests () => BigNum.valueOf(1).floor() 1`] = `"1"`;
 

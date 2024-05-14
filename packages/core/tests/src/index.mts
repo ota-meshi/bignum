@@ -115,7 +115,7 @@ describe("standard tests", () => {
     () => BigNum.valueOf(NaN).isNaN(),
   ]) {
     it(String(t), () => {
-      chai.expect(`${t()}`).toMatchSnapshot();
+      chai.expect(JSON.stringify(t())).toMatchSnapshot();
     });
   }
 });
