@@ -304,7 +304,7 @@ export class BigNum {
     this.#p = new Internal(prop.intValue, prop.exponent ?? 0n);
   }
 
-  /** Returns the signum function of this BigNum. */
+  /** Returns a number indicating the sign. */
   public signum(): -1 | 0 | 1 | typeof NaN {
     return this.#p?.signum() ?? NaN;
   }
@@ -405,6 +405,12 @@ export class BigNum {
 
   public toString(): string {
     return this.#p?.toString() ?? "NaN";
+  }
+
+  public toJSON(): string | number {
+    const str = this.toString();
+    const num = Number(str);
+    return String(num) === str ? num : str;
   }
 }
 

@@ -7,6 +7,7 @@ describe("standard tests", () => {
   const f = setupEngine();
   for (const t of [
     test`1 + 2`,
+    test`${0.1} + 0.1 * 2`,
     test`1+2`,
     test`1.1 + 2.1`,
     test`1+-2`,

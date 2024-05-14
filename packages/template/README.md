@@ -22,14 +22,42 @@ npm install @bignum/template
 import { setupEngine } from "@bignum/template";
 
 const f = setupEngine();
-const num = 10;
-const result = f`1 + 2 * ${num}`;
-console.log(result); // 21
+const num = 0.1;
+const result = f`${num} + 0.1 * 2`;
+console.log(result); // 0.3
 
 // Perform exact calculations using the arbitrary-precision arithmetic with BigInt.
 console.log(f`${0.2} + ${0.1}`); // 0.3
 console.log(0.2 + 0.1); // 0.30000000000000004
 ```
+
+## 🧮 API
+
+### setupEngine([context]): BTEngine
+
+Returns the calculation engine.
+
+- `context`: An object for customizing calculations.\
+  By default, calculations are performed using BigNum.
+
+#### setupEngine context
+
+TBA
+
+### BTEngine
+
+Perform calculations using template literals.
+
+Example:
+
+```js
+import { setupEngine } from "@bignum/template";
+
+const f = setupEngine();
+console.log(f`${0.1} + 0.2`); // 0.3
+```
+
+The calculation result usually returns a `number`, but if the `number` loses precision when converted to a `string`, it returns a `string` with the original precision is returned.
 
 ## 🛸 Prior Art
 
