@@ -29,6 +29,7 @@ module.exports = {
         "no-loop-func": "off",
         "func-style": "off",
         "no-constant-condition": "off",
+        "@typescript-eslint/no-use-before-define": "off",
       },
     },
     {
