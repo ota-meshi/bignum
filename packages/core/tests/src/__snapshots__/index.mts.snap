@@ -146,6 +146,8 @@ exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(Infinity) 1`] =
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).negate() 1`] = `"Infinity"`;
 
+exports[`standard tests () => BigNum.valueOf(-Infinity).pow(-2) 1`] = `"0"`;
+
 exports[`standard tests () => BigNum.valueOf(-Infinity).pow(-Infinity) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).pow(2) 1`] = `"-Infinity"`;
@@ -218,6 +220,12 @@ exports[`standard tests () => BigNum.valueOf(0.2).add(0.01) 1`] = `"0.21"`;
 
 exports[`standard tests () => BigNum.valueOf(0.2).add(0.1) 1`] = `"0.3"`;
 
+exports[`standard tests () => BigNum.valueOf(0.2).pow(-2) 1`] = `"25"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).pow(-3) 1`] = `"125"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).pow(-4) 1`] = `"625"`;
+
 exports[`standard tests () => BigNum.valueOf(0.2).pow(2) 1`] = `"0.04"`;
 
 exports[`standard tests () => BigNum.valueOf(0.2).pow(3) 1`] = `"0.008"`;
@@ -284,6 +292,12 @@ exports[`standard tests () => BigNum.valueOf(1.501).trunc() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(2).multiply(0.1).add(0.1) 1`] = `"0.3"`;
 
+exports[`standard tests () => BigNum.valueOf(2).pow(-2) 1`] = `"0.25"`;
+
+exports[`standard tests () => BigNum.valueOf(2).pow(-3) 1`] = `"0.125"`;
+
+exports[`standard tests () => BigNum.valueOf(2).pow(-4) 1`] = `"0.0625"`;
+
 exports[`standard tests () => BigNum.valueOf(2).pow(-Infinity) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(2).pow(2) 1`] = `"4"`;
@@ -296,9 +310,15 @@ exports[`standard tests () => BigNum.valueOf(2).pow(Infinity) 1`] = `"Infinity"`
 
 exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-2) 1`] = `"0.02"`;
 
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-2) 2`] = `"0.02"`;
+
 exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-3) 1`] = `"0.002"`;
 
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-3) 2`] = `"0.002"`;
+
 exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-4) 1`] = `"0.0002"`;
+
+exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-4) 2`] = `"0.0002"`;
 
 exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(2) 1`] = `"200"`;
 
@@ -402,6 +422,8 @@ exports[`standard tests () => BigNum.valueOf(Infinity).multiply(Infinity) 1`] = 
 
 exports[`standard tests () => BigNum.valueOf(Infinity).negate() 1`] = `"-Infinity"`;
 
+exports[`standard tests () => BigNum.valueOf(Infinity).pow(-2) 1`] = `"0"`;
+
 exports[`standard tests () => BigNum.valueOf(Infinity).pow(-Infinity) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).pow(2) 1`] = `"Infinity"`;
@@ -457,6 +479,8 @@ exports[`standard tests () => BigNum.valueOf(NaN).multiply(3) 1`] = `"NaN"`;
 exports[`standard tests () => BigNum.valueOf(NaN).multiply(NaN) 1`] = `"NaN"`;
 
 exports[`standard tests () => BigNum.valueOf(NaN).negate() 1`] = `"NaN"`;
+
+exports[`standard tests () => BigNum.valueOf(NaN).pow(-3) 1`] = `"NaN"`;
 
 exports[`standard tests () => BigNum.valueOf(NaN).pow(3) 1`] = `"NaN"`;
 

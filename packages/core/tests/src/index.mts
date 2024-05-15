@@ -7,129 +7,134 @@ chai.use(jestSnapshotPlugin());
 const B_TESTS = [
   {
     op: "+",
-    n: (a: number, b: number) => a + b,
+    n: (a, b) => a + b,
     b: (a: BigNum, b: BigNum) => a.add(b),
   },
   {
     op: "-",
-    n: (a: number, b: number) => a - b,
+    n: (a, b) => a - b,
     b: (a: BigNum, b: BigNum) => a.subtract(b),
   },
   {
     op: "*",
-    n: (a: number, b: number) => a * b,
+    n: (a, b) => a * b,
     b: (a: BigNum, b: BigNum) => a.multiply(b),
   },
   {
     op: "/",
-    n: (a: number, b: number) => a / b,
+    n: (a, b) => Number(a) / Number(b),
     b: (a: BigNum, b: BigNum) => a.divide(b),
   },
   {
     op: "%",
-    n: (a: number, b: number) => a % b,
+    n: (a, b) => a % b,
     b: (a: BigNum, b: BigNum) => a.modulo(b),
   },
   {
     op: "**",
-    n: (a: number, b: number) => a ** b,
+    n: (a, b) => a ** b,
     b: (a: BigNum, b: BigNum) => a.pow(b),
-    ignore: (a: number, b: number) =>
-      b < 0 || !Number.isInteger(b) || a ** b > Number.MAX_SAFE_INTEGER / 2,
+    ignore: (a, b) => isFinite(a) && isFinite(b) && !Number.isInteger(b),
   },
   {
     op: "* 10 **",
-    n: (a: number, b: number) => a * 10 ** b,
+    n: (a, b) => (typeof a === "bigint" ? a * 10n ** b : a * 10 ** b),
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
-    ignore: (a: number, b: number) =>
-      b < 0 ||
-      !Number.isInteger(b) ||
-      a * 10 ** b > Number.MAX_SAFE_INTEGER / 2,
+    ignore: (a, b) => isFinite(a) && isFinite(b) && !Number.isInteger(b),
   },
   {
     op: "compareTo",
-    n: (a: number, b: number) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
-    b: (a: BigNum, b: BigNum) => a.compareTo(b),
+    n: (a, b) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
+    b: (a: BigNum, b: BigNum) => BigNum.valueOf(a.compareTo(b)),
   },
 ] satisfies {
   op: string;
-  n: (a: number, b: number) => number;
-  b: (a: BigNum, b: BigNum) => BigNum | number;
+  n: (a: any, b: any) => number | bigint;
+  b: (a: BigNum, b: BigNum) => BigNum;
   ignore?: (a: number, b: number) => boolean;
 }[];
 
 const U_TESTS = [
   {
     fn: "negate",
-    n: (a: number) => -a,
+    n: (a) => -a,
     b: (a: BigNum) => a.negate(),
   },
   {
     fn: "abs",
-    n: (a: number) => Math.abs(a),
+    n: (a) => (typeof a === "bigint" ? (a < 0 ? -a : a) : Math.abs(a)),
     b: (a: BigNum) => a.abs(),
   },
   {
     fn: "trunc",
-    n: (a: number) => Math.trunc(a),
+    n: (a) => (typeof a === "bigint" ? a : Math.trunc(a)),
     b: (a: BigNum) => a.trunc(),
   },
   {
     fn: "round",
-    n: (a: number) => Math.round(a),
+    n: (a) => (typeof a === "bigint" ? a : Math.round(a)),
     b: (a: BigNum) => a.round(),
   },
   {
     fn: "ceil",
-    n: (a: number) => Math.ceil(a),
+    n: (a) => (typeof a === "bigint" ? a : Math.ceil(a)),
     b: (a: BigNum) => a.ceil(),
   },
   {
     fn: "floor",
-    n: (a: number) => Math.floor(a),
+    n: (a) => (typeof a === "bigint" ? a : Math.floor(a)),
     b: (a: BigNum) => a.floor(),
   },
 ] satisfies {
   fn: string;
-  n: (a: number) => number;
+  n: (a: number | bigint) => number | bigint;
   b: (a: BigNum) => BigNum | number;
 }[];
 
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
+      [101.669, 0],
+      [146.007, -2],
+      [146.007, -88],
+      [1n, 2n],
       [0.443, 112.586],
       [131.868, 3],
+      [123.45, 20],
       [-37.72, 112.3],
       [-82.659, -81.86],
       [48.723, 20.56],
-    ]) {
+    ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
-        if (t.ignore?.(a, b)) return;
+        if (t.ignore?.(Number(a), Number(b))) return;
 
         it(`${a} ${t.op} ${b}`, () => {
           const ba = new BigNum(a);
           const bb = new BigNum(b);
           const actual = t.b(ba, bb);
           const expect = t.n(a, b);
-          assert.ok(
-            Number(actual) - Number(expect) <= 0.0000001,
-            `${actual} === ${expect}`,
-          );
+          lazyAssert(actual, expect);
         });
       });
     }
   }
   for (const t of U_TESTS) {
-    for (const a of [-37.72, 112.3, -82.659, -81.86, 48.723, 20.56]) {
+    for (const a of [
+      1n,
+      10n,
+      100n,
+      -37.72,
+      112.3,
+      -82.659,
+      -81.86,
+      48.723,
+      20.56,
+    ]) {
       it(`${t.fn}(${a})`, () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
         const expect = t.n(a);
-        assert.ok(
-          Number(actual) - Number(expect) <= 0.0000001,
-          `${actual} === ${expect}`,
-        );
+        lazyAssert(actual, expect);
       });
     }
   }
@@ -273,15 +278,24 @@ describe("standard tests", () => {
     () => BigNum.valueOf(2).pow(2),
     () => BigNum.valueOf(2).pow(3),
     () => BigNum.valueOf(2).pow(4),
+    () => BigNum.valueOf(2).pow(-2),
+    () => BigNum.valueOf(2).pow(-3),
+    () => BigNum.valueOf(2).pow(-4),
     () => BigNum.valueOf(0.2).pow(2),
     () => BigNum.valueOf(0.2).pow(3),
     () => BigNum.valueOf(0.2).pow(4),
+    () => BigNum.valueOf(0.2).pow(-2),
+    () => BigNum.valueOf(0.2).pow(-3),
+    () => BigNum.valueOf(0.2).pow(-4),
     () => BigNum.valueOf(0.2).pow(BigNum.valueOf(0.2).add(3.8)),
     () => BigNum.valueOf(NaN).pow(3),
     () => BigNum.valueOf(3).pow(NaN),
+    () => BigNum.valueOf(NaN).pow(-3),
     () => BigNum.valueOf(NaN).pow(NaN),
     () => BigNum.valueOf(Infinity).pow(2),
     () => BigNum.valueOf(-Infinity).pow(2),
+    () => BigNum.valueOf(Infinity).pow(-2),
+    () => BigNum.valueOf(-Infinity).pow(-2),
     () => BigNum.valueOf(2).pow(Infinity),
     () => BigNum.valueOf(2).pow(-Infinity),
     () => BigNum.valueOf(Infinity).pow(Infinity),
@@ -292,6 +306,9 @@ describe("standard tests", () => {
     () => BigNum.valueOf(2).scaleByPowerOfTen(2),
     () => BigNum.valueOf(2).scaleByPowerOfTen(3),
     () => BigNum.valueOf(2).scaleByPowerOfTen(4),
+    () => BigNum.valueOf(2).scaleByPowerOfTen(-2),
+    () => BigNum.valueOf(2).scaleByPowerOfTen(-3),
+    () => BigNum.valueOf(2).scaleByPowerOfTen(-4),
     () => BigNum.valueOf(0.2).scaleByPowerOfTen(2),
     () => BigNum.valueOf(0.2).scaleByPowerOfTen(3),
     () => BigNum.valueOf(0.2).scaleByPowerOfTen(4),
@@ -439,7 +456,7 @@ describe("Infinity tests", () => {
 describe("Random tests", () => {
   for (const t of B_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 30; index++) {
+    for (let index = 0; index < 1000; index++) {
       const a = random(set);
       const b = random(set);
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
@@ -449,26 +466,20 @@ describe("Random tests", () => {
           const bb = new BigNum(b);
           const actual = t.b(ba, bb);
           const expect = t.n(a, b);
-          assert.ok(
-            Number(actual) - Number(expect) <= 0.0000001,
-            `${actual} === ${expect}`,
-          );
+          lazyAssert(actual, expect);
         });
       });
     }
   }
   for (const t of U_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 30; index++) {
+    for (let index = 0; index < 1000; index++) {
       const a = random(set);
       it(`${t.fn}(${a})`, () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
         const expect = t.n(a);
-        assert.ok(
-          Number(actual) - Number(expect) <= 0.0000001,
-          `${actual} === ${expect}`,
-        );
+        lazyAssert(actual, expect);
       });
     }
   }
@@ -479,3 +490,22 @@ describe("Random tests", () => {
     return v;
   }
 });
+
+function lazyAssert(actual: BigNum, expect: number | bigint) {
+  if (!actual.isFinite()) {
+    assert.strictEqual(`${actual}`, `${expect}`);
+    return;
+  }
+  const diff = actual.subtract(expect).abs();
+  if (diff.signum() === 0) {
+    assert.ok(diff.signum() === 0, `${actual} === ${expect}`);
+    return;
+  }
+  const tolerance = actual
+    .abs()
+    .divide(100000000000, { maxDecimalPrecision: 20n });
+  assert.ok(
+    tolerance.negate().compareTo(diff) <= 0 && diff.compareTo(tolerance) <= 0,
+    `Lazy comparison. Actual=${actual} Expect=${expect} Tolerance=${tolerance}`,
+  );
+}
