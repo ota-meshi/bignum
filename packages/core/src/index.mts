@@ -242,9 +242,10 @@ class Internal {
       overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
       ...options,
     };
-    let result = Internal.O;
-    for (let i = bn; i < 0; i++) result = result.divide(this, divideOptions);
-    return result;
+    return Internal.O.divide(
+      new Internal(this.i ** -bn, this.e * -bn),
+      divideOptions,
+    );
   }
 
   public scaleByPowerOfTen(n: Internal | Inf): Internal | Inf | null {
