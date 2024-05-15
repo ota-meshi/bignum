@@ -121,11 +121,28 @@ class Internal {
     let remainder = absTarget.i;
 
     const quotientNumbers: bigint[] = [];
-    let quotientExponent =
-      absTarget.e + BigInt(String(absTarget.i).length) - 1n;
-    let powOfTen = 10n ** quotientExponent;
+    let quotientExponent = BigInt(
+      String(remainder).length - String(absDivisor).length + 2,
+    );
+    let powOfTen: bigint;
+    if (quotientExponent >= 0n) {
+      powOfTen = 10n ** quotientExponent;
+    } else {
+      powOfTen = 1n;
+      remainder *= 10n ** -quotientExponent;
+    }
 
-    while (true) {
+    while (
+      remainder > 0n &&
+      quotientExponent + absTarget.e > minQuotientExponent
+    ) {
+      quotientExponent--;
+      if (powOfTen > 1n) {
+        powOfTen /= 10n;
+      } else {
+        remainder *= 10n;
+      }
+
       // Find digit
       let n = 0n;
       let amount = 0n;
@@ -145,21 +162,11 @@ class Internal {
         quotientNumbers.push(n);
         remainder -= amount;
       }
-
-      if (remainder === 0n || quotientExponent <= minQuotientExponent) break;
-
-      // Setup for next process
-      quotientExponent--;
-      if (powOfTen > 1n) {
-        powOfTen /= 10n;
-      } else {
-        remainder *= 10n;
-      }
     }
 
     return new Internal(
       BigInt(quotientSign + (quotientNumbers.join("") || "0")),
-      quotientExponent,
+      quotientExponent + absTarget.e,
     );
   }
 

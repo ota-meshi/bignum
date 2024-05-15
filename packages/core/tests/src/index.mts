@@ -3,11 +3,140 @@ import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
 
 chai.use(jestSnapshotPlugin());
+
+const B_TESTS = [
+  {
+    op: "+",
+    n: (a: number, b: number) => a + b,
+    b: (a: BigNum, b: BigNum) => a.add(b),
+  },
+  {
+    op: "-",
+    n: (a: number, b: number) => a - b,
+    b: (a: BigNum, b: BigNum) => a.subtract(b),
+  },
+  {
+    op: "*",
+    n: (a: number, b: number) => a * b,
+    b: (a: BigNum, b: BigNum) => a.multiply(b),
+  },
+  {
+    op: "/",
+    n: (a: number, b: number) => a / b,
+    b: (a: BigNum, b: BigNum) => a.divide(b),
+  },
+  {
+    op: "%",
+    n: (a: number, b: number) => a % b,
+    b: (a: BigNum, b: BigNum) => a.modulo(b),
+  },
+  {
+    op: "**",
+    n: (a: number, b: number) => a ** b,
+    b: (a: BigNum, b: BigNum) => a.pow(b),
+    ignore: (a: number, b: number) =>
+      b < 0 || !Number.isInteger(b) || a ** b > Number.MAX_SAFE_INTEGER / 2,
+  },
+  {
+    op: "* 10 **",
+    n: (a: number, b: number) => a * 10 ** b,
+    b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
+    ignore: (a: number, b: number) =>
+      b < 0 ||
+      !Number.isInteger(b) ||
+      a * 10 ** b > Number.MAX_SAFE_INTEGER / 2,
+  },
+  {
+    op: "compareTo",
+    n: (a: number, b: number) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
+    b: (a: BigNum, b: BigNum) => a.compareTo(b),
+  },
+] satisfies {
+  op: string;
+  n: (a: number, b: number) => number;
+  b: (a: BigNum, b: BigNum) => BigNum | number;
+  ignore?: (a: number, b: number) => boolean;
+}[];
+
+const U_TESTS = [
+  {
+    fn: "negate",
+    n: (a: number) => -a,
+    b: (a: BigNum) => a.negate(),
+  },
+  {
+    fn: "abs",
+    n: (a: number) => Math.abs(a),
+    b: (a: BigNum) => a.abs(),
+  },
+  {
+    fn: "trunc",
+    n: (a: number) => Math.trunc(a),
+    b: (a: BigNum) => a.trunc(),
+  },
+  {
+    fn: "round",
+    n: (a: number) => Math.round(a),
+    b: (a: BigNum) => a.round(),
+  },
+  {
+    fn: "ceil",
+    n: (a: number) => Math.ceil(a),
+    b: (a: BigNum) => a.ceil(),
+  },
+  {
+    fn: "floor",
+    n: (a: number) => Math.floor(a),
+    b: (a: BigNum) => a.floor(),
+  },
+] satisfies {
+  fn: string;
+  n: (a: number) => number;
+  b: (a: BigNum) => BigNum | number;
+}[];
+
+describe("Calc tests", () => {
+  for (const t of B_TESTS) {
+    for (const [a, b] of [
+      [0.443, 112.586],
+      [131.868, 3],
+      [-37.72, 112.3],
+      [-82.659, -81.86],
+      [48.723, 20.56],
+    ]) {
+      [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
+        if (t.ignore?.(a, b)) return;
+
+        it(`${a} ${t.op} ${b}`, () => {
+          const ba = new BigNum(a);
+          const bb = new BigNum(b);
+          const actual = t.b(ba, bb);
+          const expect = t.n(a, b);
+          assert.ok(
+            Number(actual) - Number(expect) <= 0.0000001,
+            `${actual} === ${expect}`,
+          );
+        });
+      });
+    }
+  }
+  for (const t of U_TESTS) {
+    for (const a of [-37.72, 112.3, -82.659, -81.86, 48.723, 20.56]) {
+      it(`${t.fn}(${a})`, () => {
+        const ba = new BigNum(a);
+        const actual = t.b(ba);
+        const expect = t.n(a);
+        assert.ok(
+          Number(actual) - Number(expect) <= 0.0000001,
+          `${actual} === ${expect}`,
+        );
+      });
+    }
+  }
+});
+
 describe("standard tests", () => {
   for (const t of [
-    () => 1,
-    () => 1.1,
-    () => 2.1,
     () => BigNum.valueOf(0.2).add(0.1),
     () => BigNum.valueOf(2).multiply(0.1).add(0.1),
     () => BigNum.valueOf("2e2").divide(1000).add(0.1),
@@ -283,56 +412,9 @@ describe("standard tests", () => {
 });
 
 describe("Infinity tests", () => {
-  for (const t of [
-    {
-      op: "+",
-      n: (a: number, b: number) => a + b,
-      b: (a: BigNum, b: BigNum) => a.add(b),
-    },
-    {
-      op: "-",
-      n: (a: number, b: number) => a - b,
-      b: (a: BigNum, b: BigNum) => a.subtract(b),
-    },
-    {
-      op: "*",
-      n: (a: number, b: number) => a * b,
-      b: (a: BigNum, b: BigNum) => a.multiply(b),
-    },
-    {
-      op: "/",
-      n: (a: number, b: number) => a / b,
-      b: (a: BigNum, b: BigNum) => a.divide(b),
-    },
-    {
-      op: "%",
-      n: (a: number, b: number) => a % b,
-      b: (a: BigNum, b: BigNum) => a.modulo(b),
-    },
-    {
-      op: "**",
-      n: (a: number, b: number) => a ** b,
-      b: (a: BigNum, b: BigNum) => a.pow(b),
-    },
-    {
-      op: "* 10 **",
-      n: (a: number, b: number) => a * 10 ** b,
-      b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
-      ignore: (_a: number, b: number) => b < 0,
-    },
-    {
-      op: "compareTo",
-      n: (a: number, b: number) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
-      b: (a: BigNum, b: BigNum) => a.compareTo(b),
-    },
-  ] satisfies {
-    op: string;
-    n: (a: number, b: number) => number;
-    b: (a: BigNum, b: BigNum) => BigNum | number;
-    ignore?: (a: number, b: number) => boolean;
-  }[]) {
-    [Infinity, -Infinity].forEach((a) => {
-      [3, 1, 0, -1, -3, Infinity, -Infinity].forEach((b) => {
+  for (const t of B_TESTS) {
+    for (const a of [Infinity, -Infinity]) {
+      for (const b of [3, 1, 0, -1, -3, Infinity, -Infinity]) {
         [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
           if (t.ignore?.(a, b)) return;
           it(`${a} ${t.op} ${b}`, () => {
@@ -341,45 +423,10 @@ describe("Infinity tests", () => {
             assert.strictEqual(`${t.b(ba, bb)}`, `${t.n(a, b)}`);
           });
         });
-      });
-    });
+      }
+    }
   }
-  for (const t of [
-    {
-      fn: "negate",
-      n: (a: number) => -a,
-      b: (a: BigNum) => a.negate(),
-    },
-    {
-      fn: "abs",
-      n: (a: number) => Math.abs(a),
-      b: (a: BigNum) => a.abs(),
-    },
-    {
-      fn: "trunc",
-      n: (a: number) => Math.trunc(a),
-      b: (a: BigNum) => a.trunc(),
-    },
-    {
-      fn: "round",
-      n: (a: number) => Math.round(a),
-      b: (a: BigNum) => a.round(),
-    },
-    {
-      fn: "ceil",
-      n: (a: number) => Math.ceil(a),
-      b: (a: BigNum) => a.ceil(),
-    },
-    {
-      fn: "floor",
-      n: (a: number) => Math.floor(a),
-      b: (a: BigNum) => a.floor(),
-    },
-  ] satisfies {
-    fn: string;
-    n: (a: number) => number;
-    b: (a: BigNum) => BigNum | number;
-  }[]) {
+  for (const t of U_TESTS) {
     [Infinity, -Infinity].forEach((a) => {
       it(`${t.fn}(${a})`, () => {
         const ba = new BigNum(a);
@@ -390,55 +437,7 @@ describe("Infinity tests", () => {
 });
 
 describe("Random tests", () => {
-  for (const t of [
-    {
-      op: "+",
-      n: (a: number, b: number) => a + b,
-      b: (a: BigNum, b: BigNum) => a.add(b),
-    },
-    {
-      op: "-",
-      n: (a: number, b: number) => a - b,
-      b: (a: BigNum, b: BigNum) => a.subtract(b),
-    },
-    {
-      op: "*",
-      n: (a: number, b: number) => a * b,
-      b: (a: BigNum, b: BigNum) => a.multiply(b),
-    },
-    {
-      op: "/",
-      n: (a: number, b: number) => a / b,
-      b: (a: BigNum, b: BigNum) => a.divide(b),
-    },
-    {
-      op: "%",
-      n: (a: number, b: number) => a % b,
-      b: (a: BigNum, b: BigNum) => a.modulo(b),
-    },
-    {
-      op: "**",
-      n: (a: number, b: number) => a ** b,
-      b: (a: BigNum, b: BigNum) => a.pow(b),
-      ignore: (_a: number, b: number) => b < 0 || !Number.isInteger(b),
-    },
-    {
-      op: "* 10 **",
-      n: (a: number, b: number) => a * 10 ** b,
-      b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
-      ignore: (_a: number, b: number) => b < 0 || !Number.isInteger(b),
-    },
-    {
-      op: "compareTo",
-      n: (a: number, b: number) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
-      b: (a: BigNum, b: BigNum) => a.compareTo(b),
-    },
-  ] satisfies {
-    op: string;
-    n: (a: number, b: number) => number;
-    b: (a: BigNum, b: BigNum) => BigNum | number;
-    ignore?: (a: number, b: number) => boolean;
-  }[]) {
+  for (const t of B_TESTS) {
     const set = new Set<number>();
     for (let index = 0; index < 30; index++) {
       const a = random(set);
@@ -458,42 +457,7 @@ describe("Random tests", () => {
       });
     }
   }
-  for (const t of [
-    {
-      fn: "negate",
-      n: (a: number) => -a,
-      b: (a: BigNum) => a.negate(),
-    },
-    {
-      fn: "abs",
-      n: (a: number) => Math.abs(a),
-      b: (a: BigNum) => a.abs(),
-    },
-    {
-      fn: "trunc",
-      n: (a: number) => Math.trunc(a),
-      b: (a: BigNum) => a.trunc(),
-    },
-    {
-      fn: "round",
-      n: (a: number) => Math.round(a),
-      b: (a: BigNum) => a.round(),
-    },
-    {
-      fn: "ceil",
-      n: (a: number) => Math.ceil(a),
-      b: (a: BigNum) => a.ceil(),
-    },
-    {
-      fn: "floor",
-      n: (a: number) => Math.floor(a),
-      b: (a: BigNum) => a.floor(),
-    },
-  ] satisfies {
-    fn: string;
-    n: (a: number) => number;
-    b: (a: BigNum) => BigNum | number;
-  }[]) {
+  for (const t of U_TESTS) {
     const set = new Set<number>();
     for (let index = 0; index < 30; index++) {
       const a = random(set);

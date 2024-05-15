@@ -1,11 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`standard tests () => 1 1`] = `"1"`;
-
-exports[`standard tests () => 1.1 1`] = `"1.1"`;
-
-exports[`standard tests () => 2.1 1`] = `"2.1"`;
-
 exports[`standard tests () => BigNum.valueOf(".1").multiply(5).round() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(".1").multiply(10).ceil() 1`] = `"1"`;
