@@ -501,9 +501,9 @@ function lazyAssert(actual: BigNum, expect: number | bigint) {
     assert.ok(diff.signum() === 0, `${actual} === ${expect}`);
     return;
   }
-  const tolerance = actual
-    .abs()
-    .divide(100000000000, { maxDecimalPrecision: 20n });
+  const tolerance = actual.abs().divide(100000000000, {
+    overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
+  });
   assert.ok(
     tolerance.negate().compareTo(diff) <= 0 && diff.compareTo(tolerance) <= 0,
     `Lazy comparison. Actual=${actual} Expect=${expect} Tolerance=${tolerance}`,

@@ -1,9 +1,18 @@
 const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 
+export type OverflowContext = {
+  scale: bigint;
+  precision: bigint;
+};
+export type IsOverflow = (
+  context: OverflowContext,
+) => boolean | undefined | null;
 export type DivideOptions = {
-  /** The maximum number of decimal places. */
+  /** You can specify an overflow test function. */
+  overflow?: IsOverflow;
+  /** @deprecated The maximum number of decimal places. */
   maxDp?: bigint;
-  /** The maximum number of precision when having decimals. */
+  /** @deprecated The maximum number of precision when having decimals. */
   maxDecimalPrecision?: bigint;
 };
 /** This is used in negative pows. */
@@ -33,6 +42,8 @@ function parseValue(
     exponent: -BigInt(decimal.length) + BigInt(exponent),
   };
 }
+
+const MOD_DIV_OPT: DivideOptions = { overflow: (ctx) => ctx.scale > 0n };
 
 class Internal {
   public static readonly Z = new Internal(0n, 0n);
@@ -110,23 +121,24 @@ class Internal {
     if (divisor.inf) return Internal.Z;
     if (!divisor.i) return this.d >= 0 ? Inf.P : Inf.N;
     if (!this.i) return this;
-    const alignMultiplicand = new Internal(10n ** divisor.#dp(), 0n);
+    const alignMultiplicand = new Internal(10n ** divisor.#scale(), 0n);
     const alignedTarget: Internal =
       this.multiply(alignMultiplicand).#simplify();
     const alignedDivisor = divisor.multiply(alignMultiplicand).#simplify();
 
-    const under: ((dp: bigint, precision: number) => boolean | undefined)[] =
-      [];
-    const maxPr = options?.maxDecimalPrecision;
-    const maxDp = options?.maxDp;
-    if (maxPr != null) {
-      under.push((dp, p) => dp <= 0n || BigInt(p) <= maxPr);
+    const overflows: IsOverflow[] = [];
+    if (options?.overflow) {
+      overflows.push(options.overflow);
+    } else {
+      const maxPr = options?.maxDecimalPrecision;
+      const maxDp = options?.maxDp;
+      if (maxPr != null)
+        overflows.push((ctx) => ctx.scale > 0n && ctx.precision > maxPr);
+      if (maxDp != null) overflows.push((ctx) => ctx.scale > maxDp);
     }
-    if (maxDp != null) {
-      under.push((dp) => dp <= maxDp);
-    } else if (!under.length) {
+    if (!overflows.length) {
       const max = alignedTarget.e > -20n ? 20n : -alignedTarget.e;
-      under.push((dp) => dp <= max);
+      overflows.push((ctx) => ctx.scale > max);
     }
 
     if (!(alignedTarget.i % alignedDivisor.i)) {
@@ -134,7 +146,14 @@ class Internal {
         alignedTarget.i / alignedDivisor.i,
         alignedTarget.e - alignedDivisor.e,
       );
-      if (under.every((fn) => fn(candidate.#dp(), candidate.#precision())))
+      if (
+        !overflows.some((fn) =>
+          fn({
+            scale: candidate.#scale(),
+            precision: BigInt(candidate.#precision()),
+          }),
+        )
+      )
         return candidate;
     }
 
@@ -154,11 +173,16 @@ class Internal {
       remainder *= 10n ** -digitExponent;
     }
 
+    const nextOverflowCtx: OverflowContext = {
+      get scale() {
+        return -exponent + 1n;
+      },
+      get precision() {
+        return BigInt(quotientNumbers.length + 1);
+      },
+    };
     let exponent = digitExponent + absTarget.e;
-    while (
-      remainder > 0n &&
-      under.every((fn) => fn(-exponent + 1n, quotientNumbers.length + 1))
-    ) {
+    while (remainder > 0n && !overflows.some((fn) => fn(nextOverflowCtx))) {
       exponent--;
       if (powOfTen > 1n) {
         powOfTen /= 10n;
@@ -196,7 +220,7 @@ class Internal {
   public modulo(divisor: Internal | Inf): Internal | Inf | null {
     if (divisor.inf) return this;
     if (!divisor.i) return null;
-    const times = this.divide(divisor, { maxDp: 0n });
+    const times = this.divide(divisor, MOD_DIV_OPT);
     return this.subtract(divisor.multiply(times));
   }
 
@@ -215,7 +239,7 @@ class Internal {
     const bn = n.toBigInt();
     if (bn >= 0n) return new Internal(this.i ** bn, this.e * bn);
     const divideOptions: DivideOptions = {
-      maxDecimalPrecision: 20n,
+      overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
       ...options,
     };
     let result = Internal.O;
@@ -288,7 +312,7 @@ class Internal {
     return this.#trunc();
   }
 
-  #dp() {
+  #scale() {
     return -this.#simplify().e;
   }
 
@@ -532,7 +556,6 @@ export class BigNum {
 
   /**
    * Returns a BigNum whose value is (this**n).
-   * @param options.maxDp The maximum number of decimal places. This is used in negative pows. Default is 20.
    */
   public pow(
     n: BigNum | string | number | bigint,
