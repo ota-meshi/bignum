@@ -1,5 +1,15 @@
 # @bignum/core
 
+## 0.3.0
+
+### Minor Changes
+
+- fix: support minus pows ([#13](https://github.com/ota-meshi/bignum/pull/13))
+
+### Patch Changes
+
+- fix: wrong isFinite() ([#13](https://github.com/ota-meshi/bignum/pull/13))
+
 ## 0.2.0
 
 ### Minor Changes
