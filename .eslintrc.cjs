@@ -30,6 +30,8 @@ module.exports = {
         "func-style": "off",
         "no-constant-condition": "off",
         "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/no-this-alias": "off",
+        "one-var": "off",
       },
     },
     {

@@ -1,5 +1,14 @@
 const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 
+export type DivideOptions = {
+  /** The maximum number of decimal places. */
+  maxDp?: bigint;
+  /** The maximum number of precision when having decimals. */
+  maxDecimalPrecision?: bigint;
+};
+/** This is used in negative pows. */
+export type PowOptions = DivideOptions;
+
 /** Parse a value to a BigNum prop */
 function parseValue(
   value: string | number | bigint | boolean,
@@ -30,8 +39,6 @@ class Internal {
 
   public static readonly O = new Internal(1n, 0n);
 
-  public static readonly N_O = Internal.O.negate();
-
   public readonly inf = false; // Is not infinity
 
   /** int value */
@@ -56,7 +63,7 @@ class Internal {
   }
 
   public signum(): 1 | 0 | -1 {
-    return this.i === 0n ? 0 : this.i > 0n ? 1 : -1;
+    return !this.i ? 0 : this.i > 0n ? 1 : -1;
   }
 
   public negate(): Internal {
@@ -89,54 +96,70 @@ class Internal {
     return new Internal(this.i * multiplicand.i, this.e + multiplicand.e);
   }
 
-  public divide(divisor: Internal, maxDp?: bigint): Internal;
+  public divide(divisor: Internal, options?: DivideOptions): Internal;
 
-  public divide(divisor: Internal | Inf, maxDp?: bigint): Internal | Inf;
+  public divide(
+    divisor: Internal | Inf,
+    options?: DivideOptions,
+  ): Internal | Inf;
 
-  public divide(divisor: Internal | Inf, maxDp?: bigint): Internal | Inf {
+  public divide(
+    divisor: Internal | Inf,
+    options?: DivideOptions,
+  ): Internal | Inf {
     if (divisor.inf) return Internal.Z;
-    if (divisor.i === 0n) return this.d >= 0 ? Inf.P : Inf.N;
-    if (this.i === 0n) return this;
-    const alignMultiplicand = new Internal(10n ** divisor.#decimalCount(), 0n);
+    if (!divisor.i) return this.d >= 0 ? Inf.P : Inf.N;
+    if (!this.i) return this;
+    const alignMultiplicand = new Internal(10n ** divisor.#dp(), 0n);
     const alignedTarget: Internal =
       this.multiply(alignMultiplicand).#simplify();
     const alignedDivisor = divisor.multiply(alignMultiplicand).#simplify();
 
-    let minQuotientExponent = alignedTarget.e > -20n ? -20n : alignedTarget.e;
-    if (maxDp != null) {
-      minQuotientExponent = maxDp;
+    const under: ((dp: bigint, precision: number) => boolean | undefined)[] =
+      [];
+    const maxPr = options?.maxDecimalPrecision;
+    const maxDp = options?.maxDp;
+    if (maxPr != null) {
+      under.push((dp, p) => dp <= 0n || BigInt(p) <= maxPr);
     }
-    if (alignedTarget.i % alignedDivisor.i === 0n) {
+    if (maxDp != null) {
+      under.push((dp) => dp <= maxDp);
+    } else if (!under.length) {
+      const max = alignedTarget.e > -20n ? 20n : -alignedTarget.e;
+      under.push((dp) => dp <= max);
+    }
+
+    if (!(alignedTarget.i % alignedDivisor.i)) {
       const candidate = new Internal(
         alignedTarget.i / alignedDivisor.i,
         alignedTarget.e - alignedDivisor.e,
       );
-      if (candidate.#decimalCount() <= -minQuotientExponent) return candidate;
+      if (under.every((fn) => fn(candidate.#dp(), candidate.#precision())))
+        return candidate;
     }
 
     const quotientSign = divisor.signum() === this.signum() ? "" : "-";
     const absTarget = alignedTarget.abs();
-    const absDivisor = alignedDivisor.abs().toBigInt();
+    const absDivisor = alignedDivisor.abs().#trunc();
 
     let remainder = absTarget.i;
 
     const quotientNumbers: bigint[] = [];
-    let quotientExponent = BigInt(
-      String(remainder).length - String(absDivisor).length + 2,
-    );
+    const digitExponent = BigInt(length(remainder) - length(absDivisor) + 1);
     let powOfTen: bigint;
-    if (quotientExponent >= 0n) {
-      powOfTen = 10n ** quotientExponent;
+    if (digitExponent >= 0n) {
+      powOfTen = 10n ** digitExponent;
     } else {
       powOfTen = 1n;
-      remainder *= 10n ** -quotientExponent;
+      remainder *= 10n ** -digitExponent;
     }
 
+    let exponent = digitExponent + absTarget.e;
     while (
       remainder > 0n &&
-      quotientExponent + absTarget.e > minQuotientExponent
+      under.every((fn) => fn(-exponent + 1n, quotientNumbers.length + 1))
     ) {
-      quotientExponent--;
+      exponent--;
       if (powOfTen > 1n) {
         powOfTen /= 10n;
       } else {
@@ -166,37 +189,45 @@ class Internal {
 
     return new Internal(
       BigInt(quotientSign + (quotientNumbers.join("") || "0")),
-      quotientExponent + absTarget.e,
+      exponent,
     );
   }
 
-  public modulo(divisor: Internal | Inf): Internal | Inf {
+  public modulo(divisor: Internal | Inf): Internal | Inf | null {
     if (divisor.inf) return this;
-    const times = this.divide(divisor, 0n);
+    if (!divisor.i) return null;
+    const times = this.divide(divisor, { maxDp: 0n });
     return this.subtract(divisor.multiply(times));
   }
 
-  public pow(n: Internal | Inf): Internal | Inf | null {
+  public pow(n: Internal | Inf, options?: PowOptions): Internal | Inf | null {
     if (n.inf) {
-      return this.i === 0n
+      return !this.i
         ? n.s < 0
           ? Inf.P // 0 ** -inf
           : Internal.Z // 0 ** inf
-        : this.compareTo(Internal.O) === 0 || this.compareTo(Internal.N_O) === 0
+        : this.abs().compareTo(Internal.O) === 0
           ? null // 1 ** inf, or -1 ** inf
           : n.s < 0
             ? Internal.Z // num ** -inf
             : Inf.P; // num ** inf;
     }
     const bn = n.toBigInt();
-    return new Internal(this.i ** bn, this.e * bn);
+    if (bn >= 0n) return new Internal(this.i ** bn, this.e * bn);
+    const divideOptions: DivideOptions = {
+      maxDecimalPrecision: 20n,
+      ...options,
+    };
+    let result = Internal.O;
+    for (let i = bn; i < 0; i++) result = result.divide(this, divideOptions);
+    return result;
   }
 
   public scaleByPowerOfTen(n: Internal | Inf): Internal | Inf | null {
     if (n.inf)
       return n.s < 0
         ? Internal.Z
-        : this.i === 0n
+        : !this.i
           ? null
           : this.i >= 0n
             ? Inf.P
@@ -206,9 +237,7 @@ class Internal {
   }
 
   public trunc() {
-    return this.i === 0n || this.e === 0n
-      ? this
-      : new Internal(this.#trunc(), 0n);
+    return !this.i || !this.e ? this : new Internal(this.#trunc(), 0n);
   }
 
   public round(): Internal {
@@ -259,8 +288,14 @@ class Internal {
     return this.#trunc();
   }
 
-  #decimalCount() {
+  #dp() {
     return -this.#simplify().e;
+  }
+
+  #precision() {
+    let n = String(this.abs().i);
+    while (n.endsWith("0")) n = n.slice(0, -1);
+    return n.length || 1;
   }
 
   #simplify() {
@@ -327,18 +362,18 @@ class Inf {
   }
 
   public multiply(multiplicand: Inf | Internal): Inf | null {
-    return multiplicand.signum() === 0
+    return !multiplicand.signum()
       ? null // inf * 0
-      : multiplicand.signum() === this.signum()
-        ? Inf.P
+      : multiplicand.signum() === this.s
+        ? Inf.P // match sign
         : Inf.N;
   }
 
   public divide(divisor: Inf | Internal): Inf | null {
     return divisor.inf
-      ? null
-      : divisor.signum() >= 0 === this.signum() >= 0
-        ? Inf.P
+      ? null // inf / inf
+      : divisor.i >= 0n === this.s >= 0
+        ? Inf.P // match sign
         : Inf.N;
   }
 
@@ -351,14 +386,13 @@ class Inf {
       return n.s < 0
         ? Internal.Z // inf ** -inf
         : Inf.P; // inf ** inf
-    if (n.i === 0n) return Internal.O; // Inf ** 0
+    if (!n.i) return Internal.O; // Inf ** 0
     if (n.i < 0n) return Internal.Z;
     return this; // inf ** num
   }
 
   public scaleByPowerOfTen(n: Inf | Internal) {
-    const m = new Internal(10n, 0n).pow(n);
-    return m ? this.multiply(m) : null;
+    return n.inf ? (n.s > 0 ? this : null) : this;
   }
 
   public compareTo(n: Inf | Internal) {
@@ -479,14 +513,13 @@ export class BigNum {
 
   /**
    * Returns a BigNum whose value is (this / divisor)
-   * @param options.maxDp The maximum number of decimal places. Default is 20.
    */
   public divide(
     divisor: BigNum | string | number | bigint,
-    options?: { maxDp?: bigint },
+    options?: DivideOptions,
   ): BigNum {
     const b = valueOf(divisor).#p;
-    return b ? new BigNum(this.#p?.divide(b, options?.maxDp)) : BigNum.#nan;
+    return b ? new BigNum(this.#p?.divide(b, options)) : BigNum.#nan;
   }
 
   /**
@@ -497,10 +530,16 @@ export class BigNum {
     return b ? new BigNum(this.#p?.modulo(b)) : BigNum.#nan;
   }
 
-  /** Returns a BigNum whose value is (this**n). */
-  public pow(n: BigNum | string | number | bigint): BigNum {
+  /**
+   * Returns a BigNum whose value is (this**n).
+   * @param options.maxDp The maximum number of decimal places. This is used in negative pows. Default is 20.
+   */
+  public pow(
+    n: BigNum | string | number | bigint,
+    options?: PowOptions,
+  ): BigNum {
     const b = valueOf(n).#p;
-    return b ? new BigNum(this.#p?.pow(b)) : BigNum.#nan;
+    return b ? new BigNum(this.#p?.pow(b, options)) : BigNum.#nan;
   }
 
   /** Returns a BigNum whose numerical value is equal to (this * 10 ** n). */
@@ -549,7 +588,7 @@ export class BigNum {
   }
 
   public isFinite(): boolean {
-    return !this.#p || !this.#p.inf;
+    return this.#p != null && !this.#p.inf;
   }
 
   public toString(): string {
@@ -576,4 +615,10 @@ function valueOf(value: string | number | bigint | boolean | BigNum): BigNum {
 /** compare function */
 function compare(a: bigint, b: bigint) {
   return a === b ? 0 : a > b ? 1 : -1;
+}
+
+/** Get length */
+function length(a: bigint) {
+  let t = a;
+  for (let i = 0; ; i++) if (!(t /= 10n)) return i;
 }
