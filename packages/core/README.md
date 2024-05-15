@@ -74,9 +74,9 @@ An object can be given as an option. It's the same option for `divide()`. This i
 
 Options:
 
-| Name                | Type   | Description                                                              |
-| :------------------ | :----- | :----------------------------------------------------------------------- |
-| maxDp               | bigint | The maximum number of decimal places.                                    |
+| Name                | Type   | Description                                                             |
+| :------------------ | :----- | :---------------------------------------------------------------------- |
+| maxDp               | bigint | The maximum number of decimal places.                                   |
 | maxDecimalPrecision | bigint | The maximum number of precision when having decimals. Default is `20n`. |
 
 ### BigNum.prototype.scaleByPowerOfTen(n): BigNum
@@ -115,7 +115,11 @@ Compares this BigNum with the specified BigNum.
 
 ### BigNum.prototype.isNaN(): boolean
 
-Returns true if this is NaN.
+Returns `true` if this is NaN.
+
+### BigNum.prototype.isFinite(): boolean
+
+Returns `true` if this is finite number.
 
 ## 🛸 Prior Art
 
