@@ -61,8 +61,6 @@ Options:
 
 Returns a BigNum whose value is (this % divisor).
 
-If `divider` is give a zero value, an error will be raised.
-
 ### BigNum.prototype.negate(): BigNum
 
 Returns a BigNum whose value is (-this).

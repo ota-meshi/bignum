@@ -4,12 +4,11 @@ const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 function parseValue(
   value: string | number | bigint | boolean,
 ): { intValue: bigint; exponent?: bigint } | null {
-  if (
-    typeof value === "boolean" ||
-    typeof value === "bigint" ||
-    (typeof value === "number" && Math.trunc(value) === value)
-  ) {
+  if (typeof value === "boolean" || typeof value === "bigint")
     return { intValue: BigInt(value) };
+  if (typeof value === "number") {
+    if (Number.isNaN(value)) return null;
+    if (Number.isInteger(value)) return { intValue: BigInt(value) };
   }
   const match = RE_NUMBER.exec(String(value));
   if (!match) return null;
@@ -27,8 +26,16 @@ function parseValue(
 }
 
 class Internal {
+  public static readonly Z = new Internal(0n, 0n);
+
+  public static readonly O = new Internal(1n, 0n);
+
+  public static readonly N_O = Internal.O.negate();
+
+  public readonly inf = false; // Is not infinity
+
   /** int value */
-  private i: bigint;
+  public i: bigint;
 
   /** exponent */
   private e: bigint;
@@ -61,12 +68,34 @@ class Internal {
     return this.negate();
   }
 
-  public multiply(multiplicand: Internal): Internal {
+  public add(augend: Internal | Inf): Internal | Inf {
+    if (augend.inf) return augend;
+    this.#alignExponent(augend);
+    return new Internal(this.i + augend.i, this.e);
+  }
+
+  public subtract(subtrahend: Internal | Inf): Internal | Inf {
+    return this.add(subtrahend.negate());
+  }
+
+  public multiply(multiplicand: Internal): Internal;
+
+  public multiply(multiplicand: Inf): Inf | null;
+
+  public multiply(multiplicand: Internal | Inf): Internal | Inf | null;
+
+  public multiply(multiplicand: Internal | Inf): Internal | Inf | null {
+    if (multiplicand.inf) return multiplicand.multiply(this);
     return new Internal(this.i * multiplicand.i, this.e + multiplicand.e);
   }
 
-  public divide(divisor: Internal, maxDp?: bigint): Internal {
-    if (divisor.i === 0n) throw new Error("Division by zero");
+  public divide(divisor: Internal, maxDp?: bigint): Internal;
+
+  public divide(divisor: Internal | Inf, maxDp?: bigint): Internal | Inf;
+
+  public divide(divisor: Internal | Inf, maxDp?: bigint): Internal | Inf {
+    if (divisor.inf) return Internal.Z;
+    if (divisor.i === 0n) return this.d >= 0 ? Inf.P : Inf.N;
     if (this.i === 0n) return this;
     const alignMultiplicand = new Internal(10n ** divisor.#decimalCount(), 0n);
     const alignedTarget: Internal =
@@ -85,19 +114,35 @@ class Internal {
       if (candidate.#decimalCount() <= -minQuotientExponent) return candidate;
     }
 
-    const quotientSign =
-      alignedTarget.signum() === alignedDivisor.signum() ? "" : "-";
+    const quotientSign = divisor.signum() === this.signum() ? "" : "-";
     const absTarget = alignedTarget.abs();
     const absDivisor = alignedDivisor.abs().toBigInt();
 
     let remainder = absTarget.i;
 
     const quotientNumbers: bigint[] = [];
-    let quotientExponent =
-      absTarget.e + BigInt(String(absTarget.i).length) - 1n;
-    let powOfTen = 10n ** quotientExponent;
+    let quotientExponent = BigInt(
+      String(remainder).length - String(absDivisor).length + 2,
+    );
+    let powOfTen: bigint;
+    if (quotientExponent >= 0n) {
+      powOfTen = 10n ** quotientExponent;
+    } else {
+      powOfTen = 1n;
+      remainder *= 10n ** -quotientExponent;
+    }
 
-    while (true) {
+    while (
+      remainder > 0n &&
+      quotientExponent + absTarget.e > minQuotientExponent
+    ) {
+      quotientExponent--;
+      if (powOfTen > 1n) {
+        powOfTen /= 10n;
+      } else {
+        remainder *= 10n;
+      }
+
       // Find digit
       let n = 0n;
       let amount = 0n;
@@ -117,47 +162,47 @@ class Internal {
         quotientNumbers.push(n);
         remainder -= amount;
       }
-
-      if (remainder === 0n || quotientExponent <= minQuotientExponent) break;
-
-      // Setup for next process
-      quotientExponent--;
-      if (powOfTen > 1n) {
-        powOfTen /= 10n;
-      } else {
-        remainder *= 10n;
-      }
     }
 
     return new Internal(
       BigInt(quotientSign + (quotientNumbers.join("") || "0")),
-      quotientExponent,
+      quotientExponent + absTarget.e,
     );
   }
 
-  public modulo(divisor: Internal): Internal {
+  public modulo(divisor: Internal | Inf): Internal | Inf {
+    if (divisor.inf) return this;
     const times = this.divide(divisor, 0n);
     return this.subtract(divisor.multiply(times));
   }
 
-  public pow(n: Internal | bigint): Internal {
-    const bn = typeof n === "bigint" ? n : n.toBigInt();
+  public pow(n: Internal | Inf): Internal | Inf | null {
+    if (n.inf) {
+      return this.i === 0n
+        ? n.s < 0
+          ? Inf.P // 0 ** -inf
+          : Internal.Z // 0 ** inf
+        : this.compareTo(Internal.O) === 0 || this.compareTo(Internal.N_O) === 0
+          ? null // 1 ** inf, or -1 ** inf
+          : n.s < 0
+            ? Internal.Z // num ** -inf
+            : Inf.P; // num ** inf;
+    }
+    const bn = n.toBigInt();
     return new Internal(this.i ** bn, this.e * bn);
   }
 
-  public scaleByPowerOfTen(n: Internal | bigint): Internal {
-    const bn = typeof n === "bigint" ? n : n.toBigInt();
+  public scaleByPowerOfTen(n: Internal | Inf): Internal | Inf | null {
+    if (n.inf)
+      return n.s < 0
+        ? Internal.Z
+        : this.i === 0n
+          ? null
+          : this.i >= 0n
+            ? Inf.P
+            : Inf.N;
+    const bn = n.toBigInt();
     return new Internal(this.i, this.e + bn);
-  }
-
-  public add(augend: Internal): Internal {
-    this.#alignExponent(augend);
-    return new Internal(this.i + augend.i, this.e);
-  }
-
-  public subtract(subtrahend: Internal): Internal {
-    this.#alignExponent(subtrahend);
-    return new Internal(this.i - subtrahend.i, this.e);
   }
 
   public trunc() {
@@ -190,7 +235,8 @@ class Internal {
       : new Internal(this.#trunc() + 1n, 0n);
   }
 
-  public compareTo(other: Internal): 0 | -1 | 1 {
+  public compareTo(other: Internal | Inf): 0 | -1 | 1 {
+    if (other.inf) return -other.compareTo(this) as 0 | -1 | 1;
     this.#alignExponent(other);
     return compare(this.i, other.i);
   }
@@ -251,10 +297,107 @@ class Internal {
   }
 }
 
+class Inf {
+  public static readonly P = new Inf(1);
+
+  public static readonly N = new Inf(-1);
+
+  public readonly inf = true; // is infinity
+
+  public readonly s: 1 | -1;
+
+  private constructor(sign: 1 | -1) {
+    this.s = sign;
+  }
+
+  public signum(): 1 | -1 {
+    return this.s;
+  }
+
+  public negate(): Inf {
+    return this.s === 1 ? Inf.N : Inf.P;
+  }
+
+  public add(augend: Inf | Internal): Inf | null {
+    return !augend.inf || this === augend ? this : null;
+  }
+
+  public subtract(subtrahend: Inf | Internal): Inf | null {
+    return this.add(subtrahend.negate());
+  }
+
+  public multiply(multiplicand: Inf | Internal): Inf | null {
+    return multiplicand.signum() === 0
+      ? null // inf * 0
+      : multiplicand.signum() === this.signum()
+        ? Inf.P
+        : Inf.N;
+  }
+
+  public divide(divisor: Inf | Internal): Inf | null {
+    return divisor.inf
+      ? null
+      : divisor.signum() >= 0 === this.signum() >= 0
+        ? Inf.P
+        : Inf.N;
+  }
+
+  public modulo(): null {
+    return null;
+  }
+
+  public pow(n: Inf | Internal) {
+    if (n.inf)
+      return n.s < 0
+        ? Internal.Z // inf ** -inf
+        : Inf.P; // inf ** inf
+    if (n.i === 0n) return Internal.O; // Inf ** 0
+    if (n.i < 0n) return Internal.Z;
+    return this; // inf ** num
+  }
+
+  public scaleByPowerOfTen(n: Inf | Internal) {
+    const m = new Internal(10n, 0n).pow(n);
+    return m ? this.multiply(m) : null;
+  }
+
+  public compareTo(n: Inf | Internal) {
+    return n.inf && this.s === n.s ? 0 : this.s > 0 ? 1 : -1;
+  }
+
+  public abs(): Inf {
+    return Inf.P;
+  }
+
+  public trunc(): Inf {
+    return this;
+  }
+
+  public round(): Inf {
+    return this;
+  }
+
+  public ceil(): Inf {
+    return this;
+  }
+
+  public floor(): Inf {
+    return this;
+  }
+
+  public toString(): string {
+    return String(this.toNum());
+  }
+
+  public toNum(): number {
+    return this.s === 1 ? Infinity : -Infinity;
+  }
+}
+
 export class BigNum {
   static readonly #nan = new BigNum(NaN);
 
-  readonly #p: Internal | null;
+  readonly #p: Internal | Inf | null;
 
   public static valueOf(
     value: string | number | bigint | boolean | BigNum,
@@ -270,6 +413,7 @@ export class BigNum {
       | boolean
       | BigNum
       | Internal
+      | Inf
       | null
       | undefined,
   ) {
@@ -283,6 +427,18 @@ export class BigNum {
     }
     if (value instanceof BigNum) {
       this.#p = value.#p;
+      return;
+    }
+    if (value instanceof Inf) {
+      this.#p = value;
+      return;
+    }
+    if (value === Infinity) {
+      this.#p = Inf.P;
+      return;
+    }
+    if (value === -Infinity) {
+      this.#p = Inf.N;
       return;
     }
     const prop = parseValue(value);
@@ -343,14 +499,14 @@ export class BigNum {
 
   /** Returns a BigNum whose value is (this**n). */
   public pow(n: BigNum | string | number | bigint): BigNum {
-    const b = typeof n === "bigint" ? n : valueOf(n).#p;
-    return b != null ? new BigNum(this.#p?.pow(b)) : BigNum.#nan;
+    const b = valueOf(n).#p;
+    return b ? new BigNum(this.#p?.pow(b)) : BigNum.#nan;
   }
 
   /** Returns a BigNum whose numerical value is equal to (this * 10 ** n). */
   public scaleByPowerOfTen(n: BigNum | string | number | bigint): BigNum {
-    const b = typeof n === "bigint" ? n : valueOf(n).#p;
-    return b != null ? new BigNum(this.#p?.scaleByPowerOfTen(b)) : BigNum.#nan;
+    const b = valueOf(n).#p;
+    return b ? new BigNum(this.#p?.scaleByPowerOfTen(b)) : BigNum.#nan;
   }
 
   /** Returns a BigNum whose value is the absolute value of this BigNum. */
@@ -392,11 +548,17 @@ export class BigNum {
     return !this.#p;
   }
 
+  public isFinite(): boolean {
+    return !this.#p || !this.#p.inf;
+  }
+
   public toString(): string {
     return this.#p?.toString() ?? "NaN";
   }
 
   public toJSON(): string | number {
+    if (!this.#p) return NaN;
+    if (this.#p.inf) return this.#p.toNum();
     const str = this.toString();
     const num = Number(str);
     return String(num) === str ? num : str;
