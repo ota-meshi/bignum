@@ -6,6 +6,18 @@ exports[`standard tests () => 1.1 1`] = `"1.1"`;
 
 exports[`standard tests () => 2.1 1`] = `"2.1"`;
 
+exports[`standard tests () => BigNum.valueOf(".1").multiply(5).round() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(".1").multiply(10).ceil() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(".1").multiply(10).round() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf("-.1").multiply(5).round() 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf("-.1").multiply(10).floor() 1`] = `"-1"`;
+
+exports[`standard tests () => BigNum.valueOf("-.1").multiply(10).round() 1`] = `"-1"`;
+
 exports[`standard tests () => BigNum.valueOf("2e2").divide(1000).add(0.1) 1`] = `"0.3"`;
 
 exports[`standard tests () => BigNum.valueOf(-0).ceil() 1`] = `"0"`;
