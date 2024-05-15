@@ -58,7 +58,7 @@ class Internal {
 
   public abs(): Internal {
     if (this.i >= 0n) return this;
-    return new Internal(-this.i, this.e);
+    return this.negate();
   }
 
   public multiply(multiplicand: Internal): Internal {
@@ -161,38 +161,33 @@ class Internal {
   }
 
   public trunc() {
-    if (this.i === 0n || this.e === 0n) return this;
-    return new Internal(this.#truncInt(), 0n);
+    return this.i === 0n || this.e === 0n
+      ? this
+      : new Internal(this.#trunc(), 0n);
   }
 
   public round(): Internal {
-    if (this.i === 0n || this.e === 0n) return this;
-    const target = this.i % this.d;
+    const mod = this.i % this.d;
+    if (!mod) return this;
     const h = 10n ** (-this.e - 1n) * 5n;
     if (this.i < 0n /* Minus */) {
-      return target < -h ? this.floor() : this.ceil();
+      return mod < -h ? this.floor(mod) : this.ceil(mod);
     }
-    return target < h ? this.floor() : this.ceil();
+    return mod < h ? this.floor(mod) : this.ceil(mod);
   }
 
-  public floor(): Internal {
-    if (this.i === 0n || this.e === 0n) return this;
-    if (this.i >= 0n) {
-      // Plus
-      return this.trunc();
-    }
-    const value = this.#truncInt() - 1n;
-    return new Internal(value, 0n);
+  public floor(mod = this.i % this.d): Internal {
+    if (!mod) return this;
+    return this.i >= 0n
+      ? this.trunc() // Plus
+      : new Internal(this.#trunc() - 1n, 0n);
   }
 
-  public ceil(): Internal {
-    if (this.i === 0n || this.e === 0n) return this;
-    if (this.i < 0n) {
-      // Minus
-      return this.trunc();
-    }
-    const value = this.#truncInt() + 1n;
-    return new Internal(value, 0n);
+  public ceil(mod = this.i % this.d): Internal {
+    if (!mod) return this;
+    return this.i < 0n
+      ? this.trunc() // Minus
+      : new Internal(this.#trunc() + 1n, 0n);
   }
 
   public compareTo(other: Internal): 0 | -1 | 1 {
@@ -214,8 +209,8 @@ class Internal {
 
   public toBigInt(): bigint {
     if (!this.e) return this.i;
-    if (this.#hasDecimalPart()) throw new Error("Decimal part exists");
-    return this.#truncInt();
+    if (this.i % this.d) throw new Error("Decimal part exists");
+    return this.#trunc();
   }
 
   #decimalCount() {
@@ -223,7 +218,6 @@ class Internal {
   }
 
   #simplify() {
-    if (!this.e) return this;
     for (let e = -this.e; e > 0n; e--) {
       if (this.i % 10n ** e) {
         continue;
@@ -234,9 +228,8 @@ class Internal {
     return this;
   }
 
-  #truncInt() {
-    if (!this.e) return this.i;
-    return this.i / this.d;
+  #trunc() {
+    return !this.e ? this.i : this.i / this.d;
   }
 
   #alignExponent(other: Internal) {
@@ -255,10 +248,6 @@ class Internal {
     else this.i /= 10n ** -diff;
     this.e = exponent;
     this.d = 10n ** -exponent;
-  }
-
-  #hasDecimalPart() {
-    return this.i % this.d > 0n;
   }
 }
 

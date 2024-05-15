@@ -84,6 +84,10 @@ describe("standard tests", () => {
     () => BigNum.valueOf(-1.5).round(),
     () => BigNum.valueOf(-1.501).round(),
     () => BigNum.valueOf(-0).round(),
+    () => BigNum.valueOf("-.1").multiply(10).round(),
+    () => BigNum.valueOf(".1").multiply(10).round(),
+    () => BigNum.valueOf("-.1").multiply(5).round(),
+    () => BigNum.valueOf(".1").multiply(5).round(),
     // floor
     () => BigNum.valueOf(1).floor(),
     () => BigNum.valueOf(1.499).floor(),
@@ -95,6 +99,7 @@ describe("standard tests", () => {
     () => BigNum.valueOf(-1.5).floor(),
     () => BigNum.valueOf(-1.501).floor(),
     () => BigNum.valueOf(-0).floor(),
+    () => BigNum.valueOf("-.1").multiply(10).floor(),
     // ceil
     () => BigNum.valueOf(1).ceil(),
     () => BigNum.valueOf(1.499).ceil(),
@@ -106,6 +111,7 @@ describe("standard tests", () => {
     () => BigNum.valueOf(-1.5).ceil(),
     () => BigNum.valueOf(-1.501).ceil(),
     () => BigNum.valueOf(-0).ceil(),
+    () => BigNum.valueOf(".1").multiply(10).ceil(),
     // compareTo
     () => BigNum.valueOf(0.001).compareTo(0.001),
     () => BigNum.valueOf(0.001).compareTo(0.002),
