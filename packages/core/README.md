@@ -51,10 +51,20 @@ An object can be given as an option.
 
 Options:
 
-| Name                | Type   | Description                                                                                          |
-| :------------------ | :----- | :--------------------------------------------------------------------------------------------------- |
-| maxDp               | bigint | The maximum number of decimal places. If `maxDecimalPrecision` is not specified, 20n is the default. |
-| maxDecimalPrecision | bigint | The maximum number of precision.                                                                     |
+| Name                    | Type                 | Description                                                                                                                      |
+| :---------------------- | :------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| overflow                | `(context)=>boolean` | You can specify an overflow test function. By default, if the number of decimal places exceeds 20, it is considered an overflow. |
+| ~~maxDp~~               | bigint               | **Deprecated**. The maximum number of decimal places.                                                                            |
+| ~~maxDecimalPrecision~~ | bigint               | **Deprecated**. The maximum number of precision when having decimals.                                                            |
+
+- `context` parameter
+
+  An object that contains the following properties:
+
+  | Name      | Type   | Description                   |
+  | :-------- | :----- | :---------------------------- |
+  | scale     | bigint | The number of decimal places. |
+  | precision | bigint | The number of precision.      |
 
 ### BigNum.prototype.modulo(divisor): BigNum
 
@@ -74,10 +84,20 @@ An object can be given as an option. It's the same option for `divide()`. This i
 
 Options:
 
-| Name                | Type   | Description                                                             |
-| :------------------ | :----- | :---------------------------------------------------------------------- |
-| maxDp               | bigint | The maximum number of decimal places.                                   |
-| maxDecimalPrecision | bigint | The maximum number of precision when having decimals. Default is `20n`. |
+| Name                    | Type                 | Description                                                                                                                                                 |
+| :---------------------- | :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| overflow                | `(context)=>boolean` | You can specify an overflow test function. By default, if there are decimals and the number of significant digits exceeds 20, it is considered an overflow. |
+| ~~maxDp~~               | bigint               | **Deprecated**. The maximum number of decimal places.                                                                                                       |
+| ~~maxDecimalPrecision~~ | bigint               | **Deprecated**. The maximum number of precision when having decimals.                                                                                       |
+
+- `context` parameter
+
+  An object that contains the following properties:
+
+  | Name      | Type   | Description                   |
+  | :-------- | :----- | :---------------------------- |
+  | scale     | bigint | The number of decimal places. |
+  | precision | bigint | The number of precision.      |
 
 ### BigNum.prototype.scaleByPowerOfTen(n): BigNum
 
