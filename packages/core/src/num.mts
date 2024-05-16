@@ -32,6 +32,14 @@ function parseOFOption(options: MathOptions = {}, currDp = 20n): IsOverflow {
   return (ctx) => ctx.scale > m;
 }
 
+/** Get the DivideOptions for pow and sqrt  */
+function getDivForPowOptions(options: MathOptions = {}): MathOptions {
+  return {
+    overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
+    ...options,
+  };
+}
+
 /** Internal Number class */
 export class Num {
   public readonly inf = false; // Is not infinity
@@ -191,29 +199,21 @@ export class Num {
             ? ZERO // num ** -inf
             : INF; // num ** inf;
     }
-    const absN = n.abs();
-    const truncN = absN.trunc();
-    const bn = truncN.#trunc();
+    const bn = abs(n.#trunc());
     let a = new Num(this.i ** bn, this.e * bn);
-    if (absN.#scale()) {
+    if (n.#scale()) {
       if (this.i < 0n) return null;
       // Has decimal part
-      const decimal = absN.subtract(truncN);
-      const [nI, nD] = reduceFractions(decimal.i, decimal.d);
-      const nthRootOptions: NthRootOptions = {
-        overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
-        ...options,
-      };
+      const decimal = n.subtract(n.trunc());
+      const [nI, nD] = reduceFractions(abs(decimal.i), decimal.d);
       a = a.multiply(
-        this.nthRoot(new Num(nD, 0n), nthRootOptions).pow(new Num(nI, 0n))!,
+        this.nthRoot(new Num(nD, 0n), getDivForPowOptions(options)).pow(
+          new Num(nI, 0n),
+        )!,
       );
     }
     if (n.i >= 0n) return a;
-    const divideOptions: DivideOptions = {
-      overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
-      ...options,
-    };
-    return ONE.divide(a, divideOptions);
+    return ONE.divide(a, getDivForPowOptions(options));
   }
 
   public scaleByPowerOfTen(n: Num | Inf): Num | Inf | null {
@@ -283,11 +283,11 @@ export class Num {
     return new Num(digits, exponent);
   }
 
-  public nthRoot(n: Num, options?: SqrtOptions): Num;
+  public nthRoot(n: Num, options?: NthRootOptions): Num;
 
-  public nthRoot(n: Num | Inf, options?: SqrtOptions): Num | Inf | null;
+  public nthRoot(n: Num | Inf, options?: NthRootOptions): Num | Inf | null;
 
-  public nthRoot(n: Num | Inf, options?: SqrtOptions): Num | Inf | null {
+  public nthRoot(n: Num | Inf, options?: NthRootOptions): Num | Inf | null {
     if (n.inf) return this.pow(ZERO);
     if (n.abs().compareTo(ONE) === 0) return this.pow(n);
     if (!n.i) return this.pow(INF);
@@ -339,11 +339,7 @@ export class Num {
     }
     const a = new Num(digits, exponent);
     if (n.i >= 0n) return a;
-    const divideOptions: DivideOptions = {
-      overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
-      ...options,
-    };
-    return ONE.divide(a, divideOptions);
+    return ONE.divide(a, getDivForPowOptions(options));
   }
 
   public trunc(): Num {
