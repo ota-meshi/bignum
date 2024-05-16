@@ -58,7 +58,17 @@ export class Inf {
   }
 
   public sqrt(): Inf | null {
-    return this.s < 0 ? null : this;
+    return this.s < 0 ? null : INF;
+  }
+
+  public nthRoot(n: Inf | Num): Inf | Num | null {
+    return n.inf
+      ? ONE
+      : n.compareTo(ONE) === 0
+        ? this
+        : n.signum() < 0
+          ? ZERO
+          : INF;
   }
 
   public scaleByPowerOfTen(n: Inf | Num): Inf | null {

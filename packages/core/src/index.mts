@@ -1,6 +1,11 @@
 import { INF, Inf, N_INF } from "./inf.mjs";
 import { Num } from "./num.mjs";
-import type { DivideOptions, PowOptions, SqrtOptions } from "./options.mjs";
+import type {
+  DivideOptions,
+  NthRootOptions,
+  PowOptions,
+  SqrtOptions,
+} from "./options.mjs";
 
 export * from "./options.mjs";
 const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
@@ -141,6 +146,15 @@ export class BigNum {
   /** Returns an approximation to the square root of this. */
   public sqrt(options?: SqrtOptions): BigNum {
     return this.#val(this.#p?.sqrt(options));
+  }
+
+  /** Returns an approximation to the nth root of this. */
+  public nthRoot(
+    n: BigNum | string | number | bigint,
+    options?: NthRootOptions,
+  ): BigNum {
+    const b = valueOf(n).#p;
+    return this.#val(b && this.#p?.nthRoot(b, options));
   }
 
   /** Returns a BigNum whose value is the absolute value of this BigNum. */

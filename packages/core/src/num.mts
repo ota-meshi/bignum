@@ -1,5 +1,6 @@
 import type { Inf } from "./inf.mjs";
 import { INF, N_INF } from "./inf.mjs";
+import { createNthRootTable } from "./nth-root-utils.mjs";
 import type {
   DivideOptions,
   IsOverflow,
@@ -243,6 +244,60 @@ export class Num {
         digits += n;
         remainder -= amount;
         part += n * 2n;
+        break;
+      }
+    }
+    while (overflow(overflowCtx) && digits) {
+      exponent++;
+      digits /= 10n;
+    }
+
+    return new Num(digits, exponent);
+  }
+
+  public nthRoot(n: Num | Inf, options?: SqrtOptions): Num | Inf | null {
+    if (n.inf) return this.pow(ZERO);
+    if (n.abs().compareTo(ONE) === 0) return this.pow(n);
+    if (!this.i) return this.pow(INF);
+    if (n.i < 0n || this.i < 0n) throw new Error("Negative number");
+    const overflow = parseOFOption(options, this.#scale());
+    // See https://fermiumbay13.hatenablog.com/entry/2019/03/07/002938
+    const iN = n.toBigInt();
+    const powOfTen = 10n ** iN;
+
+    const decimalLength = this.#scale();
+    const mod = decimalLength % iN;
+
+    let remainder = this.#simplify().i;
+    if (mod) remainder *= 10n ** (iN - mod);
+    const table = createNthRootTable(iN);
+
+    const digitExponent = length(remainder) / iN + 1n;
+    const pow: bigint = powOfTen ** digitExponent;
+
+    let digits = 0n;
+    let exponent = digitExponent - decimalLength / iN - (mod ? 1n : 0n);
+    const overflowCtx: OverflowContext = {
+      get scale() {
+        return -exponent;
+      },
+      get precision() {
+        return length(digits);
+      },
+    };
+    while (remainder > 0n && !overflow(overflowCtx)) {
+      exponent--;
+      remainder *= powOfTen;
+      digits *= 10n;
+      table.prepare();
+      // Find digit
+      for (let nn = 9n; nn > 0n; nn--) {
+        const amount = table.amount(nn) * pow;
+        if (remainder < amount) continue;
+        // Set digit
+        digits += nn;
+        remainder -= amount;
+        table.set(digits);
         break;
       }
     }

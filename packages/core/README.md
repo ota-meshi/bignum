@@ -107,9 +107,18 @@ If `n` is given a non-integer value, an error will be raised.
 
 ### BigNum.prototype.sqrt([options]): BigNum
 
-Returns an approximation to the square root of this.
+Returns an approximation to the square root of this BigNum.
 
 If this BigNum is a negative value, an error will be raised.
+
+An object can be given as an option. It's the same option for `divide()`.
+
+### BigNum.prototype.nthRoot(n, [options]): BigNum
+
+Returns an approximation to the `n`th root of this BigNum.
+
+If this BigNum or `n` are negative value, an error will be raised.\
+If `n` is given a non-integer value, an error will be raised.
 
 An object can be given as an option. It's the same option for `divide()`.
 

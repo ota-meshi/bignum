@@ -15,5 +15,6 @@ export type MathOptions = {
 };
 export type DivideOptions = MathOptions;
 export type SqrtOptions = MathOptions;
+export type NthRootOptions = MathOptions;
 /** This is used in negative pows. */
 export type PowOptions = MathOptions;
