@@ -153,6 +153,7 @@ class Internal {
     );
 
     if (!(alignedTarget.i % alignedDivisor.i)) {
+      // Short circuit
       const candidate = new Internal(
         alignedTarget.i / alignedDivisor.i,
         alignedTarget.e - alignedDivisor.e,
@@ -170,16 +171,10 @@ class Internal {
 
     let remainder = abs(alignedTarget.i);
 
-    let digit = 0n;
-    const digitExponent = length(remainder) - length(iDivisor) + 1n;
-    let powOfTen: bigint;
-    if (digitExponent >= 0n) {
-      powOfTen = 10n ** digitExponent;
-    } else {
-      powOfTen = 1n;
-      remainder *= 10n ** -digitExponent;
-    }
+    const digitExponent = max(length(remainder) - length(iDivisor) + 1n, 0n);
+    const pow: bigint = 10n ** digitExponent;
 
+    let digit = 0n;
     let exponent = digitExponent + alignedTarget.e;
     const overflowCtx: OverflowContext = {
       get scale() {
@@ -191,25 +186,18 @@ class Internal {
     };
     while (remainder > 0n && !overflow(overflowCtx)) {
       exponent--;
-      if (powOfTen > 1n) {
-        powOfTen /= 10n;
-      } else {
-        remainder *= 10n;
-      }
-
+      remainder *= 10n;
+      digit *= 10n;
       // Find digit
-      let n = 0n;
-      let amount = 0n;
-      for (let nn = 1n; nn < 10n; nn++) {
-        const nextAmount = iDivisor * nn * powOfTen;
-        if (remainder < nextAmount) break;
-        n = nn;
-        amount = nextAmount;
+      if (remainder < iDivisor * pow) continue; // Short circuit: If 1 is not available, it will not loop.
+      for (let n = 9n; n > 0n; n--) {
+        const amount = iDivisor * n * pow;
+        if (remainder < amount) continue;
+        // Set digit
+        digit += n;
+        remainder -= amount;
+        break;
       }
-
-      // Set digit
-      digit = digit * 10n + n;
-      remainder -= amount;
     }
     while (overflow(overflowCtx) && digit) {
       exponent++;
@@ -276,10 +264,10 @@ class Internal {
     if (decimalLengthIsOdd) remainder *= 10n;
     let part = 0n;
 
-    let digit = 0n;
     const digitExponent = length(remainder) / 2n + 1n;
-    let powOfHand: bigint = 100n ** digitExponent;
+    const pow: bigint = 100n ** digitExponent;
 
+    let digit = 0n;
     let exponent =
       digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n);
     const overflowCtx: OverflowContext = {
@@ -292,26 +280,20 @@ class Internal {
     };
     while (remainder > 0n && !overflow(overflowCtx)) {
       exponent--;
-      if (powOfHand > 10n) {
-        powOfHand /= 100n;
-      } else {
-        remainder *= 100n;
-      }
-
+      remainder *= 100n;
+      digit *= 10n;
+      part *= 10n;
       // Find digit
-      let n = 0n;
-      let amount = 0n;
-      for (let nn = 1n; nn < 10n; nn++) {
-        const nextAmount = nn * (part + nn) * powOfHand;
-        if (remainder < nextAmount) break;
-        n = nn;
-        amount = nextAmount;
+      if (remainder < (part + 1n) * pow) continue; // Short circuit: If 1 is not available, it will not loop.
+      for (let n = 9n; n > 0n; n--) {
+        const amount = n * (part + n) * pow;
+        if (remainder < amount) continue;
+        // Set digit
+        digit += n;
+        remainder -= amount;
+        part += n * 2n;
+        break;
       }
-
-      // Set digit
-      digit = digit * 10n + n;
-      remainder -= amount;
-      part = (part + n * 2n) * 10n;
     }
     while (overflow(overflowCtx) && digit) {
       exponent++;
