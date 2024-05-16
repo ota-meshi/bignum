@@ -28,7 +28,14 @@ const B_TESTS = [
   },
   {
     op: "%",
-    n: (a, b) => a % b,
+    n: (a, b) =>
+      typeof a === "number" &&
+      typeof b === "number" &&
+      isFinite(a) &&
+      isFinite(b) &&
+      Number.isInteger(a / b)
+        ? 0
+        : a % b,
     b: (a: BigNum, b: BigNum) => a.modulo(b),
   },
   {
@@ -112,6 +119,8 @@ describe("Calc tests", () => {
       [-37.72, 112.3],
       [-82.659, -81.86],
       [48.723, 20.56],
+      [-71.55, -0.225],
+      [-2.944, -0.128],
     ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(Number(a), Number(b))) return;
@@ -477,13 +486,6 @@ describe("Random tests", () => {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(a, b)) return;
         const name = `${a} ${t.op} ${b}`;
-        if (
-          [
-            `-2.944 % -0.128`, // JavaScript operations do not return correct results.
-          ].includes(name)
-        )
-          return;
-
         it(name, () => {
           const ba = new BigNum(a);
           const bb = new BigNum(b);
