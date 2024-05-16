@@ -5,7 +5,13 @@ import { BigNum } from "../../src/index.mjs";
 
 chai.use(jestSnapshotPlugin());
 
-const B_TESTS = [
+type BTest = {
+  op: string;
+  n: (a: any, b: any) => number | bigint;
+  b: (a: BigNum, b: BigNum) => BigNum;
+  ignore?: (a: number, b: number) => boolean;
+};
+const B_TESTS: BTest[] = [
   {
     op: "+",
     n: (a, b) => a + b,
@@ -55,14 +61,15 @@ const B_TESTS = [
     n: (a, b) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
     b: (a: BigNum, b: BigNum) => BigNum.valueOf(a.compareTo(b)),
   },
-] satisfies {
-  op: string;
-  n: (a: any, b: any) => number | bigint;
-  b: (a: BigNum, b: BigNum) => BigNum;
-  ignore?: (a: number, b: number) => boolean;
-}[];
+];
 
-const U_TESTS = [
+type UTest = {
+  fn: string;
+  n: (a: number | bigint) => number | bigint;
+  b: (a: BigNum) => BigNum;
+  ignore?: (a: number) => boolean;
+};
+const U_TESTS: UTest[] = [
   {
     fn: "negate",
     n: (a) => -a,
@@ -99,12 +106,7 @@ const U_TESTS = [
     b: (a: BigNum) => a.sqrt(),
     ignore: (a) => String(a).startsWith("-"),
   },
-] satisfies {
-  fn: string;
-  n: (a: number | bigint) => number | bigint;
-  b: (a: BigNum) => BigNum | number;
-  ignore?: (a: number) => boolean;
-}[];
+];
 
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
@@ -515,7 +517,9 @@ describe("Random tests", () => {
    */
   function random(set: Set<number>) {
     let v: number;
-    while (set.has((v = Math.floor(Math.random() * 300000 - 150000) / 1000)));
+    while (
+      set.has((v = Math.floor(Math.random() * 300000000 - 150000000) / 100000))
+    );
     return v;
   }
 });

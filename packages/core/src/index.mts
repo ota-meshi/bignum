@@ -166,13 +166,12 @@ class Internal {
         return candidate;
     }
 
-    const quotientSign = divisor.signum() === this.signum() ? "" : "-";
     const absTarget = alignedTarget.abs();
     const absDivisor = alignedDivisor.abs().#trunc();
 
     let remainder = absTarget.i;
 
-    const digits: bigint[] = [];
+    let digit = 0n;
     const digitExponent = length(remainder) - length(absDivisor) + 1n;
     let powOfTen: bigint;
     if (digitExponent >= 0n) {
@@ -188,7 +187,7 @@ class Internal {
         return -exponent;
       },
       get precision() {
-        return BigInt(digits.length);
+        return length(digit);
       },
     };
     while (remainder > 0n && !overflow(overflowCtx)) {
@@ -210,24 +209,16 @@ class Internal {
       }
 
       // Set digit
-      if (
-        // Ignore leading zero
-        n ||
-        digits.length
-      ) {
-        digits.push(n);
-        remainder -= amount;
-      }
+      digit = digit * 10n + n;
+      remainder -= amount;
     }
-    while (overflow(overflowCtx) && digits.length) {
+    while (overflow(overflowCtx) && digit) {
       exponent++;
-      digits.pop();
+      digit /= 10n;
     }
 
-    return new Internal(
-      BigInt(quotientSign + (digits.join("") || "0")),
-      exponent,
-    );
+    if (divisor.signum() !== this.signum()) digit = -digit;
+    return new Internal(digit, exponent);
   }
 
   public modulo(divisor: Internal | Inf): Internal | Inf | null {
@@ -278,25 +269,17 @@ class Internal {
     if (!this.i) return this;
     if (this.i < 0n) throw new Error("Negative number");
     const overflow = parseOFOption(options, this.#scale());
-    this.#simplify();
-
     // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
     const decimalLength = this.#scale();
     const decimalLengthIsOdd = decimalLength & 1n;
 
-    let remainder = this.i;
+    let remainder = this.#simplify().i;
     if (decimalLengthIsOdd) remainder *= 10n;
     let part = 0n;
 
-    const digits: bigint[] = [];
+    let digit = 0n;
     const digitExponent = length(remainder) / 2n + 1n;
-    let powOfHand: bigint;
-    if (digitExponent >= 0n) {
-      powOfHand = 100n ** digitExponent;
-    } else {
-      powOfHand = 1n;
-      remainder *= 100n ** -digitExponent;
-    }
+    let powOfHand: bigint = 100n ** digitExponent;
 
     let exponent =
       digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n);
@@ -305,12 +288,12 @@ class Internal {
         return -exponent;
       },
       get precision() {
-        return BigInt(digits.length);
+        return length(digit);
       },
     };
     while (remainder > 0n && !overflow(overflowCtx)) {
       exponent--;
-      if (powOfHand > 1n) {
+      if (powOfHand > 10n) {
         powOfHand /= 100n;
       } else {
         remainder *= 100n;
@@ -327,22 +310,16 @@ class Internal {
       }
 
       // Set digit
-      if (
-        // Ignore leading zero
-        n ||
-        digits.length
-      ) {
-        digits.push(n);
-        remainder -= amount;
-        part = (part + n * 2n) * 10n;
-      }
+      digit = digit * 10n + n;
+      remainder -= amount;
+      part = (part + n * 2n) * 10n;
     }
-    while (overflow(overflowCtx) && digits.length) {
+    while (overflow(overflowCtx) && digit) {
       exponent++;
-      digits.pop();
+      digit /= 10n;
     }
 
-    return new Internal(BigInt(digits.join("") || "0"), exponent);
+    return new Internal(digit, exponent);
   }
 
   public trunc() {
