@@ -174,38 +174,38 @@ class Internal {
     const digitExponent = max(length(remainder) - length(iDivisor) + 1n, 0n);
     const pow: bigint = 10n ** digitExponent;
 
-    let digit = 0n;
+    let digits = 0n;
     let exponent = digitExponent + alignedTarget.e;
     const overflowCtx: OverflowContext = {
       get scale() {
         return -exponent;
       },
       get precision() {
-        return length(digit);
+        return length(digits);
       },
     };
     while (remainder > 0n && !overflow(overflowCtx)) {
       exponent--;
       remainder *= 10n;
-      digit *= 10n;
+      digits *= 10n;
       // Find digit
       if (remainder < iDivisor * pow) continue; // Short circuit: If 1 is not available, it will not loop.
       for (let n = 9n; n > 0n; n--) {
         const amount = iDivisor * n * pow;
         if (remainder < amount) continue;
         // Set digit
-        digit += n;
+        digits += n;
         remainder -= amount;
         break;
       }
     }
-    while (overflow(overflowCtx) && digit) {
+    while (overflow(overflowCtx) && digits) {
       exponent++;
-      digit /= 10n;
+      digits /= 10n;
     }
 
-    if (divisor.signum() !== this.signum()) digit = -digit;
-    return new Internal(digit, exponent);
+    if (divisor.signum() !== this.signum()) digits = -digits;
+    return new Internal(digits, exponent);
   }
 
   public modulo(divisor: Internal | Inf): Internal | Inf | null {
@@ -267,7 +267,7 @@ class Internal {
     const digitExponent = length(remainder) / 2n + 1n;
     const pow: bigint = 100n ** digitExponent;
 
-    let digit = 0n;
+    let digits = 0n;
     let exponent =
       digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n);
     const overflowCtx: OverflowContext = {
@@ -275,32 +275,32 @@ class Internal {
         return -exponent;
       },
       get precision() {
-        return length(digit);
+        return length(digits);
       },
     };
     while (remainder > 0n && !overflow(overflowCtx)) {
       exponent--;
       remainder *= 100n;
-      digit *= 10n;
+      digits *= 10n;
       part *= 10n;
       // Find digit
       if (remainder < (part + 1n) * pow) continue; // Short circuit: If 1 is not available, it will not loop.
       for (let n = 9n; n > 0n; n--) {
-        const amount = n * (part + n) * pow;
+        const amount = (part + n) * n * pow;
         if (remainder < amount) continue;
         // Set digit
-        digit += n;
+        digits += n;
         remainder -= amount;
         part += n * 2n;
         break;
       }
     }
-    while (overflow(overflowCtx) && digit) {
+    while (overflow(overflowCtx) && digits) {
       exponent++;
-      digit /= 10n;
+      digits /= 10n;
     }
 
-    return new Internal(digit, exponent);
+    return new Internal(digits, exponent);
   }
 
   public trunc() {
@@ -332,7 +332,7 @@ class Internal {
   }
 
   public compareTo(other: Internal | Inf): 0 | -1 | 1 {
-    if (other.inf) return -other.compareTo(this) as 0 | -1 | 1;
+    if (other.inf) return other.s > 0 ? -1 : 1;
     this.#alignExponent(other);
     return compare(this.i, other.i);
   }
