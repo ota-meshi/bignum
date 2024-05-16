@@ -1,5 +1,11 @@
 # @bignum/core
 
+## 0.6.0
+
+### Minor Changes
+
+- feat: add support non-integer pow ([#24](https://github.com/ota-meshi/bignum/pull/24))
+
 ## 0.5.0
 
 ### Minor Changes
