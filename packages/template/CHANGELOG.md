@@ -1,5 +1,12 @@
 # @bignum/template
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`251010a5e58d4d72cf31a6e9472706fe813c4897`](https://github.com/ota-meshi/bignum/commit/251010a5e58d4d72cf31a6e9472706fe813c4897)]:
+  - @bignum/core@0.6.0
+
 ## 0.2.1
 
 ### Patch Changes
