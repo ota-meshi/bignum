@@ -518,7 +518,7 @@ describe("Random tests", () => {
   function random(set: Set<number>) {
     let v: number;
     while (
-      set.has((v = Math.floor(Math.random() * 300000000 - 150000000) / 100000))
+      set.has((v = Math.floor(Math.random() * 300000000 - 1500000000) / 100000))
     );
     return v;
   }

@@ -160,19 +160,18 @@ class Internal {
       if (
         !overflow({
           scale: candidate.#scale(),
-          precision: BigInt(candidate.#precision()),
+          precision: candidate.#precision(),
         })
       )
         return candidate;
     }
 
-    const absTarget = alignedTarget.abs();
-    const absDivisor = alignedDivisor.abs().#trunc();
+    const iDivisor = abs(alignedDivisor.#trunc());
 
-    let remainder = absTarget.i;
+    let remainder = abs(alignedTarget.i);
 
     let digit = 0n;
-    const digitExponent = length(remainder) - length(absDivisor) + 1n;
+    const digitExponent = length(remainder) - length(iDivisor) + 1n;
     let powOfTen: bigint;
     if (digitExponent >= 0n) {
       powOfTen = 10n ** digitExponent;
@@ -181,7 +180,7 @@ class Internal {
       remainder *= 10n ** -digitExponent;
     }
 
-    let exponent = digitExponent + absTarget.e;
+    let exponent = digitExponent + alignedTarget.e;
     const overflowCtx: OverflowContext = {
       get scale() {
         return -exponent;
@@ -202,7 +201,7 @@ class Internal {
       let n = 0n;
       let amount = 0n;
       for (let nn = 1n; nn < 10n; nn++) {
-        const nextAmount = absDivisor * nn * powOfTen;
+        const nextAmount = iDivisor * nn * powOfTen;
         if (remainder < nextAmount) break;
         n = nn;
         amount = nextAmount;
@@ -358,14 +357,15 @@ class Internal {
 
   public toString(): string {
     if (!this.e) return String(this.i);
-    const integerPart = [...String(this.i)];
-    const decimalPart: string[] = [];
-    const sign = this.i < 0n ? integerPart.shift() : "";
+    let integer = abs(this.i);
+    const decimal: bigint[] = [];
     for (let n = this.e; n < 0; n++) {
-      const decimal = integerPart.pop() || "0";
-      if (decimalPart.length || decimal !== "0") decimalPart.unshift(decimal);
+      const last = integer % 10n;
+      integer /= 10n;
+      if (decimal.length || last) decimal.unshift(last);
     }
-    return `${sign}${integerPart.join("") || "0"}${decimalPart.length ? `.${decimalPart.join("")}` : ""}`;
+    const sign = this.i < 0n ? "-" : "";
+    return `${sign}${integer}${decimal.length ? `.${decimal.join("")}` : ""}`;
   }
 
   public toBigInt(): bigint {
@@ -379,19 +379,15 @@ class Internal {
   }
 
   #precision() {
-    let n = String(this.abs().i);
-    while (n.endsWith("0")) n = n.slice(0, -1);
-    return n.length || 1;
+    let n = this.i;
+    while (!(n % 10n)) n /= 10n;
+    return length(n);
   }
 
   #simplify() {
-    for (let e = -this.e; e > 0n; e--) {
-      if (this.i % 10n ** e) {
-        continue;
-      }
-      this.#updateExponent(this.e + e);
-      break;
-    }
+    if (!this.e) return this;
+    const newE = this.e + length(this.i) - this.#precision();
+    this.#updateExponent(min(newE, 0n));
     return this;
   }
 
@@ -714,10 +710,20 @@ function compare(a: bigint, b: bigint) {
 /** Get length */
 function length(a: bigint): bigint {
   let t = a;
-  for (let i = 0n; ; i++) if (!(t /= 10n)) return i;
+  for (let i = 1n; ; i++) if (!(t /= 10n)) return i;
 }
 
 /** Get max value */
 function max(a: bigint, b: bigint): bigint {
   return a >= b ? a : b;
+}
+
+/** Get max value */
+function min(a: bigint, b: bigint): bigint {
+  return a <= b ? a : b;
+}
+
+/** Get abs value */
+function abs(a: bigint): bigint {
+  return a >= 0n ? a : -a;
 }
