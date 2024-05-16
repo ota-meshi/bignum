@@ -455,8 +455,8 @@ class Inf {
     return this; // inf ** num
   }
 
-  public sqrt(): Inf {
-    return this;
+  public sqrt(): Inf | null {
+    return this.s < 0 ? null : this;
   }
 
   public scaleByPowerOfTen(n: Inf | Internal) {
