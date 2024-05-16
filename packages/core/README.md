@@ -84,11 +84,11 @@ An object can be given as an option. It's the same option for `divide()`. This i
 
 Options:
 
-| Name                    | Type                 | Description                                                                                                                                                 |
-| :---------------------- | :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| overflow                | `(context)=>boolean` | You can specify an overflow test function. By default, if there are decimals and the number of significant digits exceeds 20, it is considered an overflow. |
-| ~~maxDp~~               | bigint               | **Deprecated**. The maximum number of decimal places.                                                                                                       |
-| ~~maxDecimalPrecision~~ | bigint               | **Deprecated**. The maximum number of precision when having decimals.                                                                                       |
+| Name                    | Type                 | Description                                                                                                                                         |
+| :---------------------- | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| overflow                | `(context)=>boolean` | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
+| ~~maxDp~~               | bigint               | **Deprecated**. The maximum number of decimal places.                                                                                               |
+| ~~maxDecimalPrecision~~ | bigint               | **Deprecated**. The maximum number of precision when having decimals.                                                                               |
 
 - `context` parameter
 

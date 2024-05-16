@@ -5,7 +5,13 @@ import { BigNum } from "../../src/index.mjs";
 
 chai.use(jestSnapshotPlugin());
 
-const B_TESTS = [
+type BTest = {
+  op: string;
+  n: (a: any, b: any) => number | bigint;
+  b: (a: BigNum, b: BigNum) => BigNum;
+  ignore?: (a: number, b: number) => boolean;
+};
+const B_TESTS: BTest[] = [
   {
     op: "+",
     n: (a, b) => a + b,
@@ -42,27 +48,32 @@ const B_TESTS = [
     op: "**",
     n: (a, b) => a ** b,
     b: (a: BigNum, b: BigNum) => a.pow(b),
-    ignore: (a, b) => isFinite(a) && isFinite(b) && !Number.isInteger(b),
+    ignore: (a, b) =>
+      (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
+      (isFinite(b) && Math.abs(b) > 1000),
   },
   {
     op: "* 10 **",
     n: (a, b) => (typeof a === "bigint" ? a * 10n ** b : a * 10 ** b),
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
-    ignore: (a, b) => isFinite(a) && isFinite(b) && !Number.isInteger(b),
+    ignore: (a, b) =>
+      (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
+      (isFinite(b) && Math.abs(b) > 1000),
   },
   {
     op: "compareTo",
     n: (a, b) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
     b: (a: BigNum, b: BigNum) => BigNum.valueOf(a.compareTo(b)),
   },
-] satisfies {
-  op: string;
-  n: (a: any, b: any) => number | bigint;
-  b: (a: BigNum, b: BigNum) => BigNum;
-  ignore?: (a: number, b: number) => boolean;
-}[];
+];
 
-const U_TESTS = [
+type UTest = {
+  fn: string;
+  n: (a: number | bigint) => number | bigint;
+  b: (a: BigNum) => BigNum;
+  ignore?: (a: number) => boolean;
+};
+const U_TESTS: UTest[] = [
   {
     fn: "negate",
     n: (a) => -a,
@@ -97,14 +108,9 @@ const U_TESTS = [
     fn: "sqrt",
     n: (a) => Math.sqrt(Number(a)),
     b: (a: BigNum) => a.sqrt(),
-    ignore: (a) => String(a).startsWith("-"),
+    ignore: (a) => isFinite(a) && a < 0,
   },
-] satisfies {
-  fn: string;
-  n: (a: number | bigint) => number | bigint;
-  b: (a: BigNum) => BigNum | number;
-  ignore?: (a: number) => boolean;
-}[];
+];
 
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
@@ -349,6 +355,28 @@ describe("standard tests", () => {
     () => BigNum.valueOf(-Infinity).scaleByPowerOfTen(Infinity),
     () => BigNum.valueOf(Infinity).scaleByPowerOfTen(-Infinity),
     () => BigNum.valueOf(-Infinity).scaleByPowerOfTen(-Infinity),
+    // sqrt
+    () => BigNum.valueOf(2).sqrt(),
+    () => BigNum.valueOf(3).sqrt(),
+    () => BigNum.valueOf(4).sqrt(),
+    () => BigNum.valueOf(5).sqrt(),
+    () => BigNum.valueOf(6).sqrt(),
+    () => BigNum.valueOf(7).sqrt(),
+    () => BigNum.valueOf(8).sqrt(),
+    () => BigNum.valueOf(9).sqrt(),
+    () => BigNum.valueOf(10).sqrt(),
+    () => BigNum.valueOf(271441).sqrt(),
+    () => BigNum.valueOf(2.25).sqrt(),
+    () => BigNum.valueOf(0.5625).sqrt(),
+    () => BigNum.valueOf(0.0145).sqrt(),
+    () => BigNum.valueOf(22.25).sqrt(),
+    () => BigNum.valueOf(1.499).sqrt(),
+    () => BigNum.valueOf(1.5).sqrt(),
+    () => BigNum.valueOf(1.501).sqrt(),
+    () => BigNum.valueOf(0).sqrt(),
+    () => BigNum.valueOf(NaN).sqrt(),
+    () => BigNum.valueOf(Infinity).sqrt(),
+    () => BigNum.valueOf(-Infinity).sqrt(),
     // trunc
     () => BigNum.valueOf(1).trunc(),
     () => BigNum.valueOf(1.499).trunc(),
@@ -515,7 +543,9 @@ describe("Random tests", () => {
    */
   function random(set: Set<number>) {
     let v: number;
-    while (set.has((v = Math.floor(Math.random() * 300000 - 150000) / 1000)));
+    while (
+      set.has((v = Math.floor(Math.random() * 300000000 - 1500000000) / 100000))
+    );
     return v;
   }
 });

@@ -153,6 +153,7 @@ class Internal {
     );
 
     if (!(alignedTarget.i % alignedDivisor.i)) {
+      // Short circuit
       const candidate = new Internal(
         alignedTarget.i / alignedDivisor.i,
         alignedTarget.e - alignedDivisor.e,
@@ -160,74 +161,51 @@ class Internal {
       if (
         !overflow({
           scale: candidate.#scale(),
-          precision: BigInt(candidate.#precision()),
+          precision: candidate.#precision(),
         })
       )
         return candidate;
     }
 
-    const quotientSign = divisor.signum() === this.signum() ? "" : "-";
-    const absTarget = alignedTarget.abs();
-    const absDivisor = alignedDivisor.abs().#trunc();
+    const iDivisor = abs(alignedDivisor.#trunc());
 
-    let remainder = absTarget.i;
+    let remainder = abs(alignedTarget.i);
 
-    const digits: bigint[] = [];
-    const digitExponent = length(remainder) - length(absDivisor) + 1n;
-    let powOfTen: bigint;
-    if (digitExponent >= 0n) {
-      powOfTen = 10n ** digitExponent;
-    } else {
-      powOfTen = 1n;
-      remainder *= 10n ** -digitExponent;
-    }
+    const digitExponent = max(length(remainder) - length(iDivisor) + 1n, 0n);
+    const pow: bigint = 10n ** digitExponent;
 
-    let exponent = digitExponent + absTarget.e;
+    let digits = 0n;
+    let exponent = digitExponent + alignedTarget.e;
     const overflowCtx: OverflowContext = {
       get scale() {
         return -exponent;
       },
       get precision() {
-        return BigInt(digits.length);
+        return length(digits);
       },
     };
     while (remainder > 0n && !overflow(overflowCtx)) {
       exponent--;
-      if (powOfTen > 1n) {
-        powOfTen /= 10n;
-      } else {
-        remainder *= 10n;
-      }
-
+      remainder *= 10n;
+      digits *= 10n;
       // Find digit
-      let n = 0n;
-      let amount = 0n;
-      for (let nn = 1n; nn < 10n; nn++) {
-        const nextAmount = absDivisor * nn * powOfTen;
-        if (remainder < nextAmount) break;
-        n = nn;
-        amount = nextAmount;
-      }
-
-      // Set digit
-      if (
-        // Ignore leading zero
-        n ||
-        digits.length
-      ) {
-        digits.push(n);
+      if (remainder < iDivisor * pow) continue; // Short circuit: If 1 is not available, it will not loop.
+      for (let n = 9n; n > 0n; n--) {
+        const amount = iDivisor * n * pow;
+        if (remainder < amount) continue;
+        // Set digit
+        digits += n;
         remainder -= amount;
+        break;
       }
     }
-    while (overflow(overflowCtx) && digits.length) {
+    while (overflow(overflowCtx) && digits) {
       exponent++;
-      digits.pop();
+      digits /= 10n;
     }
 
-    return new Internal(
-      BigInt(quotientSign + (digits.join("") || "0")),
-      exponent,
-    );
+    if (divisor.signum() !== this.signum()) digits = -digits;
+    return new Internal(digits, exponent);
   }
 
   public modulo(divisor: Internal | Inf): Internal | Inf | null {
@@ -278,26 +256,18 @@ class Internal {
     if (!this.i) return this;
     if (this.i < 0n) throw new Error("Negative number");
     const overflow = parseOFOption(options, this.#scale());
-    this.#simplify();
-
     // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
     const decimalLength = this.#scale();
     const decimalLengthIsOdd = decimalLength & 1n;
 
-    let remainder = this.i;
+    let remainder = this.#simplify().i;
     if (decimalLengthIsOdd) remainder *= 10n;
     let part = 0n;
 
-    const digits: bigint[] = [];
     const digitExponent = length(remainder) / 2n + 1n;
-    let powOfHand: bigint;
-    if (digitExponent >= 0n) {
-      powOfHand = 100n ** digitExponent;
-    } else {
-      powOfHand = 1n;
-      remainder *= 100n ** -digitExponent;
-    }
+    const pow: bigint = 100n ** digitExponent;
 
+    let digits = 0n;
     let exponent =
       digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n);
     const overflowCtx: OverflowContext = {
@@ -305,44 +275,32 @@ class Internal {
         return -exponent;
       },
       get precision() {
-        return BigInt(digits.length);
+        return length(digits);
       },
     };
     while (remainder > 0n && !overflow(overflowCtx)) {
       exponent--;
-      if (powOfHand > 1n) {
-        powOfHand /= 100n;
-      } else {
-        remainder *= 100n;
-      }
-
+      remainder *= 100n;
+      digits *= 10n;
+      part *= 10n;
       // Find digit
-      let n = 0n;
-      let amount = 0n;
-      for (let nn = 1n; nn < 10n; nn++) {
-        const nextAmount = nn * (part + nn) * powOfHand;
-        if (remainder < nextAmount) break;
-        n = nn;
-        amount = nextAmount;
-      }
-
-      // Set digit
-      if (
-        // Ignore leading zero
-        n ||
-        digits.length
-      ) {
-        digits.push(n);
+      if (remainder < (part + 1n) * pow) continue; // Short circuit: If 1 is not available, it will not loop.
+      for (let n = 9n; n > 0n; n--) {
+        const amount = (part + n) * n * pow;
+        if (remainder < amount) continue;
+        // Set digit
+        digits += n;
         remainder -= amount;
-        part = (part + n * 2n) * 10n;
+        part += n * 2n;
+        break;
       }
     }
-    while (overflow(overflowCtx) && digits.length) {
+    while (overflow(overflowCtx) && digits) {
       exponent++;
-      digits.pop();
+      digits /= 10n;
     }
 
-    return new Internal(BigInt(digits.join("") || "0"), exponent);
+    return new Internal(digits, exponent);
   }
 
   public trunc() {
@@ -374,21 +332,22 @@ class Internal {
   }
 
   public compareTo(other: Internal | Inf): 0 | -1 | 1 {
-    if (other.inf) return -other.compareTo(this) as 0 | -1 | 1;
+    if (other.inf) return other.s > 0 ? -1 : 1;
     this.#alignExponent(other);
     return compare(this.i, other.i);
   }
 
   public toString(): string {
     if (!this.e) return String(this.i);
-    const integerPart = [...String(this.i)];
-    const decimalPart: string[] = [];
-    const sign = this.i < 0n ? integerPart.shift() : "";
+    let integer = abs(this.i);
+    const decimal: bigint[] = [];
     for (let n = this.e; n < 0; n++) {
-      const decimal = integerPart.pop() || "0";
-      if (decimalPart.length || decimal !== "0") decimalPart.unshift(decimal);
+      const last = integer % 10n;
+      integer /= 10n;
+      if (decimal.length || last) decimal.unshift(last);
     }
-    return `${sign}${integerPart.join("") || "0"}${decimalPart.length ? `.${decimalPart.join("")}` : ""}`;
+    const sign = this.i < 0n ? "-" : "";
+    return `${sign}${integer}${decimal.length ? `.${decimal.join("")}` : ""}`;
   }
 
   public toBigInt(): bigint {
@@ -402,19 +361,15 @@ class Internal {
   }
 
   #precision() {
-    let n = String(this.abs().i);
-    while (n.endsWith("0")) n = n.slice(0, -1);
-    return n.length || 1;
+    let n = this.i;
+    while (!(n % 10n)) n /= 10n;
+    return length(n);
   }
 
   #simplify() {
-    for (let e = -this.e; e > 0n; e--) {
-      if (this.i % 10n ** e) {
-        continue;
-      }
-      this.#updateExponent(this.e + e);
-      break;
-    }
+    if (!this.e) return this;
+    const newE = this.e + length(this.i) - this.#precision();
+    this.#updateExponent(min(newE, 0n));
     return this;
   }
 
@@ -500,8 +455,8 @@ class Inf {
     return this; // inf ** num
   }
 
-  public sqrt(): Inf {
-    return this;
+  public sqrt(): Inf | null {
+    return this.s < 0 ? null : this;
   }
 
   public scaleByPowerOfTen(n: Inf | Internal) {
@@ -546,11 +501,7 @@ export class BigNum {
 
   readonly #p: Internal | Inf | null;
 
-  public static valueOf(
-    value: string | number | bigint | boolean | BigNum,
-  ): BigNum {
-    return valueOf(value);
-  }
+  static valueOf = valueOf;
 
   public constructor(
     value:
@@ -568,16 +519,12 @@ export class BigNum {
       this.#p = null;
       return;
     }
-    if (value instanceof Internal) {
+    if (value instanceof Internal || value instanceof Inf) {
       this.#p = value;
       return;
     }
     if (value instanceof BigNum) {
       this.#p = value.#p;
-      return;
-    }
-    if (value instanceof Inf) {
-      this.#p = value;
       return;
     }
     if (value === Infinity) {
@@ -737,10 +684,20 @@ function compare(a: bigint, b: bigint) {
 /** Get length */
 function length(a: bigint): bigint {
   let t = a;
-  for (let i = 0n; ; i++) if (!(t /= 10n)) return i;
+  for (let i = 1n; ; i++) if (!(t /= 10n)) return i;
 }
 
 /** Get max value */
 function max(a: bigint, b: bigint): bigint {
   return a >= b ? a : b;
+}
+
+/** Get max value */
+function min(a: bigint, b: bigint): bigint {
+  return a <= b ? a : b;
+}
+
+/** Get abs value */
+function abs(a: bigint): bigint {
+  return a >= 0n ? a : -a;
 }
