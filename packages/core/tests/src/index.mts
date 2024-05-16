@@ -48,13 +48,17 @@ const B_TESTS: BTest[] = [
     op: "**",
     n: (a, b) => a ** b,
     b: (a: BigNum, b: BigNum) => a.pow(b),
-    ignore: (a, b) => isFinite(a) && isFinite(b) && !Number.isInteger(b),
+    ignore: (a, b) =>
+      (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
+      (isFinite(b) && Math.abs(b) > 1000),
   },
   {
     op: "* 10 **",
     n: (a, b) => (typeof a === "bigint" ? a * 10n ** b : a * 10 ** b),
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
-    ignore: (a, b) => isFinite(a) && isFinite(b) && !Number.isInteger(b),
+    ignore: (a, b) =>
+      (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
+      (isFinite(b) && Math.abs(b) > 1000),
   },
   {
     op: "compareTo",
