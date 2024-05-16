@@ -1,5 +1,14 @@
 # @bignum/template-compiler
 
+## 0.1.1
+
+### Patch Changes
+
+- fix: wrong precedence for successive pows ([#21](https://github.com/ota-meshi/bignum/pull/21))
+
+- Updated dependencies [[`12b2839fbb2705d1c265fbf6b3af71c00402a8dc`](https://github.com/ota-meshi/bignum/commit/12b2839fbb2705d1c265fbf6b3af71c00402a8dc)]:
+  - @bignum/shared@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

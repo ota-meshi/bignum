@@ -1,6 +1,6 @@
 {
   "name": "@bignum/template-compiler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A compiler that compiles template literals for calculation.",
   "type": "module",
   "exports": {
@@ -45,7 +45,7 @@
   },
   "homepage": "https://github.com/ota-meshi/bignum#readme",
   "dependencies": {
-    "@bignum/shared": "^0.1.0"
+    "@bignum/shared": "^0.1.1"
   },
   "devDependencies": {}
 }

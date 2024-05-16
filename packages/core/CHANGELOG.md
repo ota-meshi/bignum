@@ -1,5 +1,11 @@
 # @bignum/core
 
+## 0.5.0
+
+### Minor Changes
+
+- feat: add support for nthRoot ([#23](https://github.com/ota-meshi/bignum/pull/23))
+
 ## 0.4.0
 
 ### Minor Changes
