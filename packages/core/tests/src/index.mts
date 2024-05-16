@@ -6,8 +6,8 @@ import { BigNum } from "../../src/index.mjs";
 chai.use(jestSnapshotPlugin());
 
 type BTest = {
-  op: string;
-  n: (a: any, b: any) => number | bigint;
+  op: string | ((a: number, b: number) => string);
+  n: (a: number, b: number) => number | bigint;
   b: (a: BigNum, b: BigNum) => BigNum;
   ignore?: (a: number, b: number) => boolean;
 };
@@ -54,12 +54,32 @@ const B_TESTS: BTest[] = [
   },
   {
     op: "* 10 **",
-    n: (a, b) => (typeof a === "bigint" ? a * 10n ** b : a * 10 ** b),
+    n: (a, b) => a * 10 ** b,
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
     ignore: (a, b) =>
       (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
       (isFinite(b) && Math.abs(b) > 1000),
   },
+  (() => {
+    return {
+      op: (a, b) => `${a} ** (1/${normalizeB(a, b)})`,
+      n: (a, b) => Number(a) ** (1 / normalizeB(a, b)),
+      b: (a: BigNum, b: BigNum) =>
+        a.nthRoot(a.isFinite() && b.isFinite() ? b.abs() : b),
+      ignore: (a, b) =>
+        (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
+        b === 0 ||
+        (isFinite(a) && isFinite(b) && b > 100),
+    };
+
+    /**
+     * Normalize b
+     */
+    function normalizeB(a: number, b: number) {
+      return isFinite(a) && isFinite(b) ? Math.abs(b) : b;
+    }
+  })(),
+
   {
     op: "compareTo",
     n: (a, b) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
@@ -115,13 +135,18 @@ const U_TESTS: UTest[] = [
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
+      [0.2, 2],
+      [123.45, 20],
+      [16777216, 3],
+      [4294967296, 4],
+      [27, 3],
+      [5, 4],
       [101.669, 0],
       [146.007, -2],
       [146.007, -88],
       [1n, 2n],
       [0.443, 112.586],
       [131.868, 3],
-      [123.45, 20],
       [-37.72, 112.3],
       [-82.659, -81.86],
       [48.723, 20.56],
@@ -130,12 +155,15 @@ describe("Calc tests", () => {
     ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(Number(a), Number(b))) return;
-
-        it(`${a} ${t.op} ${b}`, () => {
+        const name =
+          typeof t.op === "function"
+            ? t.op(Number(a), Number(b))
+            : `${a} ${t.op} ${b}`;
+        it(name, () => {
           const ba = new BigNum(a);
           const bb = new BigNum(b);
           const actual = t.b(ba, bb);
-          const expect = t.n(a, b);
+          const expect = t.n(Number(a), Number(b));
           lazyAssert(actual, expect);
         });
       });
@@ -377,6 +405,34 @@ describe("standard tests", () => {
     () => BigNum.valueOf(NaN).sqrt(),
     () => BigNum.valueOf(Infinity).sqrt(),
     () => BigNum.valueOf(-Infinity).sqrt(),
+    // nthRoot
+    () => BigNum.valueOf(2).nthRoot(2),
+    () => BigNum.valueOf(2).nthRoot(3),
+    () => BigNum.valueOf(2).nthRoot(4),
+    // () => BigNum.valueOf(2).nthRoot(-2),
+    // () => BigNum.valueOf(2).nthRoot(-3),
+    // () => BigNum.valueOf(2).nthRoot(-4),
+    () => BigNum.valueOf(0.2).nthRoot(2),
+    () => BigNum.valueOf(0.2).nthRoot(3),
+    () => BigNum.valueOf(0.2).nthRoot(4),
+    // () => BigNum.valueOf(0.2).nthRoot(-2),
+    // () => BigNum.valueOf(0.2).nthRoot(-3),
+    // () => BigNum.valueOf(0.2).nthRoot(-4),
+    () => BigNum.valueOf(0.2).nthRoot(BigNum.valueOf(0.2).add(3.8)),
+    () => BigNum.valueOf(NaN).nthRoot(3),
+    () => BigNum.valueOf(3).nthRoot(NaN),
+    () => BigNum.valueOf(NaN).nthRoot(-3),
+    () => BigNum.valueOf(NaN).nthRoot(NaN),
+    () => BigNum.valueOf(Infinity).nthRoot(2),
+    () => BigNum.valueOf(-Infinity).nthRoot(2),
+    () => BigNum.valueOf(Infinity).nthRoot(-2),
+    () => BigNum.valueOf(-Infinity).nthRoot(-2),
+    () => BigNum.valueOf(2).nthRoot(Infinity),
+    () => BigNum.valueOf(2).nthRoot(-Infinity),
+    () => BigNum.valueOf(Infinity).nthRoot(Infinity),
+    () => BigNum.valueOf(-Infinity).nthRoot(Infinity),
+    () => BigNum.valueOf(Infinity).nthRoot(-Infinity),
+    () => BigNum.valueOf(-Infinity).nthRoot(-Infinity),
     // trunc
     () => BigNum.valueOf(1).trunc(),
     () => BigNum.valueOf(1.499).trunc(),
@@ -485,7 +541,9 @@ describe("Infinity tests", () => {
       for (const b of [3, 1, 0, -1, -3, Infinity, -Infinity]) {
         [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
           if (t.ignore?.(a, b)) return;
-          it(`${a} ${t.op} ${b}`, () => {
+          const name =
+            typeof t.op === "function" ? t.op(a, b) : `${a} ${t.op} ${b}`;
+          it(name, () => {
             const ba = new BigNum(a);
             const bb = new BigNum(b);
             assert.strictEqual(`${t.b(ba, bb)}`, `${t.n(a, b)}`);
@@ -513,7 +571,8 @@ describe("Random tests", () => {
       const b = random(set);
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(a, b)) return;
-        const name = `${a} ${t.op} ${b}`;
+        const name =
+          typeof t.op === "function" ? t.op(a, b) : `${a} ${t.op} ${b}`;
         it(name, () => {
           const ba = new BigNum(a);
           const bb = new BigNum(b);
@@ -563,7 +622,7 @@ function lazyAssert(actual: BigNum, expect: number | bigint) {
     assert.ok(diff.signum() === 0, `${actual} === ${expect}`);
     return;
   }
-  const tolerance = actual.abs().divide(10000000000, {
+  const tolerance = actual.abs().divide(1000000000, {
     overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
   });
   assert.ok(

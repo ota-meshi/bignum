@@ -148,6 +148,14 @@ exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(Infinity) 1`] =
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).negate() 1`] = `"Infinity"`;
 
+exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(-2) 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(-Infinity) 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(2) 1`] = `"Infinity"`;
+
+exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(Infinity) 1`] = `"1"`;
+
 exports[`standard tests () => BigNum.valueOf(-Infinity).pow(-2) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).pow(-Infinity) 1`] = `"0"`;
@@ -227,6 +235,14 @@ exports[`standard tests () => BigNum.valueOf(0.0145).sqrt() 1`] = `"\\"0.1204159
 exports[`standard tests () => BigNum.valueOf(0.2).add(0.01) 1`] = `"0.21"`;
 
 exports[`standard tests () => BigNum.valueOf(0.2).add(0.1) 1`] = `"0.3"`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(2) 1`] = `"\\"0.44721359549995793928\\""`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(3) 1`] = `"\\"0.5848035476425732131\\""`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(4) 1`] = `"\\"0.668740304976422024\\""`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(BigNum.valueOf(0.2).add(3.8)) 1`] = `"\\"0.668740304976422024\\""`;
 
 exports[`standard tests () => BigNum.valueOf(0.2).pow(-2) 1`] = `"25"`;
 
@@ -308,6 +324,16 @@ exports[`standard tests () => BigNum.valueOf(1.501).trunc() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(2).multiply(0.1).add(0.1) 1`] = `"0.3"`;
 
+exports[`standard tests () => BigNum.valueOf(2).nthRoot(-Infinity) 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(2).nthRoot(2) 1`] = `"\\"1.4142135623730950488\\""`;
+
+exports[`standard tests () => BigNum.valueOf(2).nthRoot(3) 1`] = `"\\"1.25992104989487316476\\""`;
+
+exports[`standard tests () => BigNum.valueOf(2).nthRoot(4) 1`] = `"\\"1.18920711500272106671\\""`;
+
+exports[`standard tests () => BigNum.valueOf(2).nthRoot(Infinity) 1`] = `"1"`;
+
 exports[`standard tests () => BigNum.valueOf(2).pow(-2) 1`] = `"0.25"`;
 
 exports[`standard tests () => BigNum.valueOf(2).pow(-3) 1`] = `"0.125"`;
@@ -373,6 +399,8 @@ exports[`standard tests () => BigNum.valueOf(3).multiply(-Infinity) 1`] = `"-Inf
 exports[`standard tests () => BigNum.valueOf(3).multiply(Infinity) 1`] = `"Infinity"`;
 
 exports[`standard tests () => BigNum.valueOf(3).multiply(NaN) 1`] = `"NaN"`;
+
+exports[`standard tests () => BigNum.valueOf(3).nthRoot(NaN) 1`] = `"NaN"`;
 
 exports[`standard tests () => BigNum.valueOf(3).pow(NaN) 1`] = `"NaN"`;
 
@@ -462,6 +490,14 @@ exports[`standard tests () => BigNum.valueOf(Infinity).multiply(Infinity) 1`] = 
 
 exports[`standard tests () => BigNum.valueOf(Infinity).negate() 1`] = `"-Infinity"`;
 
+exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(-2) 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(-Infinity) 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(2) 1`] = `"Infinity"`;
+
+exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(Infinity) 1`] = `"1"`;
+
 exports[`standard tests () => BigNum.valueOf(Infinity).pow(-2) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).pow(-Infinity) 1`] = `"0"`;
@@ -521,6 +557,12 @@ exports[`standard tests () => BigNum.valueOf(NaN).multiply(3) 1`] = `"NaN"`;
 exports[`standard tests () => BigNum.valueOf(NaN).multiply(NaN) 1`] = `"NaN"`;
 
 exports[`standard tests () => BigNum.valueOf(NaN).negate() 1`] = `"NaN"`;
+
+exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(-3) 1`] = `"NaN"`;
+
+exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(3) 1`] = `"NaN"`;
+
+exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(NaN) 1`] = `"NaN"`;
 
 exports[`standard tests () => BigNum.valueOf(NaN).pow(-3) 1`] = `"NaN"`;
 
