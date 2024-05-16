@@ -48,38 +48,23 @@ const B_TESTS: BTest[] = [
     op: "**",
     n: (a, b) => a ** b,
     b: (a: BigNum, b: BigNum) => a.pow(b),
-    ignore: (a, b) =>
-      (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
-      (isFinite(b) && Math.abs(b) > 1000),
+    ignore: (_a, b) => isFinite(b) && Math.abs(b) > 1000,
   },
   {
     op: "* 10 **",
     n: (a, b) => a * 10 ** b,
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
+    ignore: (_a, b) => isFinite(b) && Math.abs(b) > 1000,
+  },
+  {
+    op: (a, b) => `${a} ** (1/${b})`,
+    n: (a, b) => Number(a) ** (1 / b),
+    b: (a: BigNum, b: BigNum) => a.nthRoot(b),
     ignore: (a, b) =>
       (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
-      (isFinite(b) && Math.abs(b) > 1000),
+      b === 0 ||
+      (isFinite(a) && isFinite(b) && b > 1000),
   },
-  (() => {
-    return {
-      op: (a, b) => `${a} ** (1/${normalizeB(a, b)})`,
-      n: (a, b) => Number(a) ** (1 / normalizeB(a, b)),
-      b: (a: BigNum, b: BigNum) =>
-        a.nthRoot(a.isFinite() && b.isFinite() ? b.abs() : b),
-      ignore: (a, b) =>
-        (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
-        b === 0 ||
-        (isFinite(a) && isFinite(b) && b > 100),
-    };
-
-    /**
-     * Normalize b
-     */
-    function normalizeB(a: number, b: number) {
-      return isFinite(a) && isFinite(b) ? Math.abs(b) : b;
-    }
-  })(),
-
   {
     op: "compareTo",
     n: (a, b) => (a === b ? 0 : a > b ? 1 : a < b ? -1 : NaN),
@@ -135,6 +120,7 @@ const U_TESTS: UTest[] = [
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
+      [18, 1.4],
       [0.2, 2],
       [123.45, 20],
       [16777216, 3],
@@ -345,6 +331,8 @@ describe("standard tests", () => {
     () => BigNum.valueOf(0.2).pow(-3),
     () => BigNum.valueOf(0.2).pow(-4),
     () => BigNum.valueOf(0.2).pow(BigNum.valueOf(0.2).add(3.8)),
+    () => BigNum.valueOf(4).pow(2.5),
+    () => BigNum.valueOf(2).pow(2.2),
     () => BigNum.valueOf(NaN).pow(3),
     () => BigNum.valueOf(3).pow(NaN),
     () => BigNum.valueOf(NaN).pow(-3),
@@ -372,6 +360,8 @@ describe("standard tests", () => {
     () => BigNum.valueOf(2).scaleByPowerOfTen(-2),
     () => BigNum.valueOf(2).scaleByPowerOfTen(-3),
     () => BigNum.valueOf(2).scaleByPowerOfTen(-4),
+    () => BigNum.valueOf(4).scaleByPowerOfTen(2.5),
+    () => BigNum.valueOf(2).scaleByPowerOfTen(2.2),
     () => BigNum.valueOf(NaN).scaleByPowerOfTen(3),
     () => BigNum.valueOf(3).scaleByPowerOfTen(NaN),
     () => BigNum.valueOf(NaN).scaleByPowerOfTen(NaN),

@@ -5,6 +5,7 @@ import type {
   DivideOptions,
   IsOverflow,
   MathOptions,
+  NthRootOptions,
   OverflowContext,
   PowOptions,
   SqrtOptions,
@@ -29,6 +30,14 @@ function parseOFOption(options: MathOptions = {}, currDp = 20n): IsOverflow {
   if (maxDp != null) return (ctx) => ctx.scale > maxDp;
   const m = currDp < 20n ? 20n : currDp;
   return (ctx) => ctx.scale > m;
+}
+
+/** Get the DivideOptions for pow and sqrt  */
+function getDivForPowOptions(options: MathOptions = {}): MathOptions {
+  return {
+    overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
+    ...options,
+  };
 }
 
 /** Internal Number class */
@@ -74,6 +83,10 @@ export class Num {
     this.#alignExponent(augend);
     return new Num(this.i + augend.i, this.e);
   }
+
+  public subtract(subtrahend: Num): Num;
+
+  public subtract(subtrahend: Num | Inf): Num | Inf;
 
   public subtract(subtrahend: Num | Inf): Num | Inf {
     return this.add(subtrahend.negate());
@@ -170,6 +183,10 @@ export class Num {
     return this.subtract(divisor.multiply(times));
   }
 
+  public pow(n: Num, options?: PowOptions): Num | null;
+
+  public pow(n: Num | Inf, options?: PowOptions): Num | Inf | null;
+
   public pow(n: Num | Inf, options?: PowOptions): Num | Inf | null {
     if (n.inf) {
       return !this.i
@@ -182,13 +199,21 @@ export class Num {
             ? ZERO // num ** -inf
             : INF; // num ** inf;
     }
-    const bn = n.toBigInt();
-    if (bn >= 0n) return new Num(this.i ** bn, this.e * bn);
-    const divideOptions: DivideOptions = {
-      overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
-      ...options,
-    };
-    return ONE.divide(new Num(this.i ** -bn, this.e * -bn), divideOptions);
+    const bn = abs(n.#trunc());
+    let a = new Num(this.i ** bn, this.e * bn);
+    if (n.#scale()) {
+      if (this.i < 0n) return null;
+      // Has decimal part
+      const decimal = n.subtract(n.trunc());
+      const [nI, nD] = reduceFractions(abs(decimal.i), decimal.d);
+      a = a.multiply(
+        this.nthRoot(new Num(nD, 0n), getDivForPowOptions(options)).pow(
+          new Num(nI, 0n),
+        )!,
+      );
+    }
+    if (n.i >= 0n) return a;
+    return ONE.divide(a, getDivForPowOptions(options));
   }
 
   public scaleByPowerOfTen(n: Num | Inf): Num | Inf | null {
@@ -200,8 +225,11 @@ export class Num {
           : this.i >= 0n
             ? INF
             : N_INF;
-    const bn = n.toBigInt();
-    return new Num(this.i, this.e + bn);
+    if (!n.#scale()) {
+      const bn = n.#trunc();
+      return new Num(this.i, this.e + bn);
+    }
+    return this.multiply(new Num(10n, 0n).pow(n)!);
   }
 
   public sqrt(options?: SqrtOptions): Num {
@@ -255,14 +283,18 @@ export class Num {
     return new Num(digits, exponent);
   }
 
-  public nthRoot(n: Num | Inf, options?: SqrtOptions): Num | Inf | null {
+  public nthRoot(n: Num, options?: NthRootOptions): Num;
+
+  public nthRoot(n: Num | Inf, options?: NthRootOptions): Num | Inf | null;
+
+  public nthRoot(n: Num | Inf, options?: NthRootOptions): Num | Inf | null {
     if (n.inf) return this.pow(ZERO);
     if (n.abs().compareTo(ONE) === 0) return this.pow(n);
-    if (!this.i) return this.pow(INF);
-    if (n.i < 0n || this.i < 0n) throw new Error("Negative number");
+    if (!n.i) return this.pow(INF);
+    if (this.i < 0n) throw new Error("Negative number");
     const overflow = parseOFOption(options, this.#scale());
     // See https://fermiumbay13.hatenablog.com/entry/2019/03/07/002938
-    const iN = n.toBigInt();
+    const iN = n.abs().toBigInt();
     const powOfTen = 10n ** iN;
 
     const decimalLength = this.#scale();
@@ -305,8 +337,9 @@ export class Num {
       exponent++;
       digits /= 10n;
     }
-
-    return new Num(digits, exponent);
+    const a = new Num(digits, exponent);
+    if (n.i >= 0n) return a;
+    return ONE.divide(a, getDivForPowOptions(options));
   }
 
   public trunc(): Num {
@@ -428,4 +461,19 @@ function min(a: bigint, b: bigint): bigint {
 /** Get abs value */
 function abs(a: bigint): bigint {
   return a >= 0n ? a : -a;
+}
+
+/**
+ * Reduce fractions.
+ */
+function reduceFractions(n: bigint, d: bigint): [bigint, bigint] {
+  const g = gcd(n, d);
+  return [n / g, d / g];
+
+  /**
+   * Find the greatest common divisor.
+   */
+  function gcd(a: bigint, b: bigint): bigint {
+    return b ? gcd(b, a % b) : a;
+  }
 }
