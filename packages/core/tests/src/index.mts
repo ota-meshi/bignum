@@ -287,6 +287,7 @@ describe("standard tests", () => {
     () => BigNum.valueOf(-Infinity).modulo(Infinity),
     () => BigNum.valueOf(Infinity).modulo(-Infinity),
     () => BigNum.valueOf(-Infinity).modulo(-Infinity),
+    () => BigNum.valueOf(-2.944).modulo(-0.128),
     // pow
     () => BigNum.valueOf(2).pow(2),
     () => BigNum.valueOf(2).pow(3),
@@ -475,7 +476,15 @@ describe("Random tests", () => {
       const b = random(set);
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(a, b)) return;
-        it(`${a} ${t.op} ${b}`, () => {
+        const name = `${a} ${t.op} ${b}`;
+        if (
+          [
+            `-2.944 % -0.128`, // JavaScript operations do not return correct results.
+          ].includes(name)
+        )
+          return;
+
+        it(name, () => {
           const ba = new BigNum(a);
           const bb = new BigNum(b);
           const actual = t.b(ba, bb);
