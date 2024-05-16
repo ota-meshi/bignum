@@ -30,20 +30,27 @@ function normalize(value: BigNum | string | number | bigint) {
   return BigNum.valueOf(value);
 }
 
+/** Identity function */
+function identity<T>(a: T): T {
+  return a;
+}
+
 /**
  * Build evaluator function
  */
 function buildEvaluator(
-  evaluateForD: (a: bigint | BigNum, b: bigint | BigNum) => BigNum,
+  evaluateForD: (a: BigNum, b: BigNum | bigint) => BigNum,
   evaluateForB?: (a: bigint, b: bigint) => bigint,
 ): BTBinaryOperation<string | number | bigint, BigNum | bigint> {
-  const forB = evaluateForB || evaluateForD;
+  const forD = (a: BigNum | bigint, b: BigNum | bigint) =>
+    evaluateForD(BigNum.valueOf(a), b);
+  const forB = evaluateForB || forD;
   return (a, b) => {
     const na = normalize(a);
     const nb = normalize(b);
     return typeof na === "bigint" && typeof nb === "bigint"
       ? forB(na, nb)
-      : evaluateForD(na, nb);
+      : forD(na, nb);
   };
 }
 
@@ -77,7 +84,8 @@ function buildOperation(
     ...options: (string | number | bigint | BigNum | bigint)[]
   ) => bigint,
 ): BTFunction<string | number | bigint, BigNum | bigint> {
-  const forB = opForB || ((a) => a);
+  const forB =
+    opForB || ((a, ...options) => opForD(BigNum.valueOf(a), ...options));
   return (a, ...options) => {
     const na = normalize(a);
     return typeof na === "bigint"
@@ -93,24 +101,24 @@ const defaultContext: BTContext<
 > = {
   binaryOperations: {
     "*": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).multiply(b),
+      (a, b) => a.multiply(b),
       (a, b) => a * b,
     ),
     "+": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).add(b),
+      (a, b) => a.add(b),
       (a, b) => a + b,
     ),
     "-": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).subtract(b),
+      (a, b) => a.subtract(b),
       (a, b) => a - b,
     ),
-    "/": buildEvaluator((a, b) => BigNum.valueOf(a).divide(b)),
+    "/": buildEvaluator((a, b) => a.divide(b)),
     "%": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).modulo(b),
+      (a, b) => a.modulo(b),
       (a, b) => a % b,
     ),
     "**": buildEvaluator(
-      (a, b) => BigNum.valueOf(a).pow(b),
+      (a, b) => a.pow(b),
       (a, b) => a ** b,
     ),
     "==": buildCompare((a, b) => a === b),
@@ -138,14 +146,15 @@ const defaultContext: BTContext<
     ).map((k) => [k, Math[k]]),
   ),
   functions: {
+    sqrt: buildOperation((a) => a.sqrt()),
     abs: buildOperation(
       (a) => a.abs(),
       (a) => (a < 0 ? -a : a),
     ),
-    trunc: buildOperation((a) => a.trunc()),
-    round: buildOperation((a) => a.round()),
-    floor: buildOperation((a) => a.floor()),
-    ceil: buildOperation((a) => a.ceil()),
+    trunc: buildOperation((a) => a.trunc(), identity),
+    round: buildOperation((a) => a.round(), identity),
+    floor: buildOperation((a) => a.floor(), identity),
+    ceil: buildOperation((a) => a.ceil(), identity),
   },
 };
 

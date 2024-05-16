@@ -7,7 +7,7 @@ export type OverflowContext = {
 export type IsOverflow = (
   context: OverflowContext,
 ) => boolean | undefined | null;
-export type DivideOptions = {
+export type MathOptions = {
   /** You can specify an overflow test function. */
   overflow?: IsOverflow;
   /** @deprecated The maximum number of decimal places. */
@@ -15,8 +15,10 @@ export type DivideOptions = {
   /** @deprecated The maximum number of precision when having decimals. */
   maxDecimalPrecision?: bigint;
 };
+export type DivideOptions = MathOptions;
+export type SqrtOptions = MathOptions;
 /** This is used in negative pows. */
-export type PowOptions = DivideOptions;
+export type PowOptions = MathOptions;
 
 /** Parse a value to a BigNum prop */
 function parseValue(
@@ -44,6 +46,25 @@ function parseValue(
 }
 
 const MOD_DIV_OPT: DivideOptions = { overflow: (ctx) => ctx.scale > 0n };
+
+/**
+ * Parse for overflow option.
+ */
+function parseOFOption(options: MathOptions = {}, currDp = 20n): IsOverflow {
+  if (options.overflow) {
+    return options.overflow;
+  }
+  const { maxDecimalPrecision, maxDp } = options;
+  if (maxDecimalPrecision != null) {
+    const checkPrecision: IsOverflow = (ctx) =>
+      ctx.scale > 0n && ctx.precision > maxDecimalPrecision;
+    if (maxDp == null) return checkPrecision;
+    return (ctx) => ctx.scale > maxDp || checkPrecision(ctx);
+  }
+  if (maxDp != null) return (ctx) => ctx.scale > maxDp;
+  const m = currDp < 20n ? 20n : currDp;
+  return (ctx) => ctx.scale > m;
+}
 
 class Internal {
   public static readonly Z = new Internal(0n, 0n);
@@ -126,20 +147,10 @@ class Internal {
       this.multiply(alignMultiplicand).#simplify();
     const alignedDivisor = divisor.multiply(alignMultiplicand).#simplify();
 
-    const overflows: IsOverflow[] = [];
-    if (options?.overflow) {
-      overflows.push(options.overflow);
-    } else {
-      const maxPr = options?.maxDecimalPrecision;
-      const maxDp = options?.maxDp;
-      if (maxPr != null)
-        overflows.push((ctx) => ctx.scale > 0n && ctx.precision > maxPr);
-      if (maxDp != null) overflows.push((ctx) => ctx.scale > maxDp);
-    }
-    if (!overflows.length) {
-      const max = alignedTarget.e > -20n ? 20n : -alignedTarget.e;
-      overflows.push((ctx) => ctx.scale > max);
-    }
+    const overflow = parseOFOption(
+      options,
+      max(this.#scale(), divisor.#scale()),
+    );
 
     if (!(alignedTarget.i % alignedDivisor.i)) {
       const candidate = new Internal(
@@ -147,12 +158,10 @@ class Internal {
         alignedTarget.e - alignedDivisor.e,
       );
       if (
-        !overflows.some((fn) =>
-          fn({
-            scale: candidate.#scale(),
-            precision: BigInt(candidate.#precision()),
-          }),
-        )
+        !overflow({
+          scale: candidate.#scale(),
+          precision: BigInt(candidate.#precision()),
+        })
       )
         return candidate;
     }
@@ -163,8 +172,8 @@ class Internal {
 
     let remainder = absTarget.i;
 
-    const quotientNumbers: bigint[] = [];
-    const digitExponent = BigInt(length(remainder) - length(absDivisor) + 1);
+    const digits: bigint[] = [];
+    const digitExponent = length(remainder) - length(absDivisor) + 1n;
     let powOfTen: bigint;
     if (digitExponent >= 0n) {
       powOfTen = 10n ** digitExponent;
@@ -173,16 +182,16 @@ class Internal {
       remainder *= 10n ** -digitExponent;
     }
 
-    const nextOverflowCtx: OverflowContext = {
+    let exponent = digitExponent + absTarget.e;
+    const overflowCtx: OverflowContext = {
       get scale() {
-        return -exponent + 1n;
+        return -exponent;
       },
       get precision() {
-        return BigInt(quotientNumbers.length + 1);
+        return BigInt(digits.length);
       },
     };
-    let exponent = digitExponent + absTarget.e;
-    while (remainder > 0n && !overflows.some((fn) => fn(nextOverflowCtx))) {
+    while (remainder > 0n && !overflow(overflowCtx)) {
       exponent--;
       if (powOfTen > 1n) {
         powOfTen /= 10n;
@@ -204,15 +213,19 @@ class Internal {
       if (
         // Ignore leading zero
         n ||
-        quotientNumbers.length
+        digits.length
       ) {
-        quotientNumbers.push(n);
+        digits.push(n);
         remainder -= amount;
       }
     }
+    while (overflow(overflowCtx) && digits.length) {
+      exponent++;
+      digits.pop();
+    }
 
     return new Internal(
-      BigInt(quotientSign + (quotientNumbers.join("") || "0")),
+      BigInt(quotientSign + (digits.join("") || "0")),
       exponent,
     );
   }
@@ -259,6 +272,77 @@ class Internal {
             : Inf.N;
     const bn = n.toBigInt();
     return new Internal(this.i, this.e + bn);
+  }
+
+  public sqrt(options?: SqrtOptions): Internal {
+    if (!this.i) return this;
+    if (this.i < 0n) throw new Error("Negative number");
+    const overflow = parseOFOption(options, this.#scale());
+    this.#simplify();
+
+    // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
+    const decimalLength = this.#scale();
+    const decimalLengthIsOdd = decimalLength & 1n;
+
+    let remainder = this.i;
+    if (decimalLengthIsOdd) remainder *= 10n;
+    let part = 0n;
+
+    const digits: bigint[] = [];
+    const digitExponent = length(remainder) / 2n + 1n;
+    let powOfHand: bigint;
+    if (digitExponent >= 0n) {
+      powOfHand = 100n ** digitExponent;
+    } else {
+      powOfHand = 1n;
+      remainder *= 100n ** -digitExponent;
+    }
+
+    let exponent =
+      digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n);
+    const overflowCtx: OverflowContext = {
+      get scale() {
+        return -exponent;
+      },
+      get precision() {
+        return BigInt(digits.length);
+      },
+    };
+    while (remainder > 0n && !overflow(overflowCtx)) {
+      exponent--;
+      if (powOfHand > 1n) {
+        powOfHand /= 100n;
+      } else {
+        remainder *= 100n;
+      }
+
+      // Find digit
+      let n = 0n;
+      let amount = 0n;
+      for (let nn = 1n; nn < 10n; nn++) {
+        const nextAmount = nn * (part + nn) * powOfHand;
+        if (remainder < nextAmount) break;
+        n = nn;
+        amount = nextAmount;
+      }
+
+      // Set digit
+      if (
+        // Ignore leading zero
+        n ||
+        digits.length
+      ) {
+        digits.push(n);
+        remainder -= amount;
+        part = (part + n * 2n) * 10n;
+      }
+    }
+    while (overflow(overflowCtx) && digits.length) {
+      exponent++;
+      digits.pop();
+    }
+
+    return new Internal(BigInt(digits.join("") || "0"), exponent);
   }
 
   public trunc() {
@@ -414,6 +498,10 @@ class Inf {
     if (!n.i) return Internal.O; // Inf ** 0
     if (n.i < 0n) return Internal.Z;
     return this; // inf ** num
+  }
+
+  public sqrt(): Inf {
+    return this;
   }
 
   public scaleByPowerOfTen(n: Inf | Internal) {
@@ -572,6 +660,11 @@ export class BigNum {
     return b ? new BigNum(this.#p?.scaleByPowerOfTen(b)) : BigNum.#nan;
   }
 
+  /** Returns an approximation to the square root of this. */
+  public sqrt(options?: SqrtOptions): BigNum {
+    return new BigNum(this.#p?.sqrt(options));
+  }
+
   /** Returns a BigNum whose value is the absolute value of this BigNum. */
   public abs(): BigNum {
     return new BigNum(this.#p?.abs());
@@ -642,7 +735,12 @@ function compare(a: bigint, b: bigint) {
 }
 
 /** Get length */
-function length(a: bigint) {
+function length(a: bigint): bigint {
   let t = a;
-  for (let i = 0; ; i++) if (!(t /= 10n)) return i;
+  for (let i = 0n; ; i++) if (!(t /= 10n)) return i;
+}
+
+/** Get max value */
+function max(a: bigint, b: bigint): bigint {
+  return a >= b ? a : b;
 }

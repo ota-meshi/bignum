@@ -66,6 +66,9 @@ describe("standard tests", () => {
     test`-1.23e42+1`,
     test`-1.23e-42+1`,
     test`-1.23e+42+1`,
+    ...["0", "1", "1.49", "1.5", "1.51", "1.501", "2"].flatMap((v) => [
+      test`sqrt(${v})`,
+    ]),
   ]) {
     it(t.name, () => {
       chai.expect(f(...t.param)).toMatchSnapshot();
@@ -117,6 +120,9 @@ describe("Compare tests", () => {
   }
 });
 
+/**
+ *
+ */
 function test(
   template: TemplateStringsArray,
   ...substitutions: (number | bigint | string)[]
