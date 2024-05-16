@@ -519,11 +519,7 @@ export class BigNum {
 
   readonly #p: Internal | Inf | null;
 
-  public static valueOf(
-    value: string | number | bigint | boolean | BigNum,
-  ): BigNum {
-    return valueOf(value);
-  }
+  static valueOf = valueOf;
 
   public constructor(
     value:
