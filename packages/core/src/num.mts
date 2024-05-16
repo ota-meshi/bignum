@@ -199,21 +199,7 @@ export class Num {
             ? ZERO // num ** -inf
             : INF; // num ** inf;
     }
-    const bn = abs(n.#trunc());
-    let a = new Num(this.i ** bn, this.e * bn);
-    if (n.#scale()) {
-      if (this.i < 0n) return null;
-      // Has decimal part
-      const decimal = n.subtract(n.trunc());
-      const [nI, nD] = reduceFractions(abs(decimal.i), decimal.d);
-      a = a.multiply(
-        this.nthRoot(new Num(nD, 0n), getDivForPowOptions(options)).pow(
-          new Num(nI, 0n),
-        )!,
-      );
-    }
-    if (n.i >= 0n) return a;
-    return ONE.divide(a, getDivForPowOptions(options));
+    return this.#pow(n.i, n.d, options);
   }
 
   public scaleByPowerOfTen(n: Num | Inf): Num | Inf | null {
@@ -225,7 +211,7 @@ export class Num {
           : this.i >= 0n
             ? INF
             : N_INF;
-    if (!n.#scale()) {
+    if (!(n.i % n.d)) {
       const bn = n.#trunc();
       return new Num(this.i, this.e + bn);
     }
@@ -291,10 +277,15 @@ export class Num {
     if (n.inf) return this.pow(ZERO);
     if (n.abs().compareTo(ONE) === 0) return this.pow(n);
     if (!n.i) return this.pow(INF);
+    if (!this.i) return this;
     if (this.i < 0n) throw new Error("Negative number");
+    if (n.i % n.d) {
+      // has fraction
+      return this.#pow(n.d, n.i, options);
+    }
     const overflow = parseOFOption(options, this.#scale());
     // See https://fermiumbay13.hatenablog.com/entry/2019/03/07/002938
-    const iN = n.abs().toBigInt();
+    const iN = n.abs().#trunc();
     const powOfTen = 10n ** iN;
 
     const decimalLength = this.#scale();
@@ -389,10 +380,34 @@ export class Num {
     return `${sign}${integer}${decimal.length ? `.${decimal.join("")}` : ""}`;
   }
 
-  public toBigInt(): bigint {
-    if (!this.e) return this.i;
-    if (this.i % this.d) throw new Error("Decimal part exists");
-    return this.#trunc();
+  /** pow() for fraction */
+  #pow(
+    numerator: bigint,
+    denominator: bigint,
+    options?: PowOptions,
+  ): Num | null {
+    const sign = numerator >= 0n === denominator >= 0n ? 1n : -1n;
+    let n = abs(numerator);
+    let d = abs(denominator);
+    const m = n / d;
+    n %= d;
+    if (!m && !n) return ONE; // x ** 0
+    if (!this.i) return this; // 0 ** x
+    let a = new Num(this.i ** m, this.e * m); // this ** m
+    if (n % d) {
+      // has fraction
+      if (this.i < 0n) return null;
+      const g = gcd(n, d);
+      n /= g;
+      d /= g;
+      a = a.multiply(
+        this.nthRoot(new Num(d, 0n), getDivForPowOptions(options)).pow(
+          new Num(n, 0n),
+        )!,
+      );
+    }
+    if (sign >= 0n) return a;
+    return ONE.divide(a, getDivForPowOptions(options));
   }
 
   #scale() {
@@ -464,16 +479,8 @@ function abs(a: bigint): bigint {
 }
 
 /**
- * Reduce fractions.
+ * Find the greatest common divisor.
  */
-function reduceFractions(n: bigint, d: bigint): [bigint, bigint] {
-  const g = gcd(n, d);
-  return [n / g, d / g];
-
-  /**
-   * Find the greatest common divisor.
-   */
-  function gcd(a: bigint, b: bigint): bigint {
-    return b ? gcd(b, a % b) : a;
-  }
+function gcd(a: bigint, b: bigint): bigint {
+  return b ? gcd(b, a % b) : a;
 }

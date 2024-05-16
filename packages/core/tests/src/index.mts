@@ -29,19 +29,13 @@ const B_TESTS: BTest[] = [
   },
   {
     op: "/",
-    n: (a, b) => Number(a) / Number(b),
+    n: (a, b) => a / b,
     b: (a: BigNum, b: BigNum) => a.divide(b),
   },
   {
     op: "%",
     n: (a, b) =>
-      typeof a === "number" &&
-      typeof b === "number" &&
-      isFinite(a) &&
-      isFinite(b) &&
-      Number.isInteger(a / b)
-        ? 0
-        : a % b,
+      isFinite(a) && isFinite(b) && Number.isInteger(a / b) ? 0 : a % b,
     b: (a: BigNum, b: BigNum) => a.modulo(b),
   },
   {
@@ -58,12 +52,10 @@ const B_TESTS: BTest[] = [
   },
   {
     op: (a, b) => `${a} ** (1/${b})`,
-    n: (a, b) => Number(a) ** (1 / b),
+    n: (a, b) => a ** (1 / b),
     b: (a: BigNum, b: BigNum) => a.nthRoot(b),
     ignore: (a, b) =>
-      (isFinite(a) && isFinite(b) && !Number.isInteger(b)) ||
-      b === 0 ||
-      (isFinite(a) && isFinite(b) && b > 1000),
+      isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 4),
   },
   {
     op: "compareTo",
@@ -74,7 +66,7 @@ const B_TESTS: BTest[] = [
 
 type UTest = {
   fn: string;
-  n: (a: number | bigint) => number | bigint;
+  n: (a: number) => number;
   b: (a: BigNum) => BigNum;
   ignore?: (a: number) => boolean;
 };
@@ -86,32 +78,32 @@ const U_TESTS: UTest[] = [
   },
   {
     fn: "abs",
-    n: (a) => (typeof a === "bigint" ? (a < 0 ? -a : a) : Math.abs(a)),
+    n: (a) => Math.abs(a),
     b: (a: BigNum) => a.abs(),
   },
   {
     fn: "trunc",
-    n: (a) => (typeof a === "bigint" ? a : Math.trunc(a)),
+    n: (a) => Math.trunc(a),
     b: (a: BigNum) => a.trunc(),
   },
   {
     fn: "round",
-    n: (a) => (typeof a === "bigint" ? a : Math.round(a)),
+    n: (a) => Math.round(a),
     b: (a: BigNum) => a.round(),
   },
   {
     fn: "ceil",
-    n: (a) => (typeof a === "bigint" ? a : Math.ceil(a)),
+    n: (a) => Math.ceil(a),
     b: (a: BigNum) => a.ceil(),
   },
   {
     fn: "floor",
-    n: (a) => (typeof a === "bigint" ? a : Math.floor(a)),
+    n: (a) => Math.floor(a),
     b: (a: BigNum) => a.floor(),
   },
   {
     fn: "sqrt",
-    n: (a) => Math.sqrt(Number(a)),
+    n: (a) => Math.sqrt(a),
     b: (a: BigNum) => a.sqrt(),
     ignore: (a) => isFinite(a) && a < 0,
   },
@@ -175,7 +167,7 @@ describe("Calc tests", () => {
       it(`${t.fn}(${a})`, () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
-        const expect = t.n(a);
+        const expect = t.n(Number(a));
         lazyAssert(actual, expect);
       });
     }
@@ -399,16 +391,20 @@ describe("standard tests", () => {
     () => BigNum.valueOf(2).nthRoot(2),
     () => BigNum.valueOf(2).nthRoot(3),
     () => BigNum.valueOf(2).nthRoot(4),
-    // () => BigNum.valueOf(2).nthRoot(-2),
-    // () => BigNum.valueOf(2).nthRoot(-3),
-    // () => BigNum.valueOf(2).nthRoot(-4),
+    () => BigNum.valueOf(2).nthRoot(-2),
+    () => BigNum.valueOf(2).nthRoot(-3),
+    () => BigNum.valueOf(2).nthRoot(-4),
     () => BigNum.valueOf(0.2).nthRoot(2),
     () => BigNum.valueOf(0.2).nthRoot(3),
     () => BigNum.valueOf(0.2).nthRoot(4),
-    // () => BigNum.valueOf(0.2).nthRoot(-2),
-    // () => BigNum.valueOf(0.2).nthRoot(-3),
-    // () => BigNum.valueOf(0.2).nthRoot(-4),
+    () => BigNum.valueOf(0.2).nthRoot(-2),
+    () => BigNum.valueOf(0.2).nthRoot(-3),
+    () => BigNum.valueOf(0.2).nthRoot(-4),
     () => BigNum.valueOf(0.2).nthRoot(BigNum.valueOf(0.2).add(3.8)),
+    () => BigNum.valueOf(3).nthRoot(0.25),
+    () => BigNum.valueOf(3).nthRoot(-0.25),
+    () => BigNum.valueOf(3).nthRoot(2.25),
+    () => BigNum.valueOf(3).nthRoot(-2.25),
     () => BigNum.valueOf(NaN).nthRoot(3),
     () => BigNum.valueOf(3).nthRoot(NaN),
     () => BigNum.valueOf(NaN).nthRoot(-3),

@@ -236,6 +236,12 @@ exports[`standard tests () => BigNum.valueOf(0.2).add(0.01) 1`] = `"0.21"`;
 
 exports[`standard tests () => BigNum.valueOf(0.2).add(0.1) 1`] = `"0.3"`;
 
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-2) 1`] = `"\\"2.2360679774997896964\\""`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-3) 1`] = `"\\"1.7099759466766969893\\""`;
+
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-4) 1`] = `"\\"1.4953487812212205419\\""`;
+
 exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(2) 1`] = `"\\"0.44721359549995793928\\""`;
 
 exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(3) 1`] = `"\\"0.5848035476425732131\\""`;
@@ -324,6 +330,12 @@ exports[`standard tests () => BigNum.valueOf(1.501).trunc() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(2).multiply(0.1).add(0.1) 1`] = `"0.3"`;
 
+exports[`standard tests () => BigNum.valueOf(2).nthRoot(-2) 1`] = `"\\"0.7071067811865475244\\""`;
+
+exports[`standard tests () => BigNum.valueOf(2).nthRoot(-3) 1`] = `"\\"0.79370052598409973738\\""`;
+
+exports[`standard tests () => BigNum.valueOf(2).nthRoot(-4) 1`] = `"\\"0.84089641525371454303\\""`;
+
 exports[`standard tests () => BigNum.valueOf(2).nthRoot(-Infinity) 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(2).nthRoot(2) 1`] = `"\\"1.4142135623730950488\\""`;
@@ -403,6 +415,14 @@ exports[`standard tests () => BigNum.valueOf(3).multiply(-Infinity) 1`] = `"-Inf
 exports[`standard tests () => BigNum.valueOf(3).multiply(Infinity) 1`] = `"Infinity"`;
 
 exports[`standard tests () => BigNum.valueOf(3).multiply(NaN) 1`] = `"NaN"`;
+
+exports[`standard tests () => BigNum.valueOf(3).nthRoot(-0.25) 1`] = `"\\"0.012345679012345679012\\""`;
+
+exports[`standard tests () => BigNum.valueOf(3).nthRoot(-2.25) 1`] = `"\\"0.6136858490329160351\\""`;
+
+exports[`standard tests () => BigNum.valueOf(3).nthRoot(0.25) 1`] = `"81"`;
+
+exports[`standard tests () => BigNum.valueOf(3).nthRoot(2.25) 1`] = `"\\"1.6294982222188463389333008024474237364641187938089473904969509426245851708176\\""`;
 
 exports[`standard tests () => BigNum.valueOf(3).nthRoot(NaN) 1`] = `"NaN"`;
 
