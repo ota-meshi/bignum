@@ -541,16 +541,12 @@ export class BigNum {
       this.#p = null;
       return;
     }
-    if (value instanceof Internal) {
+    if (value instanceof Internal || value instanceof Inf) {
       this.#p = value;
       return;
     }
     if (value instanceof BigNum) {
       this.#p = value.#p;
-      return;
-    }
-    if (value instanceof Inf) {
-      this.#p = value;
       return;
     }
     if (value === Infinity) {
