@@ -99,9 +99,10 @@ describe("standard tests", () => {
     test`-1.23e-42+1`,
     test`-1.23e+42+1`,
     test`foo() + foo(1) + foo(1, 2) + foo(1, 2, 3)`,
+    test`2 ** 3 ** 4`,
+    test`(2 ** 3) ** 4`,
   ]) {
     it(t.name, () => {
-      if (t.name.includes("foo")) debugger;
       chai
         .expect(compile(t.template)(t.substitutions, context))
         .toMatchSnapshot();
@@ -155,6 +156,9 @@ describe("Compare tests", () => {
   }
 });
 
+/**
+ * Make test data
+ */
 function test(
   template: TemplateStringsArray,
   ...substitutions: (number | bigint | string)[]
