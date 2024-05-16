@@ -78,8 +78,6 @@ Returns a BigNum whose value is (-this).
 
 Returns a BigNum whose value is (this \*\* n).
 
-If `n` is given a non-integer value, an error will be raised.
-
 An object can be given as an option. It's the same option for `divide()`. This is used in negative pows.
 
 Options:
@@ -103,8 +101,6 @@ Options:
 
 Returns a BigNum whose value is (this \* 10 \*\* n).
 
-If `n` is given a non-integer value, an error will be raised.
-
 ### BigNum.prototype.sqrt([options]): BigNum
 
 Returns an approximation to the square root of this BigNum.
@@ -117,7 +113,7 @@ An object can be given as an option. It's the same option for `divide()`.
 
 Returns an approximation to the `n`th root of this BigNum.
 
-If this BigNum or `n` are negative value, an error will be raised.\
+If this BigNum is a negative value, an error will be raised.\
 If `n` is given a non-integer value, an error will be raised.
 
 An object can be given as an option. It's the same option for `divide()`.
