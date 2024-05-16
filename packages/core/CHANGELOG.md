@@ -1,5 +1,13 @@
 # @bignum/core
 
+## 0.4.0
+
+### Minor Changes
+
+- feat: support for sqrt ([#18](https://github.com/ota-meshi/bignum/pull/18))
+
+- feat!: redesign of divide options. ([#15](https://github.com/ota-meshi/bignum/pull/15))
+
 ## 0.3.0
 
 ### Minor Changes

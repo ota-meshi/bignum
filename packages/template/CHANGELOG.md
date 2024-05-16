@@ -1,5 +1,16 @@
 # @bignum/template
 
+## 0.2.0
+
+### Minor Changes
+
+- feat: support for sqrt ([#18](https://github.com/ota-meshi/bignum/pull/18))
+
+### Patch Changes
+
+- Updated dependencies [[`22171a3ecfcd72c765228de181001cde6866ca07`](https://github.com/ota-meshi/bignum/commit/22171a3ecfcd72c765228de181001cde6866ca07), [`03c0ff35dc23b0a8e105cc17ed82419ec16a92d8`](https://github.com/ota-meshi/bignum/commit/03c0ff35dc23b0a8e105cc17ed82419ec16a92d8)]:
+  - @bignum/core@0.4.0
+
 ## 0.1.2
 
 ### Patch Changes
