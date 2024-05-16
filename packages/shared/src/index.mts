@@ -35,37 +35,37 @@ export type BTCompiled = <OPERAND, RESULT>(
 // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
 export const PRECEDENCE = {
   // 13: exponentiation
-  "**": 13,
+  "**": [130, 131], // right-to-left
   // 12: multiplicative operators
-  "*": 12,
-  "/": 12,
-  "%": 12,
+  "*": [121, 120], // left-to-right
+  "/": [121, 120], // left-to-right
+  "%": [121, 120], // left-to-right
   // 11: additive operators
-  "+": 11,
-  "-": 11,
+  "+": [111, 110], // left-to-right
+  "-": [111, 110], // left-to-right
   // 10: bitwise shift
-  "<<": 10,
-  ">>": 10,
-  ">>>": 10,
+  "<<": [101, 100], // left-to-right
+  ">>": [101, 100], // left-to-right
+  ">>>": [101, 100], // left-to-right
   // 9: relational operators
-  "<": 9,
-  "<=": 9,
-  ">": 9,
-  ">=": 9,
+  "<": [91, 90], // left-to-right
+  "<=": [91, 90], // left-to-right
+  ">": [91, 90], // left-to-right
+  ">=": [91, 90], // left-to-right
   // 8: equality operators
-  "==": 8,
-  "!=": 8,
+  "==": [81, 80], // left-to-right
+  "!=": [81, 80], // left-to-right
   // 7: bitwise AND
-  "&": 7,
+  "&": [71, 70], // left-to-right
   // 6: bitwise XOR
-  "^": 6,
+  "^": [61, 60], // left-to-right
   // 5: bitwise OR
-  "|": 5,
+  "|": [51, 50], // left-to-right
   // 4: logical AND
-  "&&": 4,
+  "&&": [41, 40], // left-to-right
   // 3: logical OR, nullish coalescing
-  "||": 3,
-  "??": 3,
+  "||": [31, 30], // left-to-right
+  "??": [31, 30], // left-to-right
 } as const;
 export type BTBinaryOperator = keyof typeof PRECEDENCE;
 export const BINARY_OPERATORS = new Set(

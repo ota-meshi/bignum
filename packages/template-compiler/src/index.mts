@@ -189,7 +189,7 @@ function parse(tokenizer: Tokenizer): BTCompiled {
             const beforeOpToken = stack[stack.length - 2];
             if (
               beforeOpToken.t === TokenType.operator &&
-              PRECEDENCE[token.v] <= PRECEDENCE[beforeOpToken.v]
+              PRECEDENCE[token.v][1] <= PRECEDENCE[beforeOpToken.v][0]
             )
               stack.push(processBinary(stack));
           }

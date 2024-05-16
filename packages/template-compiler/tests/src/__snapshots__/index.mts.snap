@@ -74,6 +74,8 @@ exports[`standard tests \`(2 * 2) / 10 ** 20\` 1`] = `"((2 * 2) / (10 ** 20))"`;
 
 exports[`standard tests \`(2 * 2) / 10 ** 21\` 1`] = `"((2 * 2) / (10 ** 21))"`;
 
+exports[`standard tests \`(2 ** 3) ** 4\` 1`] = `"((2 ** 3) ** 4)"`;
+
 exports[`standard tests \`-1.23e+42+1\` 1`] = `"((-1.23e+42) + 1)"`;
 
 exports[`standard tests \`-1.23e-42+1\` 1`] = `"((-1.23e-42) + 1)"`;
@@ -119,6 +121,8 @@ exports[`standard tests \`1e-42+1\` 1`] = `"(1e-42 + 1)"`;
 exports[`standard tests \`1e42+1\` 1`] = `"(1e42 + 1)"`;
 
 exports[`standard tests \`2 * 2 ** 3\` 1`] = `"(2 * (2 ** 3))"`;
+
+exports[`standard tests \`2 ** 3 ** 4\` 1`] = `"(2 ** (3 ** 4))"`;
 
 exports[`standard tests \`2.1 * 2.3 ** (1.5+1.5)\` 1`] = `"(2.1 * (2.3 ** (1.5 + 1.5)))"`;
 
