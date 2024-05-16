@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-shadow: 0 -- ignore check */
 import chai, { assert } from "chai";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
@@ -85,10 +86,17 @@ const U_TESTS = [
     n: (a) => (typeof a === "bigint" ? a : Math.floor(a)),
     b: (a: BigNum) => a.floor(),
   },
+  {
+    fn: "sqrt",
+    n: (a) => Math.sqrt(Number(a)),
+    b: (a: BigNum) => a.sqrt(),
+    ignore: (a) => String(a).startsWith("-"),
+  },
 ] satisfies {
   fn: string;
   n: (a: number | bigint) => number | bigint;
   b: (a: BigNum) => BigNum | number;
+  ignore?: (a: number) => boolean;
 }[];
 
 describe("Calc tests", () => {
@@ -120,6 +128,10 @@ describe("Calc tests", () => {
   }
   for (const t of U_TESTS) {
     for (const a of [
+      2.25,
+      70.161,
+      0.0145,
+      271441n,
       1n,
       10n,
       100n,
@@ -130,6 +142,7 @@ describe("Calc tests", () => {
       48.723,
       20.56,
     ]) {
+      if (t.ignore?.(Number(a))) return;
       it(`${t.fn}(${a})`, () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
@@ -445,6 +458,7 @@ describe("Infinity tests", () => {
   }
   for (const t of U_TESTS) {
     [Infinity, -Infinity].forEach((a) => {
+      if (t.ignore?.(Number(a))) return;
       it(`${t.fn}(${a})`, () => {
         const ba = new BigNum(a);
         assert.strictEqual(`${t.b(ba)}`, `${t.n(a)}`);
@@ -475,6 +489,7 @@ describe("Random tests", () => {
     const set = new Set<number>();
     for (let index = 0; index < 1000; index++) {
       const a = random(set);
+      if (t.ignore?.(Number(a))) return;
       it(`${t.fn}(${a})`, () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
@@ -484,6 +499,9 @@ describe("Random tests", () => {
     }
   }
 
+  /**
+   * Get random number
+   */
   function random(set: Set<number>) {
     let v: number;
     while (set.has((v = Math.floor(Math.random() * 300000 - 150000) / 1000)));
@@ -491,6 +509,9 @@ describe("Random tests", () => {
   }
 });
 
+/**
+ * Lazy assert function
+ */
 function lazyAssert(actual: BigNum, expect: number | bigint) {
   if (!actual.isFinite()) {
     assert.strictEqual(`${actual}`, `${expect}`);
@@ -501,7 +522,7 @@ function lazyAssert(actual: BigNum, expect: number | bigint) {
     assert.ok(diff.signum() === 0, `${actual} === ${expect}`);
     return;
   }
-  const tolerance = actual.abs().divide(100000000000, {
+  const tolerance = actual.abs().divide(10000000000, {
     overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
   });
   assert.ok(

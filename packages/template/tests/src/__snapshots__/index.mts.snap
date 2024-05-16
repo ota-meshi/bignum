@@ -210,6 +210,20 @@ exports[`standard tests \`round(\${1.51})\` 1`] = `2`;
 
 exports[`standard tests \`round(\${1.501})\` 1`] = `2`;
 
+exports[`standard tests \`sqrt(\${0})\` 1`] = `0`;
+
+exports[`standard tests \`sqrt(\${1.5})\` 1`] = `"1.22474487139158904909"`;
+
+exports[`standard tests \`sqrt(\${1.49})\` 1`] = `"1.22065556157337029518"`;
+
+exports[`standard tests \`sqrt(\${1.51})\` 1`] = `"1.22882057274445075918"`;
+
+exports[`standard tests \`sqrt(\${1.501})\` 1`] = `"1.22515305166334218293"`;
+
+exports[`standard tests \`sqrt(\${1})\` 1`] = `1`;
+
+exports[`standard tests \`sqrt(\${2})\` 1`] = `"1.4142135623730950488"`;
+
 exports[`standard tests \`trunc(\${-1.5})\` 1`] = `-1`;
 
 exports[`standard tests \`trunc(\${-1.49})\` 1`] = `-1`;
