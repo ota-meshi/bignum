@@ -18,26 +18,28 @@ export class Inf {
     return this.s === 1 ? N_INF : INF;
   }
 
-  public add(augend: Inf | Num): Inf | null {
-    return !augend.inf || this === augend ? this : null;
+  public add(augend: Inf | Num): Inf | null;
+
+  public add(a: Inf | Num): Inf | null {
+    return !a.inf || this === a ? this : null;
   }
 
-  public subtract(subtrahend: Inf | Num): Inf | null {
-    return this.add(subtrahend.negate());
-  }
+  public multiply(multiplicand: Inf | Num): Inf | null;
 
-  public multiply(multiplicand: Inf | Num): Inf | null {
-    return !multiplicand.signum()
+  public multiply(m: Inf | Num): Inf | null {
+    return !m.signum()
       ? null // inf * 0
-      : multiplicand.signum() === this.s
+      : m.signum() === this.s
         ? INF // match sign
         : N_INF;
   }
 
-  public divide(divisor: Inf | Num): Inf | null {
-    return divisor.inf
+  public divide(divisor: Inf | Num): Inf | null;
+
+  public divide(d: Inf | Num): Inf | null {
+    return d.inf
       ? null // inf / inf
-      : divisor.signum() >= 0n === this.s >= 0
+      : d.signum() >= 0n === this.s >= 0
         ? INF // match sign
         : N_INF;
   }

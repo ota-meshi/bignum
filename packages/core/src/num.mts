@@ -89,21 +89,12 @@ export class Num {
 
   public add(augend: Num | Inf): Num | Inf;
 
-  public add(augend: Num | Inf): Num | Inf {
-    const a = augend;
+  public add(a: Num | Inf): Num | Inf {
     if (a.inf) return a;
     const frac = Frac.add(this, a);
     if (frac) return frac.resolve();
     this.#alignExponent(a);
     return new Num(this.i + a.i, this.e);
-  }
-
-  public subtract(subtrahend: Num): Num;
-
-  public subtract(subtrahend: Num | Inf): Num | Inf;
-
-  public subtract(subtrahend: Num | Inf): Num | Inf {
-    return this.add(subtrahend.negate());
   }
 
   public multiply(multiplicand: Num): Num;
@@ -112,8 +103,7 @@ export class Num {
 
   public multiply(multiplicand: Num | Inf): Num | Inf | null;
 
-  public multiply(multiplicand: Num | Inf): Num | Inf | null {
-    const m = multiplicand;
+  public multiply(m: Num | Inf): Num | Inf | null {
     if (m.inf) return m.multiply(this);
     return Frac.mul(this, m)?.resolve() ?? new Num(this.i * m.i, this.e + m.e);
   }
@@ -122,17 +112,17 @@ export class Num {
 
   public divide(divisor: Num | Inf, options?: DivideOptions): Num | Inf;
 
-  public divide(divisor: Num | Inf, options?: DivideOptions): Num | Inf {
-    if (divisor.inf) return ZERO;
-    const overflow = parseOFOption(options);
-    return this.#div(divisor, overflow, shouldUseFrac(options));
+  public divide(d: Num | Inf, options?: DivideOptions): Num | Inf {
+    return this.#div(d, parseOFOption(options), shouldUseFrac(options));
   }
 
-  public modulo(divisor: Num | Inf): Num | Inf | null {
-    if (divisor.inf) return this;
-    if (!divisor.i) return null;
-    const times = this.#div(divisor, MOD_DIV_OPT, false);
-    return this.subtract(divisor.multiply(times)!);
+  public modulo(divisor: Num | Inf): Num | Inf | null;
+
+  public modulo(d: Num | Inf): Num | Inf | null {
+    if (d.inf) return this;
+    if (!d.i) return null; // x % 0
+    const times = this.#div(d, MOD_DIV_OPT, false) as Num; // This `d` is not an infinity so that it is safe to use `as Num`
+    return this.add(d.multiply(times).negate());
   }
 
   public pow(n: Num, options?: PowOptions): Num | null;
@@ -233,16 +223,13 @@ export class Num {
 
   public nthRoot(n: Num | Inf, options?: NthRootOptions): Num | Inf | null {
     if (n.inf) return this.pow(ZERO);
-    if (n.abs().compareTo(ONE) === 0) return this.pow(n);
     if (!n.i) return this.pow(INF);
-    if (!this.i) return this;
     if (this.i < 0n) throw new Error("Negative number");
-    if (n.i % n.d) {
-      // has fraction
-      return this.#pow(n.d, n.i, options);
+    if (n.frac) {
+      n.frac.n.#alignExponent(n.frac.d);
+      return this.#pow(n.frac.d.i, n.frac.n.i, options);
     }
-    const overflow = parseOFOption(options);
-    return this.#nthRoot(n, overflow, shouldUseFrac(options));
+    return this.#pow(n.d, n.i, options);
   }
 
   public trunc(): Num {
@@ -292,14 +279,28 @@ export class Num {
     return `${sign}${integer}${decimal.length ? `.${decimal.join("")}` : ""}`;
   }
 
-  #div(divisor: Num, overflow: IsOverflow, useFrac: boolean): Num | Inf {
-    if (!divisor.i) return this.d >= 0 ? INF : N_INF;
+  #div(divisor: Num | Inf, overflow: IsOverflow, useFrac: boolean): Num | Inf;
+
+  #div(
+    divisor: Num | Inf | null,
+    overflow: IsOverflow,
+    useFrac: boolean,
+  ): Num | Inf | null;
+
+  #div(
+    d: Num | Inf | null,
+    overflow: IsOverflow,
+    useFrac: boolean,
+  ): Num | Inf | null {
+    if (!d) return null;
+    if (d.inf) return ZERO;
+    if (!d.i) return this.d >= 0 ? INF : N_INF;
     if (!this.i) return this;
-    const frac = Frac.div(this, divisor);
+    const frac = Frac.div(this, d);
     if (frac) return frac.resolve(overflow, useFrac);
-    const alignMultiplicand = new Num(10n ** divisor.#scale(), 0n);
+    const alignMultiplicand = new Num(10n ** d.#scale(), 0n);
     const alignedTarget: Num = this.multiply(alignMultiplicand).#simplify();
-    const alignedDivisor = divisor.multiply(alignMultiplicand).#simplify();
+    const alignedDivisor = d.multiply(alignMultiplicand).#simplify();
 
     if (!(alignedTarget.i % alignedDivisor.i)) {
       // Short circuit
@@ -356,28 +357,30 @@ export class Num {
       lost = true;
     }
 
-    if (divisor.signum() !== this.signum()) digits = -digits;
+    if (d.signum() !== this.signum()) digits = -digits;
     return new Num(
       digits,
       exponent,
-      useFrac && lost ? Frac.valueOf(this, divisor, overflow) : undefined,
+      useFrac && lost ? Frac.valueOf(this, d, overflow) : undefined,
     );
   }
 
-  /** pow() for fraction */
   #pow(
     numerator: bigint,
     denominator: bigint,
     options?: PowOptions,
-  ): Num | null {
-    const sign = numerator >= 0n === denominator >= 0n ? 1n : -1n;
-    let n = abs(numerator);
-    let d = abs(denominator);
+  ): Num | Inf | null;
+
+  /** pow() for fraction */
+  #pow(num: bigint, denom: bigint, options?: PowOptions): Num | Inf | null {
+    const sign = num >= 0n === denom >= 0n ? 1n : -1n;
+    let n = abs(num);
+    let d = abs(denom);
     const m = n / d;
     n %= d;
     if (!m && !n) return ONE; // x ** 0
     if (!this.i) return this; // 0 ** x
-    let a = new Num(this.i ** m, this.e * m); // this ** m
+    let a: Num | Inf | null = new Num(this.i ** m, this.e * m); // this ** m
     if (n % d) {
       // has fraction
       if (this.i < 0n) return null;
@@ -390,7 +393,7 @@ export class Num {
           parseOFOption(options),
           shouldUseFrac(options),
         ).pow(new Num(n, 0n))!,
-      ) as Num;
+      );
     }
     if (sign >= 0n) return a;
     return ONE.#div(a, parseOFOption(options), shouldUseFrac(options)) as Num;

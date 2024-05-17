@@ -457,6 +457,9 @@ describe("standard tests", () => {
     () => BigNum.valueOf(3).nthRoot(-0.25),
     () => BigNum.valueOf(3).nthRoot(2.25),
     () => BigNum.valueOf(3).nthRoot(-2.25),
+    () =>
+      // 2 ** (1/(1/3))
+      BigNum.valueOf(2).nthRoot(BigNum.valueOf(1).divide(3)),
     () => BigNum.valueOf(NaN).nthRoot(3),
     () => BigNum.valueOf(3).nthRoot(NaN),
     () => BigNum.valueOf(NaN).nthRoot(-3),
