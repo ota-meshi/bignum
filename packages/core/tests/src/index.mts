@@ -305,6 +305,20 @@ describe("standard tests", () => {
         .divide(BigNum.valueOf(1).divide(3).divide(2))
         .multiply(9)
         .multiply(4),
+    () =>
+      // (1/3 + 1/3 + 1) * 3
+      BigNum.valueOf(1)
+        .divide(3)
+        .add(BigNum.valueOf(1).divide(3))
+        .add(1)
+        .multiply(3),
+    () =>
+      // (1/3 + 1/3 - 1) * 3
+      BigNum.valueOf(1)
+        .divide(3)
+        .add(BigNum.valueOf(1).divide(3))
+        .subtract(1)
+        .multiply(3),
     () => BigNum.valueOf(NaN).divide(3),
     () => BigNum.valueOf(3).divide(NaN),
     () => BigNum.valueOf(NaN).divide(NaN),

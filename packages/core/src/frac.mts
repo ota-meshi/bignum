@@ -1,4 +1,5 @@
-import { type Num } from "./num.mjs";
+import type { Inf } from "./inf.mjs";
+import { Num } from "./num.mjs";
 import type { IsOverflow } from "./options.mjs";
 
 /** Internal Fraction class */
@@ -12,8 +13,8 @@ export class Frac {
   public readonly opt: IsOverflow;
 
   public static valueOf(n: Num, d: Num, overflowOpt: IsOverflow): Frac {
-    if (n.frac) this.valueOf(n.frac.n, d.multiply(n.frac.d), overflowOpt);
-    if (d.frac) this.valueOf(n.multiply(d.frac.d), d.frac.n, overflowOpt);
+    if (n.frac) Frac.valueOf(n.frac.n, d.multiply(n.frac.d), overflowOpt);
+    if (d.frac) Frac.valueOf(n.multiply(d.frac.d), d.frac.n, overflowOpt);
     return new Frac(n, d, overflowOpt);
   }
 
@@ -23,20 +24,31 @@ export class Frac {
     this.opt = opt;
   }
 
-  public multiply(multiplicand: Num): Frac {
-    const m = multiplicand;
-    return Frac.valueOf(this.n.multiply(m), this.d, this.opt);
+  public static add(a: Num, b: Num): Frac | null {
+    return a.frac
+      ? Frac.valueOf(a.frac.n.add(b.multiply(a.frac.d)), a.frac.d, a.frac.opt)
+      : b.frac
+        ? Frac.add(b, a)
+        : null;
   }
 
-  public divide(divisor: Num): Frac {
-    const n = this.n;
-    const d = this.d.multiply(divisor);
-    return Frac.valueOf(n, d, this.opt);
+  public static mul(a: Num, b: Num): Frac | null {
+    return a.frac
+      ? Frac.valueOf(a.frac.n.multiply(b), a.frac.d, a.frac.opt)
+      : b.frac
+        ? Frac.mul(b, a)
+        : null;
   }
 
-  public divideFrom(dividend: Num): Frac {
-    const n = dividend.multiply(this.d);
-    const d = this.n;
-    return Frac.valueOf(n, d, this.opt);
+  public static div(n: Num, d: Num): Frac | null {
+    return n.frac
+      ? Frac.valueOf(n.frac.n, d.multiply(n.frac.d), n.frac.opt)
+      : d.frac
+        ? Frac.valueOf(n.multiply(d.frac.d), d.frac.n, d.frac.opt)
+        : null;
+  }
+
+  public resolve(overflow?: IsOverflow, useFrac?: boolean): Num | Inf {
+    return Num.div(this.n, this.d, overflow ?? this.opt, useFrac ?? true);
   }
 }
