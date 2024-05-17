@@ -6,6 +6,44 @@ chai.use(jestSnapshotPlugin());
 describe("standard tests", () => {
   const f = setupEngine();
   for (const t of [
+    // Doc tests
+    // add
+    test`0.1 + 0.2`, // 0.3
+    // subtract
+    test`0.3 - 0.1`, // 0.2
+    // multiply
+    test`0.1 * 10`, // 1
+    // divide
+    test`0.6 / 0.2`, // 0.3
+    // modulo
+    test`0.6 % 0.2`, // 0
+    // pow / nth root
+    test`2 ** 3`, // 8
+    test`4 ** (1/2)`, // 2
+    test`8 ** (1/3)`, // 2
+    /* Parentheses */
+    test`(0.1 + 0.2) * 10`, // 3
+    test`0.1 + 0.2 * 10`, // 2.1
+    /* Unary Operators */
+    test`${0.3} + -${0.1}`, // 0.2
+    /* Logical Operators (Returns 0/1 for value compatibility) */
+    test`41 == 41`, // 1
+    test`41 == 1`, // 0
+    test`41 != 41`, // 0
+    test`41 != 1`, // 1
+    test`1 <= 2`, // 1
+    test`1 <= 1`, // 1
+    test`1 <= 0`, // 0
+    test`1 < 2`, // 1
+    test`1 < 1`, // 0
+    test`1 < 1`, // 0
+    test`2 >= 1`, // 1
+    test`1 >= 1`, // 1
+    test`0 >= 1`, // 0
+    test`2 > 1`, // 1
+    test`1 > 1`, // 0
+    test`0 > 1`, // 0
+
     test`1 + 2`,
     test`${0.1} + 0.1 * 2`,
     test`1+2`,

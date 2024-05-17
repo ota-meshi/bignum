@@ -2,7 +2,6 @@
 import chai, { assert } from "chai";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
-
 chai.use(jestSnapshotPlugin());
 
 type BTest = {
@@ -42,18 +41,26 @@ const B_TESTS: BTest[] = [
     op: "**",
     n: (a, b) => a ** b,
     b: (a: BigNum, b: BigNum) => a.pow(b),
-    ignore: (_a, b) => isFinite(b) && Math.abs(b) > 1000,
+    ignore: (a, b) => isFinite(a) && isFinite(b) && Math.abs(b) > 1000,
   },
   {
     op: "* 10 **",
     n: (a, b) => a * 10 ** b,
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
-    ignore: (_a, b) => isFinite(b) && Math.abs(b) > 1000,
+    ignore: (a, b) => isFinite(a) && isFinite(b) && Math.abs(b) > 1000,
   },
   {
     op: (a, b) => `${a} ** (1/${b})`,
     n: (a, b) => a ** (1 / b),
     b: (a: BigNum, b: BigNum) => a.nthRoot(b),
+    ignore: (a, b) =>
+      isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 5),
+  },
+  {
+    // use pow for nthRoot
+    op: (a, b) => `${a} ** /*pow*/ (1/${b})`,
+    n: (a, b) => a ** (1 / b),
+    b: (a: BigNum, b: BigNum) => a.pow(BigNum.valueOf(1).divide(b)),
     ignore: (a, b) =>
       isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 5),
   },
@@ -112,6 +119,7 @@ const U_TESTS: UTest[] = [
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
+      [8, 3],
       [18, 1.4],
       [0.2, 2],
       [123.45, 20],
@@ -267,6 +275,8 @@ describe("standard tests", () => {
     () => BigNum.valueOf(200).divide(100).add(0.1),
     () => BigNum.valueOf(-0.001).divide(0.003),
     () => BigNum.valueOf(-0.001).divide(-0.003),
+    () => BigNum.valueOf(1).divide(BigNum.valueOf(1).divide(3)),
+    () => BigNum.valueOf(3).divide(BigNum.valueOf(1).divide(3).multiply(3)),
     () => BigNum.valueOf(NaN).divide(3),
     () => BigNum.valueOf(3).divide(NaN),
     () => BigNum.valueOf(NaN).divide(NaN),
@@ -524,7 +534,7 @@ describe("standard tests", () => {
 describe("Infinity tests", () => {
   for (const t of B_TESTS) {
     for (const a of [Infinity, -Infinity]) {
-      for (const b of [3, 1, 0, -1, -3, Infinity, -Infinity]) {
+      for (const b of [3, 1, 0.5, 0, -0.5, -1, -3, Infinity, -Infinity]) {
         [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
           if (t.ignore?.(a, b)) return;
           const name =

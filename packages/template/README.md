@@ -59,6 +59,91 @@ console.log(f`${0.1} + 0.2`); // 0.3
 
 The calculation result usually returns a `number`, but if the `number` loses precision when converted to a `string`, it returns a `string` with the original precision is returned.
 
+## 📝 Supported Syntax
+
+### Operators
+
+The following operators are supported:
+
+```js
+/* Arithmetic Operators */
+// add
+f`0.1 + 0.2`; // 0.3
+// subtract
+f`0.3 - 0.1`; // 0.2
+// multiply
+f`0.1 * 10`; // 1
+// divide
+f`0.6 / 0.2`; // 0.3
+// modulo
+f`0.6 % 0.2`; // 0
+// pow / nth root
+f`2 ** 3`; // 8
+f`4 ** (1/2)`; // 2
+f`8 ** (1/3)`; // 2
+
+/* Parentheses */
+f`(0.1 + 0.2) * 10`; // 3
+f`0.1 + 0.2 * 10`; // 2.1
+
+/* Unary Operators */
+f`${0.3} + -${0.1}`; // 0.2
+
+/* Logical Operators (Returns 0/1 for value compatibility) */
+f`41 == 41`; // 1
+f`41 == 1`; // 0
+f`41 != 41`; // 0
+f`41 != 1`; // 1
+f`1 <= 2`; // 1
+f`1 <= 1`; // 1
+f`1 <= 0`; // 0
+f`1 < 2`; // 1
+f`1 < 1`; // 0
+f`1 < 1`; // 0
+f`2 >= 1`; // 1
+f`1 >= 1`; // 1
+f`0 >= 1`; // 0
+f`2 > 1`; // 1
+f`1 > 1`; // 0
+f`0 > 1`; // 0
+```
+
+### Operand
+
+Either write the numerical value as is in the template, or the template literal substitution is considered as an operand.
+
+```js
+f`0.3 + -${0.1}`; // 0.2
+```
+
+### Variables
+
+Variables can be accessed using identifiers. The supported variables are:
+
+```js
+f`E`; // Same as Math.E
+f`LN10`; // Same as Math.LN10
+f`LN2`; // Same as Math.LN2
+f`LOG2E`; // Same as Math.LOG2E
+f`LOG10E`; // Same as Math.LOG10E
+f`PI`; // Same as Math.PI
+f`SQRT1_2`; // Same as Math.SQRT1_2
+f`SQRT2`; // Same as Math.SQRT2
+```
+
+### Functions
+
+You can call built-in functions by writing a Call expression.
+
+```js
+f`trunc(12.34)`; // Returns the value by truncating the given value.
+f`round(12.34)`; // Returns the given value rounded to the nearest integer.
+f`floor(12.34)`; // Returns the greatest integer less than or equal to the given value.
+f`ceil(12.34)`; // Returns the smallest integer greater than or equal to the given value.
+f`abs(-1)`; // Returns the absolute value.
+f`sqrt(2)`; // Returns the square root of 2.
+```
+
 ## 🛸 Prior Art
 
 - [bigjs-literal]\

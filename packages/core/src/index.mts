@@ -215,7 +215,7 @@ export class BigNum {
 
 /** Get a BigNum from the given value */
 function valueOf(value: string | number | bigint | boolean | BigNum): BigNum {
-  if (typeof value === "object" && value instanceof BigNum) {
+  if (value instanceof BigNum) {
     return value;
   }
   return new BigNum(value);
