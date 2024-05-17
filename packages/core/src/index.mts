@@ -97,8 +97,7 @@ export class BigNum {
 
   /** Returns a BigNum whose value is (this - subtrahend) */
   public subtract(subtrahend: BigNum | string | number | bigint): BigNum {
-    const b = valueOf(subtrahend).#p;
-    return this.#val(b && this.#p?.subtract(b));
+    return this.add(valueOf(subtrahend).negate());
   }
 
   /** Returns a BigNum whose value is (this × multiplicand). */

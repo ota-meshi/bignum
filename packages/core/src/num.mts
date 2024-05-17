@@ -98,14 +98,6 @@ export class Num {
     return new Num(this.i + a.i, this.e);
   }
 
-  public subtract(subtrahend: Num): Num;
-
-  public subtract(subtrahend: Num | Inf): Num | Inf;
-
-  public subtract(subtrahend: Num | Inf): Num | Inf {
-    return this.add(subtrahend.negate());
-  }
-
   public multiply(multiplicand: Num): Num;
 
   public multiply(multiplicand: Inf): Inf | null;
@@ -132,7 +124,7 @@ export class Num {
     if (divisor.inf) return this;
     if (!divisor.i) return null;
     const times = this.#div(divisor, MOD_DIV_OPT, false);
-    return this.subtract(divisor.multiply(times)!);
+    return this.add(divisor.multiply(times)!.negate());
   }
 
   public pow(n: Num, options?: PowOptions): Num | null;

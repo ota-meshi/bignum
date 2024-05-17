@@ -22,10 +22,6 @@ export class Inf {
     return !augend.inf || this === augend ? this : null;
   }
 
-  public subtract(subtrahend: Inf | Num): Inf | null {
-    return this.add(subtrahend.negate());
-  }
-
   public multiply(multiplicand: Inf | Num): Inf | null {
     return !multiplicand.signum()
       ? null // inf * 0
