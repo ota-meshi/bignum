@@ -225,16 +225,13 @@ export class Num {
 
   public nthRoot(n: Num | Inf, options?: NthRootOptions): Num | Inf | null {
     if (n.inf) return this.pow(ZERO);
-    if (n.abs().compareTo(ONE) === 0) return this.pow(n);
     if (!n.i) return this.pow(INF);
-    if (!this.i) return this;
     if (this.i < 0n) throw new Error("Negative number");
-    if (n.i % n.d) {
-      // has fraction
-      return this.#pow(n.d, n.i, options);
+    if (n.frac) {
+      n.frac.n.#alignExponent(n.frac.d);
+      return this.#pow(n.frac.d.i, n.frac.n.i, options);
     }
-    const overflow = parseOFOption(options);
-    return this.#nthRoot(n, overflow, shouldUseFrac(options));
+    return this.#pow(n.d, n.i, options);
   }
 
   public trunc(): Num {
