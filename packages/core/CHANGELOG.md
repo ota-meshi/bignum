@@ -1,5 +1,21 @@
 # @bignum/core
 
+## 0.7.0
+
+### Minor Changes
+
+- feat: improve divide (take 2 ([#30](https://github.com/ota-meshi/bignum/pull/30))
+
+- feat: add support non-integer nthRoot ([#26](https://github.com/ota-meshi/bignum/pull/26))
+
+- feat!: change default divide option ([#30](https://github.com/ota-meshi/bignum/pull/30))
+
+- feat: improved nthRoot ([#28](https://github.com/ota-meshi/bignum/pull/28))
+
+- feat: improve divide ([#29](https://github.com/ota-meshi/bignum/pull/29))
+
+- feat: improve divide (take 3 ([#31](https://github.com/ota-meshi/bignum/pull/31))
+
 ## 0.6.0
 
 ### Minor Changes
