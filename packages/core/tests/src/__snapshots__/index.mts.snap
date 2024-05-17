@@ -282,6 +282,8 @@ exports[`standard tests () => BigNum.valueOf(1).ceil() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(1).divide(3) 1`] = `"\\"0.33333333333333333333\\""`;
 
+exports[`standard tests () => BigNum.valueOf(1).divide(BigNum.valueOf(1).divide(3)) 1`] = `"3"`;
+
 exports[`standard tests () => BigNum.valueOf(1).floor() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(1).modulo(3) 1`] = `"1"`;
@@ -397,6 +399,8 @@ exports[`standard tests () => BigNum.valueOf(3).add(NaN) 1`] = `"NaN"`;
 exports[`standard tests () => BigNum.valueOf(3).compareTo(NaN) 1`] = `"NaN"`;
 
 exports[`standard tests () => BigNum.valueOf(3).divide(-Infinity) 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf(3).divide(BigNum.valueOf(1).divide(3).multiply(3)) 1`] = `"9"`;
 
 exports[`standard tests () => BigNum.valueOf(3).divide(Infinity) 1`] = `"0"`;
 

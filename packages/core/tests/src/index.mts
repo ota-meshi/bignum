@@ -2,7 +2,6 @@
 import chai, { assert } from "chai";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
-
 chai.use(jestSnapshotPlugin());
 
 type BTest = {
@@ -112,6 +111,7 @@ const U_TESTS: UTest[] = [
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
+      [8, 3],
       [18, 1.4],
       [0.2, 2],
       [123.45, 20],
@@ -267,6 +267,8 @@ describe("standard tests", () => {
     () => BigNum.valueOf(200).divide(100).add(0.1),
     () => BigNum.valueOf(-0.001).divide(0.003),
     () => BigNum.valueOf(-0.001).divide(-0.003),
+    () => BigNum.valueOf(1).divide(BigNum.valueOf(1).divide(3)),
+    () => BigNum.valueOf(3).divide(BigNum.valueOf(1).divide(3).multiply(3)),
     () => BigNum.valueOf(NaN).divide(3),
     () => BigNum.valueOf(3).divide(NaN),
     () => BigNum.valueOf(NaN).divide(NaN),
