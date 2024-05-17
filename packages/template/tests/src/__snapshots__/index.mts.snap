@@ -78,7 +78,7 @@ exports[`standard tests \`(2 * 2) ** 3\` 1`] = `64`;
 
 exports[`standard tests \`(2 * 2) / 10 ** 20\` 1`] = `"0.00000000000000000004"`;
 
-exports[`standard tests \`(2 * 2) / 10 ** 21\` 1`] = `0`;
+exports[`standard tests \`(2 * 2) / 10 ** 21\` 1`] = `"0.000000000000000000004"`;
 
 exports[`standard tests \`-1.23e+42+1\` 1`] = `"-1229999999999999999999999999999999999999999"`;
 
@@ -170,7 +170,7 @@ exports[`standard tests \`2.1 * 2.3 ** 3\` 1`] = `25.5507`;
 
 exports[`standard tests \`2.3 % 1.1\` 1`] = `0.1`;
 
-exports[`standard tests \`2.3 / 1.1\` 1`] = `"2.09090909090909090909"`;
+exports[`standard tests \`2.3 / 1.1\` 1`] = `"2.090909090909090909"`;
 
 exports[`standard tests \`3 - 3 / 3\` 1`] = `2`;
 
@@ -266,13 +266,13 @@ exports[`standard tests \`round(\${1.501})\` 1`] = `2`;
 
 exports[`standard tests \`sqrt(\${0})\` 1`] = `0`;
 
-exports[`standard tests \`sqrt(\${1.5})\` 1`] = `"1.22474487139158904909"`;
+exports[`standard tests \`sqrt(\${1.5})\` 1`] = `"1.224744871391589049"`;
 
-exports[`standard tests \`sqrt(\${1.49})\` 1`] = `"1.22065556157337029518"`;
+exports[`standard tests \`sqrt(\${1.49})\` 1`] = `"1.2206555615733702951"`;
 
-exports[`standard tests \`sqrt(\${1.51})\` 1`] = `"1.22882057274445075918"`;
+exports[`standard tests \`sqrt(\${1.51})\` 1`] = `"1.2288205727444507591"`;
 
-exports[`standard tests \`sqrt(\${1.501})\` 1`] = `"1.22515305166334218293"`;
+exports[`standard tests \`sqrt(\${1.501})\` 1`] = `"1.2251530516633421829"`;
 
 exports[`standard tests \`sqrt(\${1})\` 1`] = `1`;
 

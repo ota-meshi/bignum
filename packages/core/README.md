@@ -51,11 +51,11 @@ An object can be given as an option.
 
 Options:
 
-| Name                    | Type                 | Description                                                                                                                      |
-| :---------------------- | :------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
-| overflow                | `(context)=>boolean` | You can specify an overflow test function. By default, if the number of decimal places exceeds 20, it is considered an overflow. |
-| ~~maxDp~~               | bigint               | **Deprecated**. The maximum number of decimal places.                                                                            |
-| ~~maxDecimalPrecision~~ | bigint               | **Deprecated**. The maximum number of precision when having decimals.                                                            |
+| Name                    | Type                 | Description                                                                                                                                         |
+| :---------------------- | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| overflow                | `(context)=>boolean` | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
+| ~~maxDp~~               | bigint               | **Deprecated**. The maximum number of decimal places.                                                                                               |
+| ~~maxDecimalPrecision~~ | bigint               | **Deprecated**. The maximum number of precision when having decimals.                                                                               |
 
 - `context` parameter
 
@@ -78,24 +78,7 @@ Returns a BigNum whose value is (-this).
 
 Returns a BigNum whose value is (this \*\* n).
 
-An object can be given as an option. It's the same option for `divide()`. This is used in negative pows.
-
-Options:
-
-| Name                    | Type                 | Description                                                                                                                                         |
-| :---------------------- | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| overflow                | `(context)=>boolean` | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
-| ~~maxDp~~               | bigint               | **Deprecated**. The maximum number of decimal places.                                                                                               |
-| ~~maxDecimalPrecision~~ | bigint               | **Deprecated**. The maximum number of precision when having decimals.                                                                               |
-
-- `context` parameter
-
-  An object that contains the following properties:
-
-  | Name      | Type   | Description                   |
-  | :-------- | :----- | :---------------------------- |
-  | scale     | bigint | The number of decimal places. |
-  | precision | bigint | The number of precision.      |
+An object can be given as an option. It's the same option for `divide()`. This is used in negative, or fraction pows.
 
 ### BigNum.prototype.scaleByPowerOfTen(n): BigNum
 
