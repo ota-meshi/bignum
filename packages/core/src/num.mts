@@ -11,6 +11,7 @@ import type {
   PowOptions,
   SqrtOptions,
 } from "./options.mjs";
+import { abs, compare, gcd, length, max, min } from "./util.mjs";
 
 const MOD_DIV_OPT: IsOverflow = (ctx) => ctx.scale > 0n;
 const DEF_OPT: IsOverflow = (ctx) => ctx.scale > 0n && ctx.precision > 20n;
@@ -84,10 +85,17 @@ export class Num {
     return this.negate();
   }
 
+  public add(augend: Num): Num;
+
+  public add(augend: Num | Inf): Num | Inf;
+
   public add(augend: Num | Inf): Num | Inf {
-    if (augend.inf) return augend;
-    this.#alignExponent(augend);
-    return new Num(this.i + augend.i, this.e);
+    const a = augend;
+    if (a.inf) return a;
+    const frac = Frac.add(this, a);
+    if (frac) return frac.resolve();
+    this.#alignExponent(a);
+    return new Num(this.i + a.i, this.e);
   }
 
   public subtract(subtrahend: Num): Num;
@@ -107,9 +115,7 @@ export class Num {
   public multiply(multiplicand: Num | Inf): Num | Inf | null {
     const m = multiplicand;
     if (m.inf) return m.multiply(this);
-    const frac = this.frac?.multiply(m) ?? m.frac?.multiply(this);
-    if (frac) return frac.n.#div(frac.d, frac.opt, true);
-    return new Num(this.i * m.i, this.e + m.e);
+    return Frac.mul(this, m)?.resolve() ?? new Num(this.i * m.i, this.e + m.e);
   }
 
   public divide(divisor: Num, options?: DivideOptions): Num;
@@ -289,8 +295,8 @@ export class Num {
   #div(divisor: Num, overflow: IsOverflow, useFrac: boolean): Num | Inf {
     if (!divisor.i) return this.d >= 0 ? INF : N_INF;
     if (!this.i) return this;
-    const frac = this.frac?.divide(divisor) ?? divisor.frac?.divideFrom(this);
-    if (frac) return frac.n.#div(frac.d, overflow, useFrac);
+    const frac = Frac.div(this, divisor);
+    if (frac) return frac.resolve(overflow, useFrac);
     const alignMultiplicand = new Num(10n ** divisor.#scale(), 0n);
     const alignedTarget: Num = this.multiply(alignMultiplicand).#simplify();
     const alignedDivisor = divisor.multiply(alignMultiplicand).#simplify();
@@ -478,37 +484,15 @@ export class Num {
     this.e = exponent;
     this.d = 10n ** -exponent;
   }
+
+  public static div(
+    dividend: Num,
+    divisor: Num,
+    overflow: IsOverflow,
+    useFrac: boolean,
+  ): Num | Inf {
+    return dividend.#div(divisor, overflow, useFrac);
+  }
 }
 export const ZERO = new Num(0n, 0n);
 export const ONE = new Num(1n, 0n);
-
-/** compare function */
-function compare(a: bigint, b: bigint) {
-  return a === b ? 0 : a > b ? 1 : -1;
-}
-
-/** Get length */
-function length(a: bigint): bigint {
-  let t = a;
-  for (let i = 1n; ; i++) if (!(t /= 10n)) return i;
-}
-
-/** Get max value */
-function max(a: bigint, b: bigint): bigint {
-  return a >= b ? a : b;
-}
-
-/** Get max value */
-function min(a: bigint, b: bigint): bigint {
-  return a <= b ? a : b;
-}
-
-/** Get abs value */
-function abs(a: bigint): bigint {
-  return a >= 0n ? a : -a;
-}
-
-/** Find the greatest common divisor. */
-function gcd(a: bigint, b: bigint): bigint {
-  return b ? gcd(b, a % b) : a;
-}
