@@ -55,7 +55,7 @@ const B_TESTS: BTest[] = [
     n: (a, b) => a ** (1 / b),
     b: (a: BigNum, b: BigNum) => a.nthRoot(b),
     ignore: (a, b) =>
-      isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 4),
+      isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 5),
   },
   {
     op: "compareTo",
