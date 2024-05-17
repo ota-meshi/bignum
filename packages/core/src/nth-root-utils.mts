@@ -1,44 +1,48 @@
+// See https://fermiumbay13.hatenablog.com/entry/2019/03/07/002938
+
 type TempTable = {
   /** Prepare for the next digit. */
   prepare(): void;
   /** Returns the consumed value corresponding to the given digit value. */
-  amount(nn: bigint): bigint;
+  amount(n: bigint): bigint;
   /** Set the currently calculated value. */
-  set(digits: bigint): void;
+  set(value: bigint): void;
 };
 
 /** Create nth root temporary calc table */
-export function createNthRootTable(n: bigint): TempTable {
-  const times = createPascalTriangleLineBy(n).slice(1, -1);
+export function createNthRootTable(nth: bigint): TempTable {
+  const times = createPascalTriangleLineBy(nth);
 
-  const parts = Array(times.length).fill(0n);
+  const parts = times.map(() => 0n);
+  const len = parts.length;
   return {
     prepare() {
-      for (let i = 0; i < parts.length; i++) parts[i] *= 10n ** BigInt(i + 1);
+      let tmp = 1n;
+      for (let i = 0; i < len; i++) parts[i] *= tmp *= 10n;
     },
-    amount(nn: bigint) {
-      let a = nn;
-      for (let i = 0; i < parts.length; i++) {
-        a = (parts[i] + a) * nn;
-      }
-      return a;
+    amount(n: bigint) {
+      return parts.reduce((a, v) => (a + v) * n, n);
     },
-    set(digits: bigint) {
-      for (let i = 0; i < parts.length; i++) {
-        parts[i] = digits ** BigInt(i + 1) * times[i];
-      }
+    set(value: bigint) {
+      let tmp = 1n;
+      for (let i = 0; i < len; i++) parts[i] = (tmp *= value) * times[i];
     },
   };
 }
 
+const pascalTriangle: bigint[][] = [[]];
+
 /** Create pascal triangle line for the given n */
 function createPascalTriangleLineBy(n: bigint) {
-  let table = [1n, 1n];
-  for (let i = 1; i < n; i++) {
-    const next: bigint[] = [1n];
-    for (let j = 1; j < table.length; j++) next[j] = table[j - 1] + table[j];
-    next.push(1n);
-    table = next;
+  const result = pascalTriangle[Number(n) - 1];
+  if (result) return result;
+  let table = pascalTriangle.at(-1)!;
+  for (let i = pascalTriangle.length; i < n; i++) {
+    // calc next line
+    let p = 1n;
+    table = table.map((v) => p + (p = v));
+    table.push(p + 1n);
+    pascalTriangle.push(table);
   }
   return table;
 }
