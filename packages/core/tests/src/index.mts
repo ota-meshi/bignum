@@ -277,6 +277,34 @@ describe("standard tests", () => {
     () => BigNum.valueOf(-0.001).divide(-0.003),
     () => BigNum.valueOf(1).divide(BigNum.valueOf(1).divide(3)),
     () => BigNum.valueOf(3).divide(BigNum.valueOf(1).divide(3).multiply(3)),
+    () => BigNum.valueOf(1).divide(3).multiply(3),
+    () =>
+      // 1/3 * (1/3) * 9
+      BigNum.valueOf(1)
+        .divide(3)
+        .multiply(BigNum.valueOf(1).divide(3))
+        .multiply(9),
+    () =>
+      // ((1/3)/2) * ((1/3)/2) * 9 * 4
+      BigNum.valueOf(1)
+        .divide(3)
+        .divide(2)
+        .multiply(BigNum.valueOf(1).divide(3).divide(2))
+        .multiply(9)
+        .multiply(4),
+    () =>
+      // 1 / ((1/3)/2) * 9 * 4
+      BigNum.valueOf(1)
+        .divide(BigNum.valueOf(1).divide(3).divide(2))
+        .multiply(9)
+        .multiply(4),
+    () =>
+      // 1/3 / ((1/3)/2) * 9 * 4
+      BigNum.valueOf(1)
+        .divide(3)
+        .divide(BigNum.valueOf(1).divide(3).divide(2))
+        .multiply(9)
+        .multiply(4),
     () => BigNum.valueOf(NaN).divide(3),
     () => BigNum.valueOf(3).divide(NaN),
     () => BigNum.valueOf(NaN).divide(NaN),

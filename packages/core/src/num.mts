@@ -1,3 +1,4 @@
+import { Frac } from "./frac.mjs";
 import type { Inf } from "./inf.mjs";
 import { INF, N_INF } from "./inf.mjs";
 import { createNthRootTable } from "./nth-root-utils.mjs";
@@ -11,16 +12,15 @@ import type {
   SqrtOptions,
 } from "./options.mjs";
 
-const MOD_DIV_OPT: DivideOptions = { overflow: (ctx) => ctx.scale > 0n };
+const MOD_DIV_OPT: IsOverflow = (ctx) => ctx.scale > 0n;
+const DEF_OPT: IsOverflow = (ctx) => ctx.scale > 0n && ctx.precision > 20n;
 
 /**
  * Parse for overflow option.
  */
-function parseOFOption(options: MathOptions = {}, currDp = 20n): IsOverflow {
-  if (options.overflow) {
-    return options.overflow;
-  }
-  const { maxDecimalPrecision, maxDp } = options;
+function parseOFOption(options: MathOptions | undefined): IsOverflow {
+  const { overflow, maxDecimalPrecision, maxDp } = options ?? {};
+  if (overflow) return overflow;
   if (maxDecimalPrecision != null) {
     const checkPrecision: IsOverflow = (ctx) =>
       ctx.scale > 0n && ctx.precision > maxDecimalPrecision;
@@ -28,16 +28,14 @@ function parseOFOption(options: MathOptions = {}, currDp = 20n): IsOverflow {
     return (ctx) => ctx.scale > maxDp || checkPrecision(ctx);
   }
   if (maxDp != null) return (ctx) => ctx.scale > maxDp;
-  const m = currDp < 20n ? 20n : currDp;
-  return (ctx) => ctx.scale > m;
+  return DEF_OPT;
 }
 
-/** Get the DivideOptions for pow and sqrt  */
-function getDivForPowOptions(options: MathOptions = {}): MathOptions {
-  return {
-    overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
-    ...options,
-  };
+/** Checks if the fraction should be used. */
+function shouldUseFrac(options: MathOptions = {}) {
+  if (options.overflow) return false;
+  const { maxDecimalPrecision, maxDp } = options;
+  return maxDecimalPrecision == null && maxDp == null;
 }
 
 /** Internal Number class */
@@ -54,12 +52,12 @@ export class Num {
   private d: bigint;
 
   /** original fraction */
-  private readonly frac?: () => [Num, Num];
+  public readonly frac: Frac | null | undefined;
 
   public constructor(
     intValue: bigint,
     exponent: bigint,
-    frac?: () => [Num, Num],
+    frac?: Frac | null | undefined,
   ) {
     if (exponent > 0n) {
       this.i = intValue * 10n ** exponent;
@@ -70,7 +68,7 @@ export class Num {
       this.e = exponent;
       this.d = 10n ** -exponent;
     }
-    this.frac = frac && this.i % this.d ? frac : undefined;
+    this.frac = frac;
   }
 
   public signum(): 1 | 0 | -1 {
@@ -107,17 +105,11 @@ export class Num {
   public multiply(multiplicand: Num | Inf): Num | Inf | null;
 
   public multiply(multiplicand: Num | Inf): Num | Inf | null {
-    if (multiplicand.inf) return multiplicand.multiply(this);
     const m = multiplicand;
-    return new Num(
-      this.i * m.i,
-      this.e + m.e,
-      m.frac
-        ? () => m.frac!().map((n) => n.multiply(this)) as [Num, Num]
-        : this.frac
-          ? () => this.frac!().map((n) => n.multiply(m)) as [Num, Num]
-          : undefined,
-    );
+    if (m.inf) return m.multiply(this);
+    const frac = this.frac?.multiply(m) ?? m.frac?.multiply(this);
+    if (frac) return frac.n.#div(frac.d, frac.opt, true);
+    return new Num(this.i * m.i, this.e + m.e);
   }
 
   public divide(divisor: Num, options?: DivideOptions): Num;
@@ -126,84 +118,15 @@ export class Num {
 
   public divide(divisor: Num | Inf, options?: DivideOptions): Num | Inf {
     if (divisor.inf) return ZERO;
-    if (!divisor.i) return this.d >= 0 ? INF : N_INF;
-    if (!this.i) return this;
-    let frac;
-    if ((frac = this.frac?.()))
-      return frac[0].divide(frac[1].multiply(divisor), options);
-    if ((frac = divisor.frac?.()))
-      return this.multiply(frac[1]).divide(frac[0], options);
-
-    const alignMultiplicand = new Num(10n ** divisor.#scale(), 0n);
-    const alignedTarget: Num = this.multiply(alignMultiplicand).#simplify();
-    const alignedDivisor = divisor.multiply(alignMultiplicand).#simplify();
-
-    const overflow = parseOFOption(
-      options,
-      max(this.#scale(), divisor.#scale()),
-    );
-
-    if (!(alignedTarget.i % alignedDivisor.i)) {
-      // Short circuit
-      const candidate = new Num(
-        alignedTarget.i / alignedDivisor.i,
-        alignedTarget.e - alignedDivisor.e,
-      );
-      if (
-        !overflow({
-          scale: candidate.#scale(),
-          precision: candidate.#precision(),
-        })
-      )
-        return candidate;
-    }
-
-    const iDivisor = abs(alignedDivisor.#trunc());
-
-    let remainder = abs(alignedTarget.i);
-
-    const digitExponent = max(length(remainder) - length(iDivisor) + 1n, 0n);
-    const pow: bigint = 10n ** digitExponent;
-
-    let digits = 0n;
-    let exponent = digitExponent + alignedTarget.e;
-    const overflowCtx: OverflowContext = {
-      get scale() {
-        return -exponent;
-      },
-      get precision() {
-        return length(digits);
-      },
-    };
-    while (remainder > 0n && !overflow(overflowCtx)) {
-      exponent--;
-      remainder *= 10n;
-      digits *= 10n;
-      // Find digit
-      if (remainder < iDivisor * pow) continue; // Short circuit: If 1 is not available, it will not loop.
-      for (let n = 9n; n > 0n; n--) {
-        const amount = iDivisor * n * pow;
-        if (remainder < amount) continue;
-        // Set digit
-        digits += n;
-        remainder -= amount;
-        break;
-      }
-    }
-    while (overflow(overflowCtx) && digits) {
-      exponent++;
-      digits /= 10n;
-    }
-
-    if (divisor.signum() !== this.signum()) digits = -digits;
-    return new Num(digits, exponent, () => [this, divisor]);
+    const overflow = parseOFOption(options);
+    return this.#div(divisor, overflow, shouldUseFrac(options));
   }
 
   public modulo(divisor: Num | Inf): Num | Inf | null {
     if (divisor.inf) return this;
     if (!divisor.i) return null;
-    const times = this.divide(divisor, MOD_DIV_OPT);
-    return this.subtract(divisor.multiply(times));
+    const times = this.#div(divisor, MOD_DIV_OPT, false);
+    return this.subtract(divisor.multiply(times)!);
   }
 
   public pow(n: Num, options?: PowOptions): Num | null;
@@ -225,9 +148,8 @@ export class Num {
             : INF; // num ** inf;
     }
     if (n.frac) {
-      const [num, denom] = n.frac();
-      num.#alignExponent(denom);
-      return this.#pow(num.i, denom.i, options);
+      n.frac.n.#alignExponent(n.frac.d);
+      return this.#pow(n.frac.n.i, n.frac.d.i, options);
     }
     return this.#pow(n.i, n.d, options);
   }
@@ -251,7 +173,7 @@ export class Num {
   public sqrt(options?: SqrtOptions): Num {
     if (!this.i) return this;
     if (this.i < 0n) throw new Error("Negative number");
-    const overflow = parseOFOption(options, this.#scale());
+    const overflow = parseOFOption(options);
     // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
     const decimalLength = this.#scale();
     const decimalLengthIsOdd = decimalLength & 1n;
@@ -313,54 +235,8 @@ export class Num {
       // has fraction
       return this.#pow(n.d, n.i, options);
     }
-    const overflow = parseOFOption(options, this.#scale());
-    // See https://fermiumbay13.hatenablog.com/entry/2019/03/07/002938
-    const iN = n.abs().#trunc();
-    const powOfTen = 10n ** iN;
-
-    const decimalLength = this.#scale();
-    const mod = decimalLength % iN;
-
-    let remainder = this.#simplify().i;
-    if (mod) remainder *= 10n ** (iN - mod);
-    const table = createNthRootTable(iN);
-
-    const digitExponent = length(remainder) / iN + 1n;
-    const pow: bigint = powOfTen ** digitExponent;
-
-    let digits = 0n;
-    let exponent = digitExponent - decimalLength / iN - (mod ? 1n : 0n);
-    const overflowCtx: OverflowContext = {
-      get scale() {
-        return -exponent;
-      },
-      get precision() {
-        return length(digits);
-      },
-    };
-    while (remainder > 0n && !overflow(overflowCtx)) {
-      exponent--;
-      remainder *= powOfTen;
-      digits *= 10n;
-      table.prepare();
-      // Find digit
-      for (let nn = 9n; nn > 0n; nn--) {
-        const amount = table.amount(nn) * pow;
-        if (remainder < amount) continue;
-        // Set digit
-        digits += nn;
-        remainder -= amount;
-        table.set(digits);
-        break;
-      }
-    }
-    while (overflow(overflowCtx) && digits) {
-      exponent++;
-      digits /= 10n;
-    }
-    const a = new Num(digits, exponent);
-    if (n.i >= 0n) return a;
-    return ONE.divide(a, getDivForPowOptions(options));
+    const overflow = parseOFOption(options);
+    return this.#nthRoot(n, overflow, shouldUseFrac(options));
   }
 
   public trunc(): Num {
@@ -410,6 +286,78 @@ export class Num {
     return `${sign}${integer}${decimal.length ? `.${decimal.join("")}` : ""}`;
   }
 
+  #div(divisor: Num, overflow: IsOverflow, useFrac: boolean): Num | Inf {
+    if (!divisor.i) return this.d >= 0 ? INF : N_INF;
+    if (!this.i) return this;
+    const frac = this.frac?.divide(divisor) ?? divisor.frac?.divideFrom(this);
+    if (frac) return frac.n.#div(frac.d, overflow, useFrac);
+    const alignMultiplicand = new Num(10n ** divisor.#scale(), 0n);
+    const alignedTarget: Num = this.multiply(alignMultiplicand).#simplify();
+    const alignedDivisor = divisor.multiply(alignMultiplicand).#simplify();
+
+    if (!(alignedTarget.i % alignedDivisor.i)) {
+      // Short circuit
+      const candidate = new Num(
+        alignedTarget.i / alignedDivisor.i,
+        alignedTarget.e - alignedDivisor.e,
+      );
+      if (
+        !overflow({
+          scale: candidate.#scale(),
+          precision: candidate.#precision(),
+        })
+      )
+        return candidate;
+    }
+
+    const iDivisor = abs(alignedDivisor.#trunc());
+
+    let remainder = abs(alignedTarget.i);
+
+    const digitExponent = max(length(remainder) - length(iDivisor) + 1n, 0n);
+    const pow: bigint = 10n ** digitExponent;
+
+    let digits = 0n;
+    let exponent = digitExponent + alignedTarget.e;
+    const overflowCtx: OverflowContext = {
+      get scale() {
+        return -exponent;
+      },
+      get precision() {
+        return length(digits);
+      },
+    };
+    while (remainder > 0n && !overflow(overflowCtx)) {
+      exponent--;
+      remainder *= 10n;
+      digits *= 10n;
+      // Find digit
+      if (remainder < iDivisor * pow) continue; // Short circuit: If 1 is not available, it will not loop.
+      for (let n = 9n; n > 0n; n--) {
+        const amount = iDivisor * n * pow;
+        if (remainder < amount) continue;
+        // Set digit
+        digits += n;
+        remainder -= amount;
+        break;
+      }
+    }
+
+    let lost = !remainder;
+    while (overflow(overflowCtx) && digits) {
+      exponent++;
+      digits /= 10n;
+      lost = true;
+    }
+
+    if (divisor.signum() !== this.signum()) digits = -digits;
+    return new Num(
+      digits,
+      exponent,
+      useFrac && lost ? Frac.valueOf(this, divisor, overflow) : undefined,
+    );
+  }
+
   /** pow() for fraction */
   #pow(
     numerator: bigint,
@@ -431,13 +379,65 @@ export class Num {
       n /= g;
       d /= g;
       a = a.multiply(
-        this.nthRoot(new Num(d, 0n), getDivForPowOptions(options)).pow(
-          new Num(n, 0n),
-        )!,
-      );
+        this.#nthRoot(
+          new Num(d, 0n),
+          parseOFOption(options),
+          shouldUseFrac(options),
+        ).pow(new Num(n, 0n))!,
+      ) as Num;
     }
     if (sign >= 0n) return a;
-    return ONE.divide(a, getDivForPowOptions(options));
+    return ONE.#div(a, parseOFOption(options), shouldUseFrac(options)) as Num;
+  }
+
+  #nthRoot(n: Num, overflow: IsOverflow, useFrac: boolean): Num | Inf {
+    // See https://fermiumbay13.hatenablog.com/entry/2019/03/07/002938
+    const iN = n.abs().#trunc();
+    const powOfTen = 10n ** iN;
+
+    const decimalLength = this.#scale();
+    const mod = decimalLength % iN;
+
+    let remainder = this.#simplify().i;
+    if (mod) remainder *= 10n ** (iN - mod);
+    const table = createNthRootTable(iN);
+
+    const digitExponent = length(remainder) / iN + 1n;
+    const pow: bigint = powOfTen ** digitExponent;
+
+    let digits = 0n;
+    let exponent = digitExponent - decimalLength / iN - (mod ? 1n : 0n);
+    const overflowCtx: OverflowContext = {
+      get scale() {
+        return -exponent;
+      },
+      get precision() {
+        return length(digits);
+      },
+    };
+    while (remainder > 0n && !overflow(overflowCtx)) {
+      exponent--;
+      remainder *= powOfTen;
+      digits *= 10n;
+      table.prepare();
+      // Find digit
+      for (let nn = 9n; nn > 0n; nn--) {
+        const amount = table.amount(nn) * pow;
+        if (remainder < amount) continue;
+        // Set digit
+        digits += nn;
+        remainder -= amount;
+        table.set(digits);
+        break;
+      }
+    }
+    while (overflow(overflowCtx) && digits) {
+      exponent++;
+      digits /= 10n;
+    }
+    const a = new Num(digits, exponent);
+    if (n.i >= 0n) return a;
+    return ONE.#div(a, overflow, useFrac);
   }
 
   #scale() {
@@ -508,9 +508,7 @@ function abs(a: bigint): bigint {
   return a >= 0n ? a : -a;
 }
 
-/**
- * Find the greatest common divisor.
- */
+/** Find the greatest common divisor. */
 function gcd(a: bigint, b: bigint): bigint {
   return b ? gcd(b, a % b) : a;
 }
