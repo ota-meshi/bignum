@@ -41,18 +41,26 @@ const B_TESTS: BTest[] = [
     op: "**",
     n: (a, b) => a ** b,
     b: (a: BigNum, b: BigNum) => a.pow(b),
-    ignore: (_a, b) => isFinite(b) && Math.abs(b) > 1000,
+    ignore: (a, b) => isFinite(a) && isFinite(b) && Math.abs(b) > 1000,
   },
   {
     op: "* 10 **",
     n: (a, b) => a * 10 ** b,
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
-    ignore: (_a, b) => isFinite(b) && Math.abs(b) > 1000,
+    ignore: (a, b) => isFinite(a) && isFinite(b) && Math.abs(b) > 1000,
   },
   {
     op: (a, b) => `${a} ** (1/${b})`,
     n: (a, b) => a ** (1 / b),
     b: (a: BigNum, b: BigNum) => a.nthRoot(b),
+    ignore: (a, b) =>
+      isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 5),
+  },
+  {
+    // use pow for nthRoot
+    op: (a, b) => `${a} ** /*pow*/ (1/${b})`,
+    n: (a, b) => a ** (1 / b),
+    b: (a: BigNum, b: BigNum) => a.pow(BigNum.valueOf(1).divide(b)),
     ignore: (a, b) =>
       isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 5),
   },
@@ -526,7 +534,7 @@ describe("standard tests", () => {
 describe("Infinity tests", () => {
   for (const t of B_TESTS) {
     for (const a of [Infinity, -Infinity]) {
-      for (const b of [3, 1, 0, -1, -3, Infinity, -Infinity]) {
+      for (const b of [3, 1, 0.5, 0, -0.5, -1, -3, Infinity, -Infinity]) {
         [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
           if (t.ignore?.(a, b)) return;
           const name =

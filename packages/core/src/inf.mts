@@ -1,5 +1,4 @@
-import type { Num } from "./num.mjs";
-import { ONE, ZERO } from "./num.mjs";
+import { Num, ONE, ZERO } from "./num.mjs";
 
 /** Internal Infinity class */
 export class Inf {
@@ -53,7 +52,14 @@ export class Inf {
         ? ZERO // inf ** -inf
         : INF; // inf ** inf
     if (!n.signum()) return ONE; // Inf ** 0
-    if (n.signum() < 0n) return ZERO;
+    if (n.signum() < 0n) return ZERO; // Inf ** -num
+    if (this.s < 0) {
+      // minus
+      const hasFrac = n.modulo(ONE)!.compareTo(ZERO);
+      if (hasFrac) return INF;
+      const binary = !n.modulo(new Num(2n, 0n))!.compareTo(ZERO);
+      if (binary) return INF;
+    }
     return this; // inf ** num
   }
 

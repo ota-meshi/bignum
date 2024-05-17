@@ -160,7 +160,7 @@ exports[`standard tests () => BigNum.valueOf(-Infinity).pow(-2) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).pow(-Infinity) 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).pow(2) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).pow(2) 1`] = `"Infinity"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).pow(Infinity) 1`] = `"Infinity"`;
 

@@ -54,9 +54,13 @@ export class Num {
   private d: bigint;
 
   /** original fraction */
-  private readonly frac?: [Num, Num];
+  private readonly frac?: () => [Num, Num];
 
-  public constructor(intValue: bigint, exponent: bigint, frac?: [Num, Num]) {
+  public constructor(
+    intValue: bigint,
+    exponent: bigint,
+    frac?: () => [Num, Num],
+  ) {
     if (exponent > 0n) {
       this.i = intValue * 10n ** exponent;
       this.e = 0n;
@@ -66,7 +70,7 @@ export class Num {
       this.e = exponent;
       this.d = 10n ** -exponent;
     }
-    this.frac = frac;
+    this.frac = frac && this.i % this.d ? frac : undefined;
   }
 
   public signum(): 1 | 0 | -1 {
@@ -104,13 +108,15 @@ export class Num {
 
   public multiply(multiplicand: Num | Inf): Num | Inf | null {
     if (multiplicand.inf) return multiplicand.multiply(this);
-    const frac =
-      multiplicand.frac?.map((n, i) => n.multiply(this.frac?.[i] ?? this)) ??
-      this.frac?.map((n) => n.multiply(multiplicand));
+    const m = multiplicand;
     return new Num(
-      this.i * multiplicand.i,
-      this.e + multiplicand.e,
-      frac as [Num, Num] | undefined,
+      this.i * m.i,
+      this.e + m.e,
+      m.frac
+        ? () => m.frac!().map((n) => n.multiply(this)) as [Num, Num]
+        : this.frac
+          ? () => this.frac!().map((n) => n.multiply(m)) as [Num, Num]
+          : undefined,
     );
   }
 
@@ -122,10 +128,11 @@ export class Num {
     if (divisor.inf) return ZERO;
     if (!divisor.i) return this.d >= 0 ? INF : N_INF;
     if (!this.i) return this;
-    if (divisor.frac) {
-      const [num, denom] = divisor.frac;
-      return this.multiply(denom).divide(num, options);
-    }
+    let frac;
+    if ((frac = this.frac?.()))
+      return frac[0].divide(frac[1].multiply(divisor), options);
+    if ((frac = divisor.frac?.()))
+      return this.multiply(frac[1]).divide(frac[0], options);
 
     const alignMultiplicand = new Num(10n ** divisor.#scale(), 0n);
     const alignedTarget: Num = this.multiply(alignMultiplicand).#simplify();
@@ -189,7 +196,7 @@ export class Num {
     }
 
     if (divisor.signum() !== this.signum()) digits = -digits;
-    return new Num(digits, exponent, [this, divisor]);
+    return new Num(digits, exponent, () => [this, divisor]);
   }
 
   public modulo(divisor: Num | Inf): Num | Inf | null {
@@ -205,18 +212,20 @@ export class Num {
 
   public pow(n: Num | Inf, options?: PowOptions): Num | Inf | null {
     if (n.inf) {
-      return !this.i
-        ? n.signum() < 0
-          ? INF // 0 ** -inf
-          : ZERO // 0 ** inf
-        : this.abs().compareTo(ONE) === 0
+      const minus = n.signum() < 0;
+      const cmpO = this.abs().compareTo(ONE);
+      return cmpO < 0
+        ? minus
+          ? INF // 0 ** -inf, or 0.x ** -inf
+          : ZERO // 0 ** inf, or 0.x ** inf
+        : cmpO === 0
           ? null // 1 ** inf, or -1 ** inf
-          : n.signum() < 0
+          : minus
             ? ZERO // num ** -inf
             : INF; // num ** inf;
     }
     if (n.frac) {
-      const [num, denom] = n.frac;
+      const [num, denom] = n.frac();
       num.#alignExponent(denom);
       return this.#pow(num.i, denom.i, options);
     }
