@@ -43,7 +43,6 @@ const B_TESTS: BTest[] = [
       if (!isFinite(a) || !isFinite(b)) return false;
       const abs = Math.abs(b);
       if (abs && (abs > 1000 || abs < 0.001)) return true;
-      if (String(abs).includes(".") && String(abs).length > 5) return true;
       return false;
     },
   },

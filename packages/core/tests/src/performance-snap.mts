@@ -3,11 +3,16 @@ import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
 import { length } from "../../src/util.mts";
 
-if (process.argv.includes("--update")) {
+if (process.env.UPDATE_PREF) {
   chai.use(jestSnapshotPlugin());
 
   describe("performance tests", () => {
     for (const t of [
+      () => {
+        // setup
+        const a = BigNum.valueOf(20.56);
+        return () => a.pow(48.723);
+      },
       () => BigNum.valueOf(100).pow(123.456),
       () => {
         // setup
@@ -23,6 +28,15 @@ if (process.argv.includes("--update")) {
         return () => {
           for (let i = 0; i < 100; i++) {
             length(n);
+          }
+        };
+      },
+      () => {
+        // setup
+        const a = BigNum.valueOf(123456789.12345678);
+        return () => {
+          for (let i = 0; i < 100; i++) {
+            a.sqrt();
           }
         };
       },

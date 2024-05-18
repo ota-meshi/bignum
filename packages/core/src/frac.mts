@@ -158,7 +158,7 @@ export class Frac {
     let part = 0n;
 
     const digitExponent = BigInt(length(remainder)) / 2n + 1n;
-    const pow: bigint = 100n ** digitExponent;
+    let pow: bigint = 100n ** digitExponent;
 
     const numCtx = numberContext(
       1,
@@ -168,7 +168,8 @@ export class Frac {
     while (remainder > 0n && !numCtx.overflow()) {
       numCtx.intVal *= 10n;
       numCtx.exponent--;
-      remainder *= 100n;
+      if (pow >= 100n) pow /= 100n;
+      else remainder *= 100n;
       part *= 10n;
       // Find digit
       if (remainder < (part + 1n) * pow) continue; // Short circuit: If 1 is not available, it will not loop.
@@ -281,13 +282,14 @@ export class Frac {
     let remainder = abs(n);
 
     const digitExponent = max(BigInt(length(remainder) - length(d)) + 1n, 0n);
-    const pow: bigint = 10n ** digitExponent;
+    let pow: bigint = 10n ** digitExponent;
 
     const numCtx = numberContext(n < 0n ? -1 : 1, digitExponent, options);
     while (remainder > 0n && !numCtx.overflow()) {
       numCtx.intVal *= 10n;
       numCtx.exponent--;
-      remainder *= 10n;
+      if (pow >= 10n) pow /= 10n;
+      else remainder *= 10n;
       // Find digit
       if (remainder < d * pow) continue; // Short circuit: If 1 is not available, it will not loop.
       for (let nn = 9n; nn > 0n; nn--) {
@@ -346,7 +348,7 @@ export class Frac {
     const table = createNthRootTable(iN);
 
     const digitExponent = BigInt(length(remainder)) / iN + 1n;
-    const pow: bigint = powOfTen ** digitExponent;
+    let pow: bigint = powOfTen ** digitExponent;
 
     const numCtx = numberContext(
       1,
@@ -356,7 +358,8 @@ export class Frac {
     while (remainder > 0n && !numCtx.overflow()) {
       numCtx.intVal *= 10n;
       numCtx.exponent--;
-      remainder *= powOfTen;
+      if (pow >= powOfTen) pow /= powOfTen;
+      else remainder *= powOfTen;
       table.prepare();
       // Find digit
       for (let nn = 9n; nn > 0n; nn--) {

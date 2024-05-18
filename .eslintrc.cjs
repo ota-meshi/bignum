@@ -33,6 +33,7 @@ module.exports = {
         "@typescript-eslint/no-this-alias": "off",
         "one-var": "off",
         "no-param-reassign": "off",
+        "no-process-env": "off",
       },
     },
     {
