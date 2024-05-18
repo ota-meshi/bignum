@@ -26,5 +26,10 @@ export function abs(a: bigint): bigint {
 
 /** Find the greatest common divisor. */
 export function gcd(a: bigint, b: bigint): bigint {
-  return b ? gcd(b, a % b) : a;
+  while (b) {
+    const t = a % b;
+    a = b;
+    b = t;
+  }
+  return a;
 }

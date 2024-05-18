@@ -32,6 +32,7 @@ module.exports = {
         "@typescript-eslint/no-use-before-define": "off",
         "@typescript-eslint/no-this-alias": "off",
         "one-var": "off",
+        "no-param-reassign": "off",
       },
     },
     {

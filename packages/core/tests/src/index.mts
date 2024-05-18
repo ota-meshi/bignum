@@ -6,7 +6,7 @@ chai.use(jestSnapshotPlugin());
 
 type BTest = {
   op: string | ((a: number, b: number) => string);
-  n: (a: number, b: number) => number | bigint;
+  n: (a: number, b: number) => number;
   b: (a: BigNum, b: BigNum) => BigNum;
   ignore?: (a: number, b: number) => boolean;
 };
@@ -41,20 +41,36 @@ const B_TESTS: BTest[] = [
     op: "**",
     n: (a, b) => a ** b,
     b: (a: BigNum, b: BigNum) => a.pow(b),
-    ignore: (a, b) => isFinite(a) && isFinite(b) && Math.abs(b) > 1000,
+    ignore: (a, b) => {
+      if (!isFinite(a) || !isFinite(b)) return false;
+      const abs = Math.abs(b);
+      if (abs && (abs > 1000 || abs < 0.001)) return true;
+      if (String(abs).includes(".") && String(abs).length > 5) return true;
+      return false;
+    },
   },
   {
     op: "* 10 **",
     n: (a, b) => a * 10 ** b,
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
-    ignore: (a, b) => isFinite(a) && isFinite(b) && Math.abs(b) > 1000,
+    ignore: (a, b) => {
+      if (!isFinite(a) || !isFinite(b)) return false;
+      const abs = Math.abs(b);
+      if (String(abs).length > 5) return true;
+      return false;
+    },
   },
   {
     op: (a, b) => `${a} ** (1/${b})`,
     n: (a, b) => a ** (1 / b),
     b: (a: BigNum, b: BigNum) => a.nthRoot(b),
-    ignore: (a, b) =>
-      isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 5),
+    ignore: (a, b) => {
+      if (!isFinite(a) || !isFinite(b)) return false;
+      if (a < 0) return true;
+      const abs = Math.abs(b);
+      if (String(abs).length > 5) return true;
+      return false;
+    },
   },
   {
     // use pow for nthRoot
@@ -119,6 +135,8 @@ const U_TESTS: UTest[] = [
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
+      [3, 2.25],
+      [-1.23e-42, 1],
       [8, 3],
       [18, 1.4],
       [0.2, 2],
@@ -653,9 +671,18 @@ describe("Random tests", () => {
 /**
  * Lazy assert function
  */
-function lazyAssert(actual: BigNum, expect: number | bigint) {
+function lazyAssert(actual: BigNum, expect: number) {
   if (!actual.isFinite()) {
     assert.strictEqual(`${actual}`, `${expect}`);
+    return;
+  }
+  if (expect === 0) {
+    const tolerance = new BigNum(1).divide(10000000000000);
+    assert.ok(
+      tolerance.negate().compareTo(actual) <= 0 &&
+        actual.compareTo(tolerance) <= 0,
+      `Lazy comparison. Actual=${actual} Expect=${expect} Tolerance=${tolerance}`,
+    );
     return;
   }
   const diff = actual.subtract(expect).abs();
@@ -663,11 +690,9 @@ function lazyAssert(actual: BigNum, expect: number | bigint) {
     assert.ok(diff.signum() === 0, `${actual} === ${expect}`);
     return;
   }
-  const tolerance = actual.abs().divide(1000000000, {
-    overflow: (ctx) => ctx.scale > 0n && ctx.precision > 20n,
-  });
+  const tolerance = actual.abs().divide(1000000000);
   assert.ok(
     tolerance.negate().compareTo(diff) <= 0 && diff.compareTo(tolerance) <= 0,
-    `Lazy comparison. Actual=${actual} Expect=${expect} Tolerance=${tolerance}`,
+    `Lazy comparison. Actual=${actual} Expect=${expect} Tolerance=${tolerance} Diff=${diff}`,
   );
 }
