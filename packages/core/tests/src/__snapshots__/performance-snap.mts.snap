@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`performance tests () => {
+                // setup
+                let a;
+                return [
+                    () => (a = BigNum.valueOf(20.56).pow(48.723)),
+                    () => a.toString(),
+                ];
+            }->
+  () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `553.3925829999998`;
+
+exports[`performance tests () => {
+                // setup
+                let a;
+                return [
+                    () => (a = BigNum.valueOf(20.56).pow(48.723)),
+                    () => a.toString(),
+                ];
+            }->
+  () => a.toString() 1`] = `363.0435830000006`;
+
+exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `4.122459000000163`;

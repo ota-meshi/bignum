@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Error tests () => BigNum.valueOf(2).sqrt({ roundingMode: 42 }) 1`] = `[Error: Unknown rounding mode: 42]`;
+
 exports[`standard tests () => 
         // ((1/3)/2) * ((1/3)/2) * 9 * 4
         BigNum.valueOf(1)
@@ -8,6 +10,10 @@ exports[`standard tests () =>
             .multiply(BigNum.valueOf(1).divide(3).divide(2))
             .multiply(9)
             .multiply(4) 1`] = `"1"`;
+
+exports[`standard tests () => 
+        // (-2) ** (1 / 2)
+        BigNum.valueOf(-2).nthRoot(2) 1`] = `"$NaN$"`;
 
 exports[`standard tests () => 
         // (1/3 + 1/3 + 1) * 3
@@ -51,11 +57,151 @@ exports[`standard tests () =>
         // 2 ** (1/(1/3))
         BigNum.valueOf(2).nthRoot(BigNum.valueOf(1).divide(3)) 1`] = `"8"`;
 
+exports[`standard tests () => 
+        // Math.sqrt(-2)
+        BigNum.valueOf(-2).sqrt() 1`] = `"$NaN$"`;
+
+exports[`standard tests () => 
+        // Math.sqrt(2) ** 2
+        BigNum.valueOf(2).sqrt({ roundingMode: RoundingMode.round }).pow(2) 1`] = `"\\"1.99999999999999999999522356663907438144\\""`;
+
+exports[`standard tests () => {
+            // (3 ** (1/2))
+            return [
+                BigNum.valueOf(6).nthRoot(2, { roundingMode: RoundingMode.trunc }),
+                BigNum.valueOf(6).nthRoot(2, { roundingMode: RoundingMode.round }),
+                BigNum.valueOf(6).nthRoot(2, { roundingMode: RoundingMode.floor }),
+                BigNum.valueOf(6).nthRoot(2, { roundingMode: RoundingMode.ceil }),
+            ];
+        } 1`] = `
+"[
+  \\"2.4494897427831780981\\",
+  \\"2.4494897427831780982\\",
+  \\"2.4494897427831780981\\",
+  \\"2.4494897427831780982\\"
+]"
+`;
+
+exports[`standard tests () => {
+            // Math.sqrt(2)
+            return [
+                BigNum.valueOf(2).sqrt({ roundingMode: RoundingMode.trunc }),
+                BigNum.valueOf(2).sqrt({ roundingMode: RoundingMode.round }),
+                BigNum.valueOf(2).sqrt({ roundingMode: RoundingMode.floor }),
+                BigNum.valueOf(2).sqrt({ roundingMode: RoundingMode.ceil }),
+            ];
+        } 1`] = `
+"[
+  \\"1.4142135623730950488\\",
+  \\"1.4142135623730950488\\",
+  \\"1.4142135623730950488\\",
+  \\"1.4142135623730950489\\"
+]"
+`;
+
+exports[`standard tests () => {
+            // Math.sqrt(3)
+            return [
+                BigNum.valueOf(3).sqrt({ roundingMode: RoundingMode.trunc }),
+                BigNum.valueOf(3).sqrt({ roundingMode: RoundingMode.round }),
+                BigNum.valueOf(3).sqrt({ roundingMode: RoundingMode.floor }),
+                BigNum.valueOf(3).sqrt({ roundingMode: RoundingMode.ceil }),
+            ];
+        } 1`] = `
+"[
+  \\"1.7320508075688772935\\",
+  \\"1.7320508075688772935\\",
+  \\"1.7320508075688772935\\",
+  \\"1.7320508075688772936\\"
+]"
+`;
+
+exports[`standard tests () => {
+            // Math.sqrt(5)
+            return [
+                BigNum.valueOf(5).sqrt({ roundingMode: RoundingMode.trunc }),
+                BigNum.valueOf(5).sqrt({ roundingMode: RoundingMode.round }),
+                BigNum.valueOf(5).sqrt({ roundingMode: RoundingMode.floor }),
+                BigNum.valueOf(5).sqrt({ roundingMode: RoundingMode.ceil }),
+            ];
+        } 1`] = `
+"[
+  \\"2.2360679774997896964\\",
+  \\"2.2360679774997896964\\",
+  \\"2.2360679774997896964\\",
+  \\"2.2360679774997896965\\"
+]"
+`;
+
+exports[`standard tests () => {
+            // Math.sqrt(6)
+            return [
+                BigNum.valueOf(6).sqrt({ roundingMode: RoundingMode.trunc }),
+                BigNum.valueOf(6).sqrt({ roundingMode: RoundingMode.round }),
+                BigNum.valueOf(6).sqrt({ roundingMode: RoundingMode.floor }),
+                BigNum.valueOf(6).sqrt({ roundingMode: RoundingMode.ceil }),
+            ];
+        } 1`] = `
+"[
+  \\"2.4494897427831780981\\",
+  \\"2.4494897427831780982\\",
+  \\"2.4494897427831780981\\",
+  \\"2.4494897427831780982\\"
+]"
+`;
+
+exports[`standard tests () => {
+            // Math.sqrt(7)
+            return [
+                BigNum.valueOf(7).sqrt({ roundingMode: RoundingMode.trunc }),
+                BigNum.valueOf(7).sqrt({ roundingMode: RoundingMode.round }),
+                BigNum.valueOf(7).sqrt({ roundingMode: RoundingMode.floor }),
+                BigNum.valueOf(7).sqrt({ roundingMode: RoundingMode.ceil }),
+            ];
+        } 1`] = `
+"[
+  \\"2.6457513110645905905\\",
+  \\"2.6457513110645905905\\",
+  \\"2.6457513110645905905\\",
+  \\"2.6457513110645905906\\"
+]"
+`;
+
+exports[`standard tests () => {
+            const v = BigNum.valueOf(123.456);
+            // Same instance
+            return v === BigNum.valueOf(v);
+        } 1`] = `"true"`;
+
+exports[`standard tests () => {
+            const v = BigNum.valueOf(123.456);
+            // Same instance
+            return v === new BigNum(v);
+        } 1`] = `"true"`;
+
+exports[`standard tests () => BigNum.valueOf("+") 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf("+.") 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf("+.0") 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf("+.1") 1`] = `"0.1"`;
+
+exports[`standard tests () => BigNum.valueOf(".") 1`] = `"$NaN$"`;
+
 exports[`standard tests () => BigNum.valueOf(".1").multiply(5).round() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(".1").multiply(10).ceil() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(".1").multiply(10).round() 1`] = `"1"`;
+
+exports[`standard tests () => BigNum.valueOf("-") 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf("-.") 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf("-.0") 1`] = `"0"`;
+
+exports[`standard tests () => BigNum.valueOf("-.1") 1`] = `"-0.1"`;
 
 exports[`standard tests () => BigNum.valueOf("-.1").multiply(5).round() 1`] = `"0"`;
 
@@ -64,6 +210,8 @@ exports[`standard tests () => BigNum.valueOf("-.1").multiply(10).floor() 1`] = `
 exports[`standard tests () => BigNum.valueOf("-.1").multiply(10).round() 1`] = `"-1"`;
 
 exports[`standard tests () => BigNum.valueOf("2e2").divide(1000).add(0.1) 1`] = `"0.3"`;
+
+exports[`standard tests () => BigNum.valueOf("foo") 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(-0).ceil() 1`] = `"0"`;
 
@@ -123,9 +271,9 @@ exports[`standard tests () => BigNum.valueOf(-1.501).trunc() 1`] = `"-1"`;
 
 exports[`standard tests () => BigNum.valueOf(-2.944).modulo(-0.128) 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(-3).add(-Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-3).add(-Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-3).add(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-3).add(Infinity) 1`] = `"$Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(-3).divide(-Infinity) 1`] = `"0"`;
 
@@ -137,27 +285,27 @@ exports[`standard tests () => BigNum.valueOf(-3).modulo(3) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(-3).modulo(Infinity) 1`] = `"-3"`;
 
-exports[`standard tests () => BigNum.valueOf(-3).multiply(-Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-3).multiply(-Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-3).multiply(Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-3).multiply(Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-3).subtract(-Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-3).subtract(-Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-3).subtract(Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-3).subtract(Infinity) 1`] = `"$-Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(-10).modulo(3) 1`] = `"-1"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).abs() 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).abs() 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).add(-3) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).add(-3) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).add(-Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).add(-Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).add(3) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).add(3) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).add(Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).add(Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).ceil() 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).ceil() 1`] = `"$-Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).compareTo(-Infinity) 1`] = `"0"`;
 
@@ -165,45 +313,47 @@ exports[`standard tests () => BigNum.valueOf(-Infinity).compareTo(0) 1`] = `"-1"
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).compareTo(Infinity) 1`] = `"-1"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).divide(-3) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).divide(-3) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).divide(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).divide(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).divide(0) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).divide(0) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).divide(3) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).divide(3) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).divide(Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).divide(Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).floor() 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).floor() 1`] = `"$-Infinity$"`;
+
+exports[`standard tests () => BigNum.valueOf(-Infinity).isFinite() 1`] = `"false"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).isNaN() 1`] = `"false"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).modulo(-3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).modulo(-3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).modulo(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).modulo(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).modulo(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).modulo(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).modulo(Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).modulo(Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(-3) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(-3) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(-Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(-Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(0) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(0) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(3) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(3) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).multiply(Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).negate() 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).negate() 1`] = `"$Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(-2) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(-Infinity) 1`] = `"1"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(2) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(2) 1`] = `"$Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).nthRoot(Infinity) 1`] = `"1"`;
 
@@ -211,31 +361,33 @@ exports[`standard tests () => BigNum.valueOf(-Infinity).pow(-2) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).pow(-Infinity) 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).pow(2) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).pow(2) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).pow(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).pow(Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).round() 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).round() 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).scaleByPowerOfTen(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).scaleByPowerOfTen(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).scaleByPowerOfTen(1) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).scaleByPowerOfTen(1) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).scaleByPowerOfTen(Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).scaleByPowerOfTen(Infinity) 1`] = `"$-Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(-Infinity).signum() 1`] = `"-1"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).sqrt() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).sqrt() 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).subtract(-3) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).subtract(-3) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).subtract(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).subtract(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).subtract(3) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).subtract(3) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).subtract(Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).subtract(Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(-Infinity).trunc() 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(-Infinity).toJSON() 1`] = `"$-Infinity$"`;
+
+exports[`standard tests () => BigNum.valueOf(-Infinity).trunc() 1`] = `"$-Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(0).abs() 1`] = `"0"`;
 
@@ -251,9 +403,9 @@ exports[`standard tests () => BigNum.valueOf(0).divide(Infinity) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(0).floor() 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(0).multiply(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(0).multiply(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(0).multiply(Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(0).multiply(Infinity) 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(0).negate() 1`] = `"0"`;
 
@@ -335,6 +487,8 @@ exports[`standard tests () => BigNum.valueOf(1).divide(3) 1`] = `"\\"0.333333333
 
 exports[`standard tests () => BigNum.valueOf(1).divide(3).multiply(3) 1`] = `"1"`;
 
+exports[`standard tests () => BigNum.valueOf(1).divide(3).toJSON() 1`] = `"\\"0.33333333333333333333\\""`;
+
 exports[`standard tests () => BigNum.valueOf(1).divide(BigNum.valueOf(1).divide(3)) 1`] = `"3"`;
 
 exports[`standard tests () => BigNum.valueOf(1).floor() 1`] = `"1"`;
@@ -347,7 +501,7 @@ exports[`standard tests () => BigNum.valueOf(1).round() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(1).scaleByPowerOfTen(-Infinity) 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(1).scaleByPowerOfTen(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(1).scaleByPowerOfTen(Infinity) 1`] = `"$Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(1).signum() 1`] = `"1"`;
 
@@ -417,7 +571,7 @@ exports[`standard tests () => BigNum.valueOf(2).pow(3) 1`] = `"8"`;
 
 exports[`standard tests () => BigNum.valueOf(2).pow(4) 1`] = `"16"`;
 
-exports[`standard tests () => BigNum.valueOf(2).pow(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(2).pow(Infinity) 1`] = `"$Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(-2) 1`] = `"0.02"`;
 
@@ -443,13 +597,13 @@ exports[`standard tests () => BigNum.valueOf(2).sqrt() 1`] = `"\\"1.414213562373
 
 exports[`standard tests () => BigNum.valueOf(2.25).sqrt() 1`] = `"1.5"`;
 
-exports[`standard tests () => BigNum.valueOf(3).add(-Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(3).add(-Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).add(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(3).add(Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).add(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).add(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).compareTo(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).compareTo(NaN) 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(3).divide(-Infinity) 1`] = `"0"`;
 
@@ -457,7 +611,7 @@ exports[`standard tests () => BigNum.valueOf(3).divide(BigNum.valueOf(1).divide(
 
 exports[`standard tests () => BigNum.valueOf(3).divide(Infinity) 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(3).divide(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).divide(NaN) 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(3).modulo(-Infinity) 1`] = `"3"`;
 
@@ -465,13 +619,13 @@ exports[`standard tests () => BigNum.valueOf(3).modulo(3) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(3).modulo(Infinity) 1`] = `"3"`;
 
-exports[`standard tests () => BigNum.valueOf(3).modulo(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).modulo(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).multiply(-Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(3).multiply(-Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).multiply(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(3).multiply(Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).multiply(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).multiply(NaN) 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(3).nthRoot(-0.25) 1`] = `"\\"0.012345679012345679012\\""`;
 
@@ -481,19 +635,19 @@ exports[`standard tests () => BigNum.valueOf(3).nthRoot(0.25) 1`] = `"81"`;
 
 exports[`standard tests () => BigNum.valueOf(3).nthRoot(2.25) 1`] = `"\\"1.6294982222188463389333008024474237364641187938089473904969509426245851708176\\""`;
 
-exports[`standard tests () => BigNum.valueOf(3).nthRoot(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).nthRoot(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).pow(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).pow(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).scaleByPowerOfTen(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).scaleByPowerOfTen(NaN) 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(3).sqrt() 1`] = `"\\"1.7320508075688772935\\""`;
 
-exports[`standard tests () => BigNum.valueOf(3).subtract(-Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(3).subtract(-Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).subtract(Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(3).subtract(Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(3).subtract(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(3).subtract(NaN) 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(4).pow(2.5) 1`] = `"32"`;
 
@@ -517,23 +671,27 @@ exports[`standard tests () => BigNum.valueOf(10).sqrt() 1`] = `"\\"3.16227766016
 
 exports[`standard tests () => BigNum.valueOf(22.25).sqrt() 1`] = `"\\"4.7169905660283019056\\""`;
 
+exports[`standard tests () => BigNum.valueOf(123.456).isFinite() 1`] = `"true"`;
+
 exports[`standard tests () => BigNum.valueOf(123.456).isNaN() 1`] = `"false"`;
+
+exports[`standard tests () => BigNum.valueOf(123.456).toJSON() 1`] = `"123.456"`;
 
 exports[`standard tests () => BigNum.valueOf(200).divide(100).add(0.1) 1`] = `"2.1"`;
 
 exports[`standard tests () => BigNum.valueOf(271441).sqrt() 1`] = `"521"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).abs() 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).abs() 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).add(-3) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).add(-3) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).add(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).add(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).add(3) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).add(3) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).add(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).add(Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).ceil() 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).ceil() 1`] = `"$Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).compareTo(-Infinity) 1`] = `"1"`;
 
@@ -541,45 +699,47 @@ exports[`standard tests () => BigNum.valueOf(Infinity).compareTo(0) 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).compareTo(Infinity) 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).divide(-3) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).divide(-3) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).divide(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).divide(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).divide(0) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).divide(0) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).divide(3) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).divide(3) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).divide(Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).divide(Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).floor() 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).floor() 1`] = `"$Infinity$"`;
+
+exports[`standard tests () => BigNum.valueOf(Infinity).isFinite() 1`] = `"false"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).isNaN() 1`] = `"false"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).modulo(-3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).modulo(-3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).modulo(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).modulo(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).modulo(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).modulo(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).modulo(Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).modulo(Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).multiply(-3) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).multiply(-3) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).multiply(-Infinity) 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).multiply(-Infinity) 1`] = `"$-Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).multiply(0) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).multiply(0) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).multiply(3) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).multiply(3) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).multiply(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).multiply(Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).negate() 1`] = `"-Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).negate() 1`] = `"$-Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(-2) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(-Infinity) 1`] = `"1"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(2) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(2) 1`] = `"$Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).nthRoot(Infinity) 1`] = `"1"`;
 
@@ -587,86 +747,104 @@ exports[`standard tests () => BigNum.valueOf(Infinity).pow(-2) 1`] = `"0"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).pow(-Infinity) 1`] = `"0"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).pow(2) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).pow(2) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).pow(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).pow(Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).round() 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).round() 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).scaleByPowerOfTen(-Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).scaleByPowerOfTen(-Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).scaleByPowerOfTen(1) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).scaleByPowerOfTen(1) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).scaleByPowerOfTen(Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).scaleByPowerOfTen(Infinity) 1`] = `"$Infinity$"`;
 
 exports[`standard tests () => BigNum.valueOf(Infinity).signum() 1`] = `"1"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).sqrt() 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).sqrt() 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).subtract(-3) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).subtract(-3) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).subtract(-Infinity) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).subtract(-Infinity) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).subtract(3) 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).subtract(3) 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).subtract(Infinity) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).subtract(Infinity) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(Infinity).trunc() 1`] = `"Infinity"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).toJSON() 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).abs() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(Infinity).trunc() 1`] = `"$Infinity$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).add(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).abs() 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).add(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).add(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).ceil() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).add(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).compareTo(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).ceil() 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).compareTo(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).compareTo(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).divide(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).compareTo(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).divide(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).divide(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).floor() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).divide(NaN) 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf(NaN).floor() 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf(NaN).isFinite() 1`] = `"false"`;
 
 exports[`standard tests () => BigNum.valueOf(NaN).isNaN() 1`] = `"true"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).modulo(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).modulo(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).modulo(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).modulo(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).multiply(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).multiply(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).multiply(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).multiply(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).negate() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).negate() 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(-3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(-3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).nthRoot(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).pow(-3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).pow(-3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).pow(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).pow(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).pow(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).pow(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).round() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).round() 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).scaleByPowerOfTen(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).scaleByPowerOfTen(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).scaleByPowerOfTen(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).scaleByPowerOfTen(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).signum() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).signum() 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).sqrt() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).sqrt() 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).subtract(3) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).subtract(3) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).subtract(NaN) 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).subtract(NaN) 1`] = `"$NaN$"`;
 
-exports[`standard tests () => BigNum.valueOf(NaN).trunc() 1`] = `"NaN"`;
+exports[`standard tests () => BigNum.valueOf(NaN).toJSON() 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf(NaN).trunc() 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf(null) 1`] = `"$NaN$"`;
+
+exports[`standard tests () => JSON.stringify(BigNum.valueOf(-Infinity)) 1`] = `"\\"null\\""`;
+
+exports[`standard tests () => JSON.stringify(BigNum.valueOf(1).divide(3)) 1`] = `"\\"\\\\\\"0.33333333333333333333\\\\\\"\\""`;
+
+exports[`standard tests () => JSON.stringify(BigNum.valueOf(123.456)) 1`] = `"\\"123.456\\""`;
+
+exports[`standard tests () => JSON.stringify(BigNum.valueOf(Infinity)) 1`] = `"\\"null\\""`;
+
+exports[`standard tests () => JSON.stringify(BigNum.valueOf(NaN)) 1`] = `"\\"null\\""`;

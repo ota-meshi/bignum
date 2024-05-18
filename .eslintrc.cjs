@@ -41,9 +41,11 @@ module.exports = {
         "**/scripts/**/*.mts",
         "**/tests/**/*.ts",
         "**/tests/**/*.mts",
+        "packages/test/**/*.mts",
       ],
       rules: {
-        "require-jsdoc": "off",
+        "jsdoc/require-jsdoc": "off",
+        "@typescript-eslint/no-shadow": "off",
         "no-console": "off",
       },
     },

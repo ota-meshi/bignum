@@ -14,11 +14,6 @@ export function max(a: bigint, b: bigint): bigint {
   return a >= b ? a : b;
 }
 
-/** Get max value */
-export function min(a: bigint, b: bigint): bigint {
-  return a <= b ? a : b;
-}
-
 /** Get abs value */
 export function abs(a: bigint): bigint {
   return a >= 0n ? a : -a;
@@ -26,10 +21,12 @@ export function abs(a: bigint): bigint {
 
 /** Find the greatest common divisor. */
 export function gcd(a: bigint, b: bigint): bigint {
+  a = abs(a);
+  b = abs(b);
   while (b) {
-    const t = a % b;
-    a = b;
-    b = t;
+    a %= b;
+    if (!a) return b;
+    b %= a;
   }
   return a;
 }
