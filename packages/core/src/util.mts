@@ -23,10 +23,10 @@ export function abs(a: bigint): bigint {
 export function gcd(a: bigint, b: bigint): bigint {
   a = abs(a);
   b = abs(b);
-  while (true) {
-    if (!b) return a;
+  while (b) {
     a %= b;
     if (!a) return b;
     b %= a;
   }
+  return a;
 }
