@@ -45,7 +45,5 @@
     "url": "https://github.com/ota-meshi/bignum/issues"
   },
   "homepage": "https://github.com/ota-meshi/bignum#readme",
-  "devDependencies": {
-    "@bignum/test": "*"
-  }
+  "devDependencies": {}
 }
