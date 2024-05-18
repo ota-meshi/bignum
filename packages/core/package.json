@@ -1,6 +1,6 @@
 {
   "name": "@bignum/core",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Arbitrary-precision decimal arithmetic with BigInt.",
   "type": "module",
   "exports": {
