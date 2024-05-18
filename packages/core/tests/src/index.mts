@@ -188,7 +188,8 @@ describe("Calc tests", () => {
       20.56,
     ]) {
       if (t.ignore?.(Number(a))) return;
-      it(`${t.fn}(${a})`, () => {
+      const name = `${t.fn}(${a})`;
+      it(name, () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
         const expect = t.n(Number(a));
