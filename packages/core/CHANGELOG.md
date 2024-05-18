@@ -1,5 +1,15 @@
 # @bignum/core
 
+## 0.9.0
+
+### Minor Changes
+
+- pref: improve performance ([#37](https://github.com/ota-meshi/bignum/pull/37))
+
+### Patch Changes
+
+- fix: divide-by-zero edge case. ([#35](https://github.com/ota-meshi/bignum/pull/35))
+
 ## 0.8.0
 
 ### Minor Changes
