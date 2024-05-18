@@ -5,7 +5,7 @@ exports[`performance tests () => {
                 const a = BigNum.valueOf(20.56);
                 return () => a.pow(48.723);
             }->
-  () => a.pow(48.723) 1`] = `571.88625`;
+  () => a.pow(48.723) 1`] = `561.97075`;
 
 exports[`performance tests () => {
                 // setup
@@ -20,7 +20,7 @@ exports[`performance tests () => {
                       for (let i = 0; i < 100; i++) {
                           a.sqrt();
                       }
-                  } 1`] = `2.0547499999997854`;
+                  } 1`] = `2.0087499999999636`;
 
 exports[`performance tests () => {
                 // setup
@@ -35,7 +35,7 @@ exports[`performance tests () => {
                       for (let i = 0; i < 100; i++) {
                           length(n);
                       }
-                  } 1`] = `27.301625000000058`;
+                  } 1`] = `26.393749999999955`;
 
 exports[`performance tests () => {
                 // setup
@@ -45,7 +45,7 @@ exports[`performance tests () => {
                     () => a.toString(),
                 ];
             }->
-  () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `535.884`;
+  () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `523.457917`;
 
 exports[`performance tests () => {
                 // setup
@@ -55,6 +55,6 @@ exports[`performance tests () => {
                     () => a.toString(),
                 ];
             }->
-  () => a.toString() 1`] = `144.32087500000011`;
+  () => a.toString() 1`] = `142.96091699999988`;
 
-exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `2.757959000000028`;
+exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `2.518624999999929`;
