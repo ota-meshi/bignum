@@ -166,20 +166,19 @@ export class Frac {
       options,
     );
     while (remainder > 0n && !numCtx.overflow()) {
-      numCtx.intVal *= 10n;
-      numCtx.exponent--;
+      numCtx.prepare();
       if (pow >= 100n) pow /= 100n;
       else remainder *= 100n;
       part *= 10n;
       // Find digit
       if (remainder < (part + 1n) * pow) continue; // Short circuit: If 1 is not available, it will not loop.
-      for (let n = 9n; n > 0n; n--) {
-        const amount = (part + n) * n * pow;
+      for (let nn = 9n; nn > 0n; nn--) {
+        const amount = (part + nn) * nn * pow;
         if (remainder < amount) continue;
         // Set digit
-        numCtx.intVal += n;
+        numCtx.set(nn);
         remainder -= amount;
-        part += n * 2n;
+        part += nn * 2n;
         break;
       }
     }
@@ -244,7 +243,7 @@ export class Frac {
       decimal /= 10n;
       decimalLength--;
     }
-    return `${integer || `${i < 0n ? "-" : ""}${integer}`}${decimal ? `.${`${decimal}`.padStart(decimalLength, "0")}` : ""}`;
+    return `${integer || `${i < 0n ? "-0" : "0"}`}${decimal ? `.${`${decimal}`.padStart(decimalLength, "0")}` : ""}`;
   }
 
   #setScale(options: MathOptions): Frac {
@@ -286,8 +285,7 @@ export class Frac {
 
     const numCtx = numberContext(n < 0n ? -1 : 1, digitExponent, options);
     while (remainder > 0n && !numCtx.overflow()) {
-      numCtx.intVal *= 10n;
-      numCtx.exponent--;
+      numCtx.prepare();
       if (pow >= 10n) pow /= 10n;
       else remainder *= 10n;
       // Find digit
@@ -296,7 +294,7 @@ export class Frac {
         const amount = d * nn * pow;
         if (remainder < amount) continue;
         // Set digit
-        numCtx.intVal += nn;
+        numCtx.set(nn);
         remainder -= amount;
         break;
       }
@@ -356,8 +354,7 @@ export class Frac {
       options,
     );
     while (remainder > 0n && !numCtx.overflow()) {
-      numCtx.intVal *= 10n;
-      numCtx.exponent--;
+      numCtx.prepare();
       if (pow >= powOfTen) pow /= powOfTen;
       else remainder *= powOfTen;
       table.prepare();
@@ -366,9 +363,9 @@ export class Frac {
         const amount = table.amount(nn) * pow;
         if (remainder < amount) continue;
         // Set digit
-        numCtx.intVal += nn;
+        numCtx.set(nn);
         remainder -= amount;
-        table.set(numCtx.intVal);
+        table.set(numCtx.getInt());
         break;
       }
     }
@@ -402,8 +399,11 @@ function parseOptions(options: MathOptions | undefined): Required<MathOptions> {
 }
 
 type NumberContext = {
-  intVal: bigint;
-  exponent: bigint;
+  /** Prepare for the next digit. */
+  prepare(): void;
+  /** Set the currently digit. */
+  set(n: bigint): void;
+  getInt(): bigint;
   overflow: () => boolean;
   round(remainder: bigint): void;
   toNum(): [bigint, bigint];
@@ -418,36 +418,49 @@ function numberContext(
   options: MathOptions | undefined,
 ): NumberContext {
   const { overflow, roundingMode: rm } = parseOptions(options);
+  let intVal = 0n,
+    exponent = initExponent,
+    intLength = 1n;
   const ctx: NumberContext = {
-    intVal: 0n,
-    exponent: initExponent,
+    prepare() {
+      intVal *= 10n;
+      exponent--;
+      if (intVal) intLength++;
+    },
+    set(n: bigint) {
+      intVal += n;
+    },
+    getInt() {
+      return intVal;
+    },
     overflow: () => overflow(overflowCtx),
     toNum() {
-      const intVal = sign >= 0 ? this.intVal : -this.intVal;
-      return this.exponent >= 0n
-        ? [intVal * 10n ** this.exponent, 0n]
-        : [intVal, this.exponent];
+      const signed = sign >= 0 ? intVal : -intVal;
+      return exponent >= 0n
+        ? [signed * 10n ** exponent, 0n]
+        : [signed, exponent];
     },
     round(remainder: bigint) {
       const nextDigits = [];
-      while (overflow(overflowCtx) && (ctx.intVal || !nextDigits.length)) {
-        ctx.exponent++;
-        nextDigits.push(ctx.intVal % 10n);
-        ctx.intVal /= 10n;
+      while (overflow(overflowCtx)) {
+        exponent++;
+        nextDigits.push(intVal % 10n);
+        intVal /= 10n;
+        intLength--;
       }
       if (rm === RoundingMode.trunc) return;
       if (!remainder && !nextDigits.some((r) => r)) return;
       if (rm === RoundingMode.round) {
-        const last = nextDigits.pop()!;
+        const last = nextDigits.pop() ?? 0n;
         if (
           last >= 5n &&
           (sign > 0 || last > 5n || remainder || nextDigits.some((r) => r))
         )
-          ctx.intVal++;
+          intVal++;
       } else if (rm === RoundingMode.floor) {
-        if (sign < 0) ctx.intVal++;
+        if (sign < 0) intVal++;
       } else if (rm === RoundingMode.ceil) {
-        if (sign > 0) ctx.intVal++;
+        if (sign > 0) intVal++;
       } else {
         assertNever(rm, "Unknown rounding mode");
       }
@@ -455,10 +468,10 @@ function numberContext(
   };
   const overflowCtx: OverflowContext = {
     get scale() {
-      return -ctx.exponent;
+      return -exponent;
     },
     get precision() {
-      return BigInt(length(ctx.intVal));
+      return intLength;
     },
   };
   return ctx;
