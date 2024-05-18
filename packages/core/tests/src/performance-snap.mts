@@ -1,12 +1,18 @@
 import chai from "chai";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
+import { length } from "../../src/util.mjs";
 
-if (process.argv.includes("--update")) {
+if (process.env.UPDATE_PREF) {
   chai.use(jestSnapshotPlugin());
 
   describe("performance tests", () => {
     for (const t of [
+      () => {
+        // setup
+        const a = BigNum.valueOf(20.56);
+        return () => a.pow(48.723);
+      },
       () => BigNum.valueOf(100).pow(123.456),
       () => {
         // setup
@@ -15,6 +21,24 @@ if (process.argv.includes("--update")) {
           () => (a = BigNum.valueOf(20.56).pow(48.723)),
           () => a.toString(),
         ];
+      },
+      () => {
+        // setup
+        const n = 123456789n ** 1234n;
+        return () => {
+          for (let i = 0; i < 100; i++) {
+            length(n);
+          }
+        };
+      },
+      () => {
+        // setup
+        const a = BigNum.valueOf(123456789.12345678);
+        return () => {
+          for (let i = 0; i < 100; i++) {
+            a.sqrt();
+          }
+        };
       },
     ]) {
       const tests = [{ name: String(t), t, n: 1 }];
@@ -38,7 +62,7 @@ if (process.argv.includes("--update")) {
           continue;
         }
         tests.unshift(
-          ...(test.t() as unknown as (() => any)[]).map((child) => {
+          ...([test.t()].flat() as (() => any)[]).map((child) => {
             return {
               name: `${test.name}->\n${"  ".repeat(test.n)}${String(child)
                 .split("\n")
