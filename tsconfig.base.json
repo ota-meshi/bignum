@@ -12,6 +12,8 @@
     "noUnusedParameters": true,
     "esModuleInterop": true,
     "moduleResolution": "NodeNext",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   }
 }
