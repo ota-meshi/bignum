@@ -1,5 +1,16 @@
 # @bignum/core
 
+## 0.8.0
+
+### Minor Changes
+
+- feat!: Reimplement BigNum ([#34](https://github.com/ota-meshi/bignum/pull/34))
+
+  The BigNum class has been completely rewritten to use rational numbers to hold numbers.\
+  Therefore, calculations like `1 / 3 * 3` can return a complete number like `1`.
+
+  Due to this change, the options for calculation have changed significantly and are no longer compatible with previous versions.
+
 ## 0.7.0
 
 ### Minor Changes
