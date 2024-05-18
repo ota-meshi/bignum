@@ -1,7 +1,7 @@
 import chai from "chai";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
-import { length } from "../../src/util.mts";
+import { length } from "../../src/util.mjs";
 
 if (process.env.UPDATE_PREF) {
   chai.use(jestSnapshotPlugin());
