@@ -22,9 +22,9 @@
     "bundle": "tsup",
     "clean": "rimraf .nyc_output lib coverage",
     "test": "mocha --loader=ts-node/esm \"tests/src/**/*.mts\" --reporter dot --timeout 60000",
-    "cover": "c8 --reporter=lcov npm run test",
-    "debug": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot",
-    "update-snap": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot --update"
+    "cover": "c8 --reporter=lcov npm run test --timeout 60000",
+    "debug": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot --timeout 60000",
+    "update-snap": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot --update --timeout 60000"
   },
   "publishConfig": {
     "access": "public"
@@ -45,5 +45,7 @@
     "url": "https://github.com/ota-meshi/bignum/issues"
   },
   "homepage": "https://github.com/ota-meshi/bignum#readme",
-  "devDependencies": {}
+  "devDependencies": {
+    "@bignum/test": "*"
+  }
 }

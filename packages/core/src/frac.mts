@@ -36,7 +36,7 @@ export class Frac {
       d = -d;
     }
     if (d) {
-      const g = gcd(abs(n), abs(d));
+      const g = gcd(n, d);
       this.n = n / g;
       this.d = d / g;
     } else {
@@ -75,7 +75,7 @@ export class Frac {
     if (this.inf)
       return !m.n
         ? null // inf * 0
-        : this.n >= 0 === m.n >= 0n
+        : this.n >= 0n === m.n >= 0n
           ? INF // match sign
           : N_INF;
     if (m.inf) return m.multiply(this);
@@ -86,11 +86,11 @@ export class Frac {
     if (this.inf)
       return d.inf
         ? null // inf / inf
-        : this.n >= 0 === d.n >= 0n
+        : this.n >= 0n === d.n >= 0n
           ? INF // match sign
           : N_INF;
     if (d.inf) return ZERO;
-    if (!d.n) return this.n >= 0 ? INF : N_INF;
+    if (!d.n) return this.n >= 0n ? INF : N_INF;
     if (!this.n) return this;
     return new Frac(this.n * d.d, this.d * d.n);
   }
@@ -106,12 +106,12 @@ export class Frac {
   public pow(n: Frac, options?: MathOptions): Frac | null {
     if (this.inf) {
       if (n.inf)
-        return n.n < 0
+        return n.n < 0n
           ? ZERO // inf ** -inf
           : INF; // inf ** inf
       if (!n.n) return ONE; // Inf ** 0
       if (n.n < 0n) return ZERO; // Inf ** -num
-      if (this.n < 0) {
+      if (this.n < 0n) {
         // minus
         const hasFrac = n.modulo(ONE)!.compareTo(ZERO);
         if (hasFrac) return INF;
@@ -121,7 +121,7 @@ export class Frac {
       return this; // inf ** num
     }
     if (n.inf) {
-      const minus = n.n < 0;
+      const minus = n.n < 0n;
       const cmpO = this.abs().compareTo(ONE);
       return cmpO < 0
         ? minus
@@ -144,8 +144,10 @@ export class Frac {
   }
 
   public sqrt(options?: MathOptions): Frac | null {
-    if (this.inf) return this.n < 0 ? null : INF;
-    if (this.n < 0n) throw new Error("Negative number");
+    if (this.inf) return this.n < 0n ? null : INF;
+    if (this.n < 0n)
+      // Negative number
+      return null;
     // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
     const [i, e] = this.#toNum();
     const decimalLength = -e;
@@ -159,7 +161,7 @@ export class Frac {
     const pow: bigint = 100n ** digitExponent;
 
     const numCtx = numberContext(
-      1n,
+      1,
       digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n),
       options,
     );
@@ -194,8 +196,11 @@ export class Frac {
             ? ZERO
             : INF;
     if (n.inf) return this.pow(ZERO);
+    if (!n.abs().compareTo(ONE)) return this;
     if (!n.n) return this.pow(INF);
-    if (this.n < 0n) throw new Error("Negative number");
+    if (this.n < 0n)
+      // Negative number
+      return null;
     return Frac.#pow(this, n.d, n.n, options);
   }
 
@@ -230,16 +235,15 @@ export class Frac {
     if (e >= 0n) {
       return String(i * 10n ** e);
     }
-    if (!e) return String(i);
-    let integer = abs(i);
-    const decimal: bigint[] = [];
-    for (let n = e; n < 0; n++) {
-      const last = integer % 10n;
-      integer /= 10n;
-      if (decimal.length || last) decimal.unshift(last);
+    const p = 10n ** -e;
+    const integer = i / p;
+    let decimal = abs(i) % p;
+    let decimalLength = -Number(e);
+    while (decimal && !(decimal % 10n)) {
+      decimal /= 10n;
+      decimalLength--;
     }
-    const sign = i < 0n ? "-" : "";
-    return `${sign}${integer}${decimal.length ? `.${decimal.join("")}` : ""}`;
+    return `${integer || `${i < 0n ? "-" : ""}${integer}`}${decimal ? `.${`${decimal}`.padStart(decimalLength, "0")}` : ""}`;
   }
 
   #setScale(options: MathOptions): Frac {
@@ -279,7 +283,7 @@ export class Frac {
     const digitExponent = max(length(remainder) - length(d) + 1n, 0n);
     const pow: bigint = 10n ** digitExponent;
 
-    const numCtx = numberContext(n < 0n ? -1n : 1n, digitExponent, options);
+    const numCtx = numberContext(n < 0n ? -1 : 1, digitExponent, options);
     while (remainder > 0n && !numCtx.overflow()) {
       numCtx.intVal *= 10n;
       numCtx.exponent--;
@@ -307,8 +311,8 @@ export class Frac {
     options?: MathOptions,
   ): Frac | null {
     if (!num) return ONE; // x ** 0
-    if (!base.n) return ZERO; // 0 ** x
-    const sign = num >= 0n === denom >= 0n ? 1n : -1n;
+    const sign = num >= 0n === denom >= 0n ? 1 : -1;
+    if (!base.n) return sign < 0 ? INF : ZERO; // 0 ** x
     let n = abs(num);
     let d = abs(denom);
     const m = n / d;
@@ -323,7 +327,7 @@ export class Frac {
 
       a = a.multiply(Frac.#nthRoot(base, d, options)!.pow(Frac.numOf(n))!)!;
     }
-    if (sign >= 0n) return a;
+    if (sign >= 0) return a;
     return ONE.divide(a);
   }
 
@@ -345,7 +349,7 @@ export class Frac {
     const pow: bigint = powOfTen ** digitExponent;
 
     const numCtx = numberContext(
-      1n,
+      1,
       digitExponent - decimalLength / iN - (mod ? 1n : 0n),
       options,
     );
@@ -377,6 +381,13 @@ export const INF = new Frac(1n, 0n);
 export const N_INF = new Frac(-1n, 0n);
 
 /**
+ * Assert never.
+ */
+function assertNever(value: never, message: string): never {
+  throw new Error(`${message}: ${JSON.stringify(value)}`);
+}
+
+/**
  * Parse math options.
  */
 function parseOptions(options: MathOptions | undefined): Required<MathOptions> {
@@ -399,11 +410,11 @@ type NumberContext = {
  * Create internal number context.
  */
 function numberContext(
-  sign: 1n | -1n,
+  sign: 1 | -1,
   initExponent: bigint,
   options: MathOptions | undefined,
 ): NumberContext {
-  const { overflow, roundingMode } = parseOptions(options);
+  const { overflow, roundingMode: rm } = parseOptions(options);
   const ctx: NumberContext = {
     intVal: 0n,
     exponent: initExponent,
@@ -421,26 +432,21 @@ function numberContext(
         nextDigits.push(ctx.intVal % 10n);
         ctx.intVal /= 10n;
       }
-      if (roundingMode === RoundingMode.trunc) return;
+      if (rm === RoundingMode.trunc) return;
       if (!remainder && !nextDigits.some((r) => r)) return;
-      switch (roundingMode) {
-        case RoundingMode.round: {
-          const last = nextDigits.pop()!;
-          if (
-            last >= 5n &&
-            (sign > 0n || last > 5n || remainder || nextDigits.some((r) => r))
-          )
-            ctx.intVal++;
-          break;
-        }
-        case RoundingMode.floor:
-          if (sign < 0n) ctx.intVal++;
-          break;
-        case RoundingMode.ceil:
-          if (sign > 0n) ctx.intVal++;
-          break;
-        default:
-          break;
+      if (rm === RoundingMode.round) {
+        const last = nextDigits.pop()!;
+        if (
+          last >= 5n &&
+          (sign > 0 || last > 5n || remainder || nextDigits.some((r) => r))
+        )
+          ctx.intVal++;
+      } else if (rm === RoundingMode.floor) {
+        if (sign < 0) ctx.intVal++;
+      } else if (rm === RoundingMode.ceil) {
+        if (sign > 0) ctx.intVal++;
+      } else {
+        assertNever(rm, "Unknown rounding mode");
       }
     },
   };
