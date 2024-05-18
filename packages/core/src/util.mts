@@ -4,9 +4,8 @@ export function compare(a: bigint, b: bigint): 0 | 1 | -1 {
 }
 
 /** Get length */
-export function length(a: bigint): bigint {
-  let t = a;
-  for (let i = 1n; ; i++) if (!(t /= 10n)) return i;
+export function length(a: bigint): number {
+  return String(abs(a)).length;
 }
 
 /** Get max value */

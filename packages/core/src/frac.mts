@@ -157,7 +157,7 @@ export class Frac {
     if (decimalLengthIsOdd) remainder *= 10n;
     let part = 0n;
 
-    const digitExponent = length(remainder) / 2n + 1n;
+    const digitExponent = BigInt(length(remainder)) / 2n + 1n;
     const pow: bigint = 100n ** digitExponent;
 
     const numCtx = numberContext(
@@ -280,7 +280,7 @@ export class Frac {
 
     let remainder = abs(n);
 
-    const digitExponent = max(length(remainder) - length(d) + 1n, 0n);
+    const digitExponent = max(BigInt(length(remainder) - length(d)) + 1n, 0n);
     const pow: bigint = 10n ** digitExponent;
 
     const numCtx = numberContext(n < 0n ? -1 : 1, digitExponent, options);
@@ -345,7 +345,7 @@ export class Frac {
     if (mod) remainder *= 10n ** (iN - mod);
     const table = createNthRootTable(iN);
 
-    const digitExponent = length(remainder) / iN + 1n;
+    const digitExponent = BigInt(length(remainder)) / iN + 1n;
     const pow: bigint = powOfTen ** digitExponent;
 
     const numCtx = numberContext(
@@ -455,7 +455,7 @@ function numberContext(
       return -ctx.exponent;
     },
     get precision() {
-      return length(ctx.intVal);
+      return BigInt(length(ctx.intVal));
     },
   };
   return ctx;
