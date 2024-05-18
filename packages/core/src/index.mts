@@ -1,25 +1,19 @@
-import { INF, Inf, N_INF } from "./inf.mjs";
-import { Num } from "./num.mjs";
-import type {
-  DivideOptions,
-  NthRootOptions,
-  PowOptions,
-  SqrtOptions,
-} from "./options.mjs";
-
+import { Frac, INF, N_INF } from "./frac.mjs";
+import type { MathOptions } from "./options.mjs";
 export * from "./options.mjs";
 const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 
 /** Parse a value to a BigNum prop */
 function parseValue(
-  value: string | number | bigint | boolean | Num | Inf | null | undefined,
-): Num | Inf | null {
+  value: string | number | bigint | boolean | Frac | null | undefined,
+): Frac | null {
   if (value == null) return null;
-  if (value instanceof Num || value instanceof Inf) return value;
+  if (value instanceof Frac) return value;
   if (value === Infinity) return INF;
   if (value === -Infinity) return N_INF;
   const prop = parsePrimValue(value);
-  return prop && new Num(prop.intValue, prop.exponent ?? 0n);
+  if (!prop) return null;
+  return Frac.numOf(prop.intValue, prop.exponent ?? 0n);
 }
 
 /** Parse a primitive value to a BigNum prop */
@@ -50,7 +44,7 @@ function parsePrimValue(
 export class BigNum {
   static readonly valueOf = valueOf;
 
-  readonly #p: Inf | Num | null;
+  readonly #p: Frac | null;
 
   public constructor(
     value:
@@ -59,8 +53,7 @@ export class BigNum {
       | bigint
       | boolean
       | BigNum
-      | Num
-      | Inf
+      | Frac
       | null
       | undefined,
   ) {
@@ -71,7 +64,7 @@ export class BigNum {
     this.#p = parseValue(value);
   }
 
-  #val(prop: Num | Inf | null | undefined) {
+  #val(prop: Frac | null | undefined) {
     return prop
       ? this.#p === prop
         ? this
@@ -109,12 +102,9 @@ export class BigNum {
   /**
    * Returns a BigNum whose value is (this / divisor)
    */
-  public divide(
-    divisor: BigNum | string | number | bigint,
-    options?: DivideOptions,
-  ): BigNum {
+  public divide(divisor: BigNum | string | number | bigint): BigNum {
     const b = valueOf(divisor).#p;
-    return this.#val(b && this.#p?.divide(b, options));
+    return this.#val(b && this.#p?.divide(b));
   }
 
   /**
@@ -130,7 +120,7 @@ export class BigNum {
    */
   public pow(
     n: BigNum | string | number | bigint,
-    options?: PowOptions,
+    options?: MathOptions,
   ): BigNum {
     const b = valueOf(n).#p;
     return this.#val(b && this.#p?.pow(b, options));
@@ -143,14 +133,14 @@ export class BigNum {
   }
 
   /** Returns an approximation to the square root of this. */
-  public sqrt(options?: SqrtOptions): BigNum {
+  public sqrt(options?: MathOptions): BigNum {
     return this.#val(this.#p?.sqrt(options));
   }
 
   /** Returns an approximation to the nth root of this. */
   public nthRoot(
     n: BigNum | string | number | bigint,
-    options?: NthRootOptions,
+    options?: MathOptions,
   ): BigNum {
     const b = valueOf(n).#p;
     return this.#val(b && this.#p?.nthRoot(b, options));
@@ -205,7 +195,7 @@ export class BigNum {
 
   public toJSON(): string | number {
     if (!this.#p) return NaN;
-    if (this.#p.inf) return this.#p.toNum();
+    if (this.#p.inf) return this.#p.signum() > 0 ? Infinity : -Infinity;
     const str = this.toString();
     const num = Number(str);
     return String(num) === str ? num : str;

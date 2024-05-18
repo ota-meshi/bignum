@@ -2,19 +2,20 @@ export type OverflowContext = {
   scale: bigint;
   precision: bigint;
 };
-export type IsOverflow = (
-  context: OverflowContext,
-) => boolean | undefined | null;
+export type IsOverflow = (context: OverflowContext) => boolean;
 export type MathOptions = {
   /** You can specify an overflow test function. */
   overflow?: IsOverflow;
-  /** @deprecated The maximum number of decimal places. */
-  maxDp?: bigint;
-  /** @deprecated The maximum number of precision when having decimals. */
-  maxDecimalPrecision?: bigint;
+  /**
+   * Specifies a rounding behavior for numerical operations capable of discarding precision.
+   * If rounding must be performed to generate a result with the given scale, the specified rounding mode is applied.
+   */
+  roundingMode?: RoundingMode;
 };
-export type DivideOptions = MathOptions;
-export type SqrtOptions = MathOptions;
-export type NthRootOptions = MathOptions;
-/** This is used in negative pows. */
-export type PowOptions = MathOptions;
+/** Specifies a rounding behavior for numerical operations capable of discarding precision. */
+export enum RoundingMode {
+  trunc,
+  round,
+  floor,
+  ceil,
+}

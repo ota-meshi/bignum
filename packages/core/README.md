@@ -43,28 +43,9 @@ Returns a BigNum whose value is (this - subtrahend).
 
 Returns a BigNum whose value is (this \* multiplicand).
 
-### BigNum.prototype.divide(divisor, [options]): BigNum
+### BigNum.prototype.divide(divisor): BigNum
 
 Returns a BigNum whose value is (this / divisor).
-
-An object can be given as an option.
-
-Options:
-
-| Name                    | Type                 | Description                                                                                                                                         |
-| :---------------------- | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| overflow                | `(context)=>boolean` | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
-| ~~maxDp~~               | bigint               | **Deprecated**. The maximum number of decimal places.                                                                                               |
-| ~~maxDecimalPrecision~~ | bigint               | **Deprecated**. The maximum number of precision when having decimals.                                                                               |
-
-- `context` parameter
-
-  An object that contains the following properties:
-
-  | Name      | Type   | Description                   |
-  | :-------- | :----- | :---------------------------- |
-  | scale     | bigint | The number of decimal places. |
-  | precision | bigint | The number of precision.      |
 
 ### BigNum.prototype.modulo(divisor): BigNum
 
@@ -74,32 +55,32 @@ Returns a BigNum whose value is (this % divisor).
 
 Returns a BigNum whose value is (-this).
 
-### BigNum.prototype.pow(n, [options]): BigNum
+### BigNum.prototype.pow(n, [options: MathOption]): BigNum
 
 Returns a BigNum whose value is (this \*\* n).
 
-An object can be given as an option. It's the same option for `divide()`. This is used in negative, or fraction pows.
+An object can be given as an option. This is used in negative, or fraction pows. See [MathOption](#type-mathoption).
 
 ### BigNum.prototype.scaleByPowerOfTen(n): BigNum
 
 Returns a BigNum whose value is (this \* 10 \*\* n).
 
-### BigNum.prototype.sqrt([options]): BigNum
+### BigNum.prototype.sqrt([options: MathOption]): BigNum
 
 Returns an approximation to the square root of this BigNum.
 
 If this BigNum is a negative value, an error will be raised.
 
-An object can be given as an option. It's the same option for `divide()`.
+An object can be given as an option. See [MathOption](#type-mathoption).
 
-### BigNum.prototype.nthRoot(n, [options]): BigNum
+### BigNum.prototype.nthRoot(n, [options: MathOption]): BigNum
 
 Returns an approximation to the `n`th root of this BigNum.
 
 If this BigNum is a negative value, an error will be raised.\
 If `n` is given a non-integer value, an error will be raised.
 
-An object can be given as an option. It's the same option for `divide()`.
+An object can be given as an option. See [MathOption](#type-mathoption).
 
 ### BigNum.prototype.abs(): BigNum
 
@@ -136,6 +117,33 @@ Returns `true` if this is NaN.
 ### BigNum.prototype.isFinite(): boolean
 
 Returns `true` if this is finite number.
+
+### type MathOption
+
+Options:
+
+| Name         | Type                                      | Description                                                                                                                                         |
+| :----------- | :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| overflow     | `(context)=>boolean`                      | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
+| roundingMode | [RoundingMode](#enum-roundingmode).trunc` | Specifies a rounding behavior for numerical operations capable of discarding precision.                                                             |
+
+- `context` parameter
+
+  An object that contains the following properties:
+
+  | Name      | Type   | Description                   |
+  | :-------- | :----- | :---------------------------- |
+  | scale     | bigint | The number of decimal places. |
+  | precision | bigint | The number of precision.      |
+
+### enum RoundingMode
+
+The following enumerated values are available:
+
+- `RoundingMode.trunc`
+- `RoundingMode.round`
+- `RoundingMode.floor`
+- `RoundingMode.ceil`
 
 ## 🛸 Prior Art
 
