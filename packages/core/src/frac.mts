@@ -31,19 +31,25 @@ export class Frac {
   public constructor(numerator: bigint, denominator: bigint) {
     let n = numerator,
       d = denominator;
+    if (!n) {
+      // zero
+      this.n = 0n;
+      this.d = 1n;
+      return init ? ZERO : this;
+    }
+    if (!d) {
+      // infinity
+      this.n = n >= 0n ? 1n : -1n;
+      this.d = d;
+      return init ? (n >= 0n ? INF : N_INF) : this;
+    }
     if (d < 0n) {
       n = -n;
       d = -d;
     }
-    if (d) {
-      const g = gcd(n, d);
-      this.n = n / g;
-      this.d = d / g;
-    } else {
-      // infinity
-      this.n = n >= 0n ? 1n : -1n;
-      this.d = d;
-    }
+    const g = gcd(n, d);
+    this.n = n / g;
+    this.d = d / g;
   }
 
   public signum(): 1 | 0 | -1 {
@@ -64,41 +70,27 @@ export class Frac {
   }
 
   public add(a: Frac): Frac | null {
-    if (this.inf) return !a.inf || this.n === a.n ? this : null;
-    if (a.inf) return a;
-    const n = this.n * a.d + a.n * this.d;
-    const d = this.d * a.d;
-    return new Frac(n, d);
+    if (this.inf && a.inf && this.n !== a.n) return null;
+    return this.d === a.d
+      ? new Frac(this.n + a.n, this.d)
+      : new Frac(this.n * a.d + a.n * this.d, this.d * a.d);
   }
 
   public multiply(m: Frac): Frac | null {
-    if (this.inf)
-      return !m.n
-        ? null // inf * 0
-        : this.n >= 0n === m.n >= 0n
-          ? INF // match sign
-          : N_INF;
-    if (m.inf) return m.multiply(this);
+    if ((this.inf && !m.n) || (m.inf && !this.n)) return null;
     return new Frac(this.n * m.n, this.d * m.d);
   }
 
   public divide(d: Frac): Frac | null {
-    if (this.inf)
-      return d.inf
-        ? null // inf / inf
-        : this.n >= 0n === d.n >= 0n
-          ? INF // match sign
-          : N_INF;
-    if (d.inf) return ZERO;
-    if (!d.n) return this.n >= 0n ? INF : N_INF;
-    if (!this.n) return this;
-    return new Frac(this.n * d.d, this.d * d.n);
+    if (this.inf && d.inf) return null;
+    return d.n >= 0n
+      ? new Frac(this.n * d.d, this.d * d.n)
+      : new Frac(this.n * -d.d, this.d * -d.n);
   }
 
   public modulo(d: Frac): Frac | null {
-    if (this.inf) return null;
+    if (this.inf || !d.n) return null;
     if (d.inf) return this;
-    if (!d.n) return null; // x % 0
     const times = this.divide(d)!.#setScale(ROUND_OPTS[RoundingMode.trunc]);
     return this.add(d.multiply(times)!.negate());
   }
@@ -113,10 +105,10 @@ export class Frac {
       if (n.n < 0n) return ZERO; // Inf ** -num
       if (this.n < 0n) {
         // minus
-        const hasFrac = n.modulo(ONE)!.compareTo(ZERO);
-        if (hasFrac) return INF;
-        const binary = !n.modulo(Frac.numOf(2n))!.compareTo(ZERO);
-        if (binary) return INF;
+        const hasFrac = n.d > 1n;
+        if (hasFrac) return INF; // Inf ** x.x
+        const even = !(n.n % 2n);
+        if (even) return INF; // Inf ** (2*int)
       }
       return this; // inf ** num
     }
@@ -127,7 +119,7 @@ export class Frac {
         ? minus
           ? INF // 0 ** -inf, or 0.x ** -inf
           : ZERO // 0 ** inf, or 0.x ** inf
-        : cmpO === 0
+        : !cmpO
           ? null // 1 ** inf, or -1 ** inf
           : minus
             ? ZERO // num ** -inf
@@ -140,7 +132,7 @@ export class Frac {
     if (this.inf) return n.inf ? (n.n > 0 ? this : null) : this;
     if (n.inf)
       return n.n < 0n ? ZERO : !this.n ? null : this.n >= 0n ? INF : N_INF;
-    return this.multiply(Frac.numOf(10n).pow(n)!);
+    return this.multiply(TEN.pow(n)!);
   }
 
   public sqrt(options?: MathOptions): Frac | null {
@@ -148,42 +140,7 @@ export class Frac {
     if (this.n < 0n)
       // Negative number
       return null;
-    // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
-    const [i, e] = this.#toNum();
-    const decimalLength = -e;
-    const decimalLengthIsOdd = decimalLength & 1n;
-
-    let remainder = i;
-    if (decimalLengthIsOdd) remainder *= 10n;
-    let part = 0n;
-
-    const digitExponent = BigInt(length(remainder)) / 2n + 1n;
-    let pow: bigint = 100n ** digitExponent;
-
-    const numCtx = numberContext(
-      1,
-      digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n),
-      options,
-    );
-    while (remainder > 0n && !numCtx.overflow()) {
-      numCtx.prepare();
-      if (pow >= 100n) pow /= 100n;
-      else remainder *= 100n;
-      part *= 10n;
-      // Find digit
-      if (remainder < (part + 1n) * pow) continue; // Short circuit: If 1 is not available, it will not loop.
-      for (let nn = 9n; nn > 0n; nn--) {
-        const amount = (part + nn) * nn * pow;
-        if (remainder < amount) continue;
-        // Set digit
-        numCtx.set(nn);
-        remainder -= amount;
-        part += nn * 2n;
-        break;
-      }
-    }
-    numCtx.round(remainder);
-    return Frac.numOf(...numCtx.toNum());
+    return Frac.#sqrt(this, options);
   }
 
   public nthRoot(n: Frac, options?: MathOptions): Frac | null {
@@ -267,6 +224,7 @@ export class Frac {
     if (this.inf) throw new Error("Infinity");
     const { n, d } = this;
     if (!n) return [0n, 0n];
+    if (d === 1n) return [n, 0n];
     if (!options) {
       options = this.#finiteDecimal()
         ? {
@@ -313,22 +271,57 @@ export class Frac {
     if (!num) return ONE; // x ** 0
     const sign = num >= 0n === denom >= 0n ? 1 : -1;
     if (!base.n) return sign < 0 ? INF : ZERO; // 0 ** x
-    let n = abs(num);
-    let d = abs(denom);
-    const m = n / d;
-    n %= d;
-    let a = new Frac(base.n ** m, base.d ** m);
-    if (n % d) {
+    const n = abs(num);
+    const d = abs(denom);
+    const i = n / d;
+    const remN = n % d;
+    let a = new Frac(base.n ** i, base.d ** i);
+    if (remN) {
       // has fraction
       if (base.n < 0n) return null;
-      const g = gcd(n, d);
-      n /= g;
-      d /= g;
-
-      a = a.multiply(Frac.#nthRoot(base, d, options)!.pow(Frac.numOf(n))!)!;
+      a = a.multiply(Frac.#nthRoot(base, d, options)!.pow(Frac.numOf(remN))!)!;
     }
     if (sign >= 0) return a;
     return ONE.divide(a);
+  }
+
+  static #sqrt(base: Frac, options?: MathOptions): Frac | null {
+    // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
+    const [i, e] = base.#toNum();
+    const decimalLength = -e;
+    const decimalLengthIsOdd = decimalLength & 1n;
+
+    let remainder = i;
+    if (decimalLengthIsOdd) remainder *= 10n;
+    let part = 0n;
+
+    const digitExponent = BigInt(length(remainder)) / 2n + 1n;
+    let pow: bigint = 100n ** digitExponent;
+
+    const numCtx = numberContext(
+      1,
+      digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n),
+      options,
+    );
+    while (remainder > 0n && !numCtx.overflow()) {
+      numCtx.prepare();
+      if (pow >= 100n) pow /= 100n;
+      else remainder *= 100n;
+      part *= 10n;
+      // Find digit
+      if (remainder < (part + 1n) * pow) continue; // Short circuit: If 1 is not available, it will not loop.
+      for (let nn = 9n; nn > 0n; nn--) {
+        const amount = (part + nn) * nn * pow;
+        if (remainder < amount) continue;
+        // Set digit
+        numCtx.set(nn);
+        remainder -= amount;
+        part += nn * 2n;
+        break;
+      }
+    }
+    numCtx.round(remainder);
+    return Frac.numOf(...numCtx.toNum());
   }
 
   static #nthRoot(base: Frac, n: bigint, options?: MathOptions): Frac | null {
@@ -375,10 +368,13 @@ export class Frac {
     return ONE.divide(a);
   }
 }
+let init = false;
 export const ZERO = Frac.numOf(0n);
 export const ONE = Frac.numOf(1n);
+export const TEN = Frac.numOf(10n);
 export const INF = new Frac(1n, 0n);
 export const N_INF = new Frac(-1n, 0n);
+init = true;
 
 /**
  * Assert never.

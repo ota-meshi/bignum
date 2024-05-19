@@ -66,6 +66,13 @@ exports[`standard tests () =>
         BigNum.valueOf(2).sqrt({ roundingMode: RoundingMode.round }).pow(2) 1`] = `"\\"1.99999999999999999999522356663907438144\\""`;
 
 exports[`standard tests () => {
+            // (1/3 + 1/6) * (1/3 + 1/6) * 4
+            const a = BigNum.valueOf(1).divide(3);
+            const b = BigNum.valueOf(1).divide(6);
+            return a.add(b).multiply(a.add(b)).multiply(4);
+        } 1`] = `"1"`;
+
+exports[`standard tests () => {
             // (3 ** (1/2))
             return [
                 BigNum.valueOf(6).nthRoot(2, { roundingMode: RoundingMode.trunc }),
