@@ -460,16 +460,14 @@ function numberContext(
   return ctx;
 }
 
-/**
- * Divide two numbers.
- */
+/** Returns an instance that allows you to iterate through the digits of the result of division. */
 function divide(
   n: bigint,
   d: bigint,
 ): {
-  e: bigint;
+  e: bigint; // Initial exponent.
+  digits: (infinity?: boolean) => Iterable<bigint>; // Iterate over each digit.
   hasRemainder: () => boolean;
-  digits: (infinity?: boolean) => Iterable<bigint>;
 } {
   if (!n)
     return {
