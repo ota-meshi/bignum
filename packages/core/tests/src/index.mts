@@ -84,7 +84,7 @@ const B_TESTS: BTest[] = [
 ];
 
 type UTest = {
-  fn: string;
+  fn: string | ((a: number) => string);
   n: (a: number) => number;
   b: (a: BigNum) => BigNum;
   ignore?: (a: number) => boolean;
@@ -124,6 +124,16 @@ const U_TESTS: UTest[] = [
     fn: "sqrt",
     n: (a) => Math.sqrt(a),
     b: (a: BigNum) => a.sqrt(),
+  },
+  {
+    fn: (a) => `${a} ** (1/2)`,
+    n: (a) => a ** 0.5,
+    b: (a: BigNum) => a.nthRoot(2),
+  },
+  {
+    fn: (a) => `${a} ** (1/4)`,
+    n: (a) => a ** 0.25,
+    b: (a: BigNum) => a.nthRoot(4),
   },
 ];
 
@@ -188,7 +198,8 @@ describe("Calc tests", () => {
       20.56,
     ]) {
       if (t.ignore?.(Number(a))) return;
-      const name = `${t.fn}(${a})`;
+      const name =
+        typeof t.fn === "function" ? t.fn(Number(a)) : `${t.fn}(${a})`;
       it(name, () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
@@ -231,7 +242,8 @@ describe("Infinity tests", () => {
   for (const t of U_TESTS) {
     [Infinity, -Infinity].forEach((a) => {
       if (t.ignore?.(Number(a))) return;
-      it(`${t.fn}(${a})`, () => {
+      const name = typeof t.fn === "function" ? t.fn(a) : `${t.fn}(${a})`;
+      it(name, () => {
         const ba = new BigNum(a);
         assert.strictEqual(`${t.b(ba)}`, `${t.n(a)}`);
       });
@@ -264,7 +276,8 @@ describe("Random tests", () => {
     for (let index = 0; index < 1000; index++) {
       const a = random(set);
       if (t.ignore?.(Number(a))) return;
-      it(`${t.fn}(${a})`, () => {
+      const name = typeof t.fn === "function" ? t.fn(a) : `${t.fn}(${a})`;
+      it(name, () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
         const expect = t.n(a);
