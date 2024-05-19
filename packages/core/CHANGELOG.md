@@ -1,5 +1,15 @@
 # @bignum/core
 
+## 0.10.0
+
+### Minor Changes
+
+- pref: improve performance toString() ([#43](https://github.com/ota-meshi/bignum/pull/43))
+
+- feat: improve sqrt ([#43](https://github.com/ota-meshi/bignum/pull/43))
+
+- pref: improve performance for pow ([#40](https://github.com/ota-meshi/bignum/pull/40))
+
 ## 0.9.0
 
 ### Minor Changes
