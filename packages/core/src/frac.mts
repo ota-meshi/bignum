@@ -182,9 +182,8 @@ export class Frac {
     if (this.inf)
       return other.inf && this.n > 0 === other.n > 0 ? 0 : this.n > 0 ? 1 : -1;
     if (other.inf) return other.n > 0 ? -1 : 1;
-    const a = this.n * other.d;
-    const b = other.n * this.d;
-    return compare(a, b);
+    if (this.d === other.d) return compare(this.n, other.n);
+    return compare(this.n * other.d, other.n * this.d);
   }
 
   public toString(): string {
@@ -280,8 +279,8 @@ export class Frac {
     if (remN) {
       // has fraction
       if (base.n < 0n) return null;
-      const frac = Frac.#nthRoot(base, d, options)!.pow(Frac.numOf(remN))!;
-      a = [a[0] * frac.n, a[1] * frac.d];
+      const nthRoot = Frac.#nthRoot(base, d, options);
+      a = [a[0] * nthRoot.n ** remN, a[1] * nthRoot.d ** remN];
     }
     if (sign >= 0) return new Frac(a[0], a[1]);
     return new Frac(a[1], a[0]);
@@ -326,7 +325,7 @@ export class Frac {
     return Frac.numOf(...numCtx.toNum());
   }
 
-  static #nthRoot(base: Frac, n: bigint, options?: MathOptions): Frac | null {
+  static #nthRoot(base: Frac, n: bigint, options?: MathOptions): Frac {
     // See https://fermiumbay13.hatenablog.com/entry/2019/03/07/002938
     const iN = abs(n);
     const powOfTen = 10n ** iN;
@@ -367,7 +366,7 @@ export class Frac {
     numCtx.round(remainder);
     const a = Frac.numOf(...numCtx.toNum());
     if (i >= 0n) return a;
-    return ONE.divide(a);
+    return new Frac(a.d, a.n);
   }
 }
 let init = false;
