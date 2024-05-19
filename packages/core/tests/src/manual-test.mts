@@ -12,6 +12,12 @@ describe("standard tests", () => {
     // add
     () => BigNum.valueOf(0.02).add(0.1),
     () => BigNum.valueOf(0.2).add(0.01),
+    () => {
+      // (1/3 + 1/6) * (1/3 + 1/6) * 4
+      const a = BigNum.valueOf(1).divide(3);
+      const b = BigNum.valueOf(1).divide(6);
+      return a.add(b).multiply(a.add(b)).multiply(4);
+    },
     () => BigNum.valueOf(NaN).add(3),
     () => BigNum.valueOf(3).add(NaN),
     () => BigNum.valueOf(NaN).add(NaN),

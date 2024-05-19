@@ -27,6 +27,15 @@ if (process.env.UPDATE_PREF) {
         const n = 123456789n ** 1234n;
         return () => {
           for (let i = 0; i < 100; i++) {
+            n.toString();
+          }
+        };
+      },
+      () => {
+        // setup
+        const n = 123456789n ** 1234n;
+        return () => {
+          for (let i = 0; i < 100; i++) {
             length(n);
           }
         };
@@ -61,10 +70,14 @@ if (process.env.UPDATE_PREF) {
           });
           continue;
         }
+        const setuped = test.t();
+        const isList = Array.isArray(setuped);
         tests.unshift(
-          ...([test.t()].flat() as (() => any)[]).map((child) => {
+          ...([setuped].flat() as (() => any)[]).map((child, idx) => {
             return {
-              name: `${test.name}->\n${"  ".repeat(test.n)}${String(child)
+              name: `${test.name}\n${"  ".repeat(test.n)}->${isList ? `(${idx + 1})` : ""}\n${"  ".repeat(test.n)}${String(
+                child,
+              )
                 .split("\n")
                 .join(`\n${"  ".repeat(test.n)}`)}`,
               t: child,
