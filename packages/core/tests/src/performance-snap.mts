@@ -63,6 +63,11 @@ if (process.env.UPDATE_PREF) {
               a.nthRoot(2);
             }
           },
+          () => {
+            for (let i = 0; i < 1000; i++) {
+              a.nthRoot(3);
+            }
+          },
         ];
       },
     ]) {
@@ -82,7 +87,7 @@ if (process.env.UPDATE_PREF) {
               chai.expect(e).toMatchSnapshot();
               return;
             }
-            chai.expect(time).toMatchSnapshot();
+            chai.expect(`\nTime: ${time}\n`).toMatchSnapshot();
           });
           continue;
         }

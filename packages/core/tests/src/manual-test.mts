@@ -10,6 +10,7 @@ describe("standard tests", () => {
     () => BigNum.valueOf(2).multiply(0.1).add(0.1),
     () => BigNum.valueOf("2e2").divide(1000).add(0.1),
     // add
+    () => BigNum.valueOf(1.1).add(-2.2),
     () => BigNum.valueOf(0.02).add(0.1),
     () => BigNum.valueOf(0.2).add(0.01),
     () => {
@@ -97,6 +98,7 @@ describe("standard tests", () => {
     () => BigNum.valueOf(Infinity).multiply(0),
     () => BigNum.valueOf(-Infinity).multiply(0),
     // divide
+    () => BigNum.valueOf(2.3).divide(1.1),
     () => BigNum.valueOf(1).divide(3),
     () => BigNum.valueOf(-1).divide(3),
     () => BigNum.valueOf(-1).divide(-3),
@@ -258,6 +260,8 @@ describe("standard tests", () => {
     () => BigNum.valueOf(271441).sqrt(),
     () => BigNum.valueOf(2.25).sqrt(),
     () => BigNum.valueOf(0.5625).sqrt(),
+    () => BigNum.valueOf(0.000009).sqrt(),
+    () => BigNum.valueOf(0.00001024).sqrt(),
     () => BigNum.valueOf(0.0145).sqrt(),
     () => BigNum.valueOf(22.25).sqrt(),
     () => BigNum.valueOf(1.499).sqrt(),
@@ -319,6 +323,13 @@ describe("standard tests", () => {
     () => BigNum.valueOf(Infinity).sqrt(),
     () => BigNum.valueOf(-Infinity).sqrt(),
     // nthRoot
+    () => BigNum.valueOf(1000).nthRoot(3),
+    () => BigNum.valueOf(512).nthRoot(3),
+    () => BigNum.valueOf(27).nthRoot(3),
+    () => BigNum.valueOf(8).nthRoot(3),
+    () => BigNum.valueOf(0.125).nthRoot(3),
+    () => BigNum.valueOf(0.064).nthRoot(3),
+    () => BigNum.valueOf(0.008).nthRoot(3),
     () => BigNum.valueOf(2).nthRoot(2),
     () => BigNum.valueOf(2).nthRoot(3),
     () => BigNum.valueOf(2).nthRoot(4),
@@ -487,12 +498,14 @@ describe("standard tests", () => {
     () => BigNum.valueOf("-.0"),
   ]) {
     it(String(t), () => {
+      let r = t();
       try {
-        const r = t();
-        chai.expect(stringify(r)).toMatchSnapshot();
+        r = t();
       } catch (e) {
         chai.expect(e).toMatchSnapshot();
+        return;
       }
+      chai.expect(stringify(r)).toMatchSnapshot();
     });
   }
 });
@@ -500,12 +513,14 @@ describe("standard tests", () => {
 describe("Error tests", () => {
   for (const t of [() => BigNum.valueOf(2).sqrt({ roundingMode: 42 as any })]) {
     it(String(t), () => {
+      let r;
       try {
-        const r = t();
-        chai.expect(stringify(r)).toMatchSnapshot();
+        r = t();
       } catch (e) {
         chai.expect(e).toMatchSnapshot();
+        return;
       }
+      chai.expect(stringify(r)).toMatchSnapshot();
     });
   }
 });

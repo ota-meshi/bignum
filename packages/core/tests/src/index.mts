@@ -164,6 +164,7 @@ describe("Calc tests", () => {
       [-3, 0],
       [3, 0],
       [5, -5],
+      [1.1, -2.2],
     ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(Number(a), Number(b))) return;
