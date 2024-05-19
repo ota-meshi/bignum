@@ -147,11 +147,12 @@ export class Frac {
     if (this.inf)
       return n.inf
         ? ONE
-        : n.compareTo(ONE) === 0
+        : !n.compareTo(ONE)
           ? this
           : n.signum() < 0
             ? ZERO
             : INF;
+    if (n.d === 1n && n.n === 2n) return this.sqrt(options);
     if (n.inf) return this.pow(ZERO);
     if (!n.abs().compareTo(ONE)) return this;
     if (!n.n) return this.pow(INF);
@@ -275,14 +276,15 @@ export class Frac {
     const d = abs(denom);
     const i = n / d;
     const remN = n % d;
-    let a = new Frac(base.n ** i, base.d ** i);
+    let a: [bigint, bigint] = [base.n ** i, base.d ** i];
     if (remN) {
       // has fraction
       if (base.n < 0n) return null;
-      a = a.multiply(Frac.#nthRoot(base, d, options)!.pow(Frac.numOf(remN))!)!;
+      const frac = Frac.#nthRoot(base, d, options)!.pow(Frac.numOf(remN))!;
+      a = [a[0] * frac.n, a[1] * frac.d];
     }
-    if (sign >= 0) return a;
-    return ONE.divide(a);
+    if (sign >= 0) return new Frac(a[0], a[1]);
+    return new Frac(a[1], a[0]);
   }
 
   static #sqrt(base: Frac, options?: MathOptions): Frac | null {
@@ -369,9 +371,9 @@ export class Frac {
   }
 }
 let init = false;
-export const ZERO = Frac.numOf(0n);
-export const ONE = Frac.numOf(1n);
-export const TEN = Frac.numOf(10n);
+const ZERO = Frac.numOf(0n);
+const ONE = Frac.numOf(1n);
+const TEN = Frac.numOf(10n);
 export const INF = new Frac(1n, 0n);
 export const N_INF = new Frac(-1n, 0n);
 init = true;
