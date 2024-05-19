@@ -524,6 +524,8 @@ exports[`standard tests () => BigNum.valueOf(1).signum() 1`] = `"1"`;
 
 exports[`standard tests () => BigNum.valueOf(1).trunc() 1`] = `"1"`;
 
+exports[`standard tests () => BigNum.valueOf(1.1).add(-2.2) 1`] = `"-1.1"`;
+
 exports[`standard tests () => BigNum.valueOf(1.5).ceil() 1`] = `"2"`;
 
 exports[`standard tests () => BigNum.valueOf(1.5).floor() 1`] = `"1"`;
@@ -611,6 +613,8 @@ exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(3) 1`] = `"200
 exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(4) 1`] = `"20000"`;
 
 exports[`standard tests () => BigNum.valueOf(2).sqrt() 1`] = `"\\"1.4142135623730950488\\""`;
+
+exports[`standard tests () => BigNum.valueOf(2.3).divide(1.1) 1`] = `"\\"2.090909090909090909\\""`;
 
 exports[`standard tests () => BigNum.valueOf(2.25).sqrt() 1`] = `"1.5"`;
 

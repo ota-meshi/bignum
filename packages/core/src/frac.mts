@@ -196,7 +196,12 @@ export class Frac {
     let decimal = "";
     const isFull = this.#finiteDecimal()
       ? () => false
-      : () => decimal.length && integer.length + decimal.length >= 20;
+      : () =>
+          decimal.length &&
+          integer.length +
+            (integer.length && decimalLeadingZero.length) +
+            decimal.length >=
+            20;
     for (const d of div.digits()) {
       if (e-- >= 0n) {
         if (integer || d) integer += d;
@@ -206,7 +211,7 @@ export class Frac {
     }
     decimal = decimalLeadingZero + decimal;
     while (decimal.endsWith("0")) decimal = decimal.slice(0, -1);
-    return `${integer || `${this.n < 0n ? "-0" : "0"}`}${decimal ? `.${`${decimal}`}` : ""}`;
+    return `${this.n < 0n ? "-" : ""}${integer || "0"}${decimal ? `.${`${decimal}`}` : ""}`;
   }
 
   #setScale(options: MathOptions): Frac {

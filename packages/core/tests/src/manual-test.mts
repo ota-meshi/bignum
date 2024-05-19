@@ -10,6 +10,7 @@ describe("standard tests", () => {
     () => BigNum.valueOf(2).multiply(0.1).add(0.1),
     () => BigNum.valueOf("2e2").divide(1000).add(0.1),
     // add
+    () => BigNum.valueOf(1.1).add(-2.2),
     () => BigNum.valueOf(0.02).add(0.1),
     () => BigNum.valueOf(0.2).add(0.01),
     () => {
@@ -97,6 +98,7 @@ describe("standard tests", () => {
     () => BigNum.valueOf(Infinity).multiply(0),
     () => BigNum.valueOf(-Infinity).multiply(0),
     // divide
+    () => BigNum.valueOf(2.3).divide(1.1),
     () => BigNum.valueOf(1).divide(3),
     () => BigNum.valueOf(-1).divide(3),
     () => BigNum.valueOf(-1).divide(-3),
