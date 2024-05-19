@@ -43,11 +43,18 @@ if (process.env.UPDATE_PREF) {
       () => {
         // setup
         const a = BigNum.valueOf(123456789.12345678);
-        return () => {
-          for (let i = 0; i < 100; i++) {
-            a.sqrt();
-          }
-        };
+        return [
+          () => {
+            for (let i = 0; i < 100; i++) {
+              a.sqrt();
+            }
+          },
+          () => {
+            for (let i = 0; i < 100; i++) {
+              a.nthRoot(2);
+            }
+          },
+        ];
       },
     ]) {
       const tests = [{ name: String(t), t, n: 1 }];

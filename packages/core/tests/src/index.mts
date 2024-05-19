@@ -202,7 +202,19 @@ describe("Calc tests", () => {
 describe("Infinity tests", () => {
   for (const t of B_TESTS) {
     for (const a of [Infinity, -Infinity]) {
-      for (const b of [3, 1, 0.5, 0, -0.5, -1, -3, Infinity, -Infinity]) {
+      for (const b of [
+        3,
+        2,
+        1,
+        0.5,
+        0,
+        -0.5,
+        -1,
+        -2,
+        -3,
+        Infinity,
+        -Infinity,
+      ]) {
         [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
           if (t.ignore?.(a, b)) return;
           const name =

@@ -6,23 +6,53 @@ exports[`performance tests () => {
                 return () => a.pow(48.723);
             }
   ->
-  () => a.pow(48.723) 1`] = `566.5785000000001`;
+  () => a.pow(48.723) 1`] = `411.18304199999994`;
 
 exports[`performance tests () => {
                 // setup
                 const a = BigNum.valueOf(123456789.12345678);
-                return () => {
-                    for (let i = 0; i < 100; i++) {
-                        a.sqrt();
-                    }
-                };
+                return [
+                    () => {
+                        for (let i = 0; i < 100; i++) {
+                            a.sqrt();
+                        }
+                    },
+                    () => {
+                        for (let i = 0; i < 100; i++) {
+                            a.nthRoot(2);
+                        }
+                    },
+                ];
             }
-  ->
+  ->(1)
   () => {
-                      for (let i = 0; i < 100; i++) {
-                          a.sqrt();
-                      }
-                  } 1`] = `2.021041999999852`;
+                          for (let i = 0; i < 100; i++) {
+                              a.sqrt();
+                          }
+                      } 1`] = `2.039166000000023`;
+
+exports[`performance tests () => {
+                // setup
+                const a = BigNum.valueOf(123456789.12345678);
+                return [
+                    () => {
+                        for (let i = 0; i < 100; i++) {
+                            a.sqrt();
+                        }
+                    },
+                    () => {
+                        for (let i = 0; i < 100; i++) {
+                            a.nthRoot(2);
+                        }
+                    },
+                ];
+            }
+  ->(2)
+  () => {
+                          for (let i = 0; i < 100; i++) {
+                              a.nthRoot(2);
+                          }
+                      } 1`] = `1.750957999999855`;
 
 exports[`performance tests () => {
                 // setup
@@ -38,7 +68,7 @@ exports[`performance tests () => {
                       for (let i = 0; i < 100; i++) {
                           length(n);
                       }
-                  } 1`] = `28.086583999999903`;
+                  } 1`] = `28.061124999999947`;
 
 exports[`performance tests () => {
                 // setup
@@ -54,7 +84,7 @@ exports[`performance tests () => {
                       for (let i = 0; i < 100; i++) {
                           n.toString();
                       }
-                  } 1`] = `28.040959000000157`;
+                  } 1`] = `27.23591600000009`;
 
 exports[`performance tests () => {
                 // setup
@@ -65,7 +95,7 @@ exports[`performance tests () => {
                 ];
             }
   ->(1)
-  () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `518.5813330000001`;
+  () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `376.49016700000004`;
 
 exports[`performance tests () => {
                 // setup
@@ -76,6 +106,6 @@ exports[`performance tests () => {
                 ];
             }
   ->(2)
-  () => a.toString() 1`] = `155.21400000000017`;
+  () => a.toString() 1`] = `143.93958299999986`;
 
-exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `2.5096669999998085`;
+exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `2.5254169999999476`;
