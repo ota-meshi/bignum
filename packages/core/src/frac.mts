@@ -211,7 +211,7 @@ export class Frac {
     }
     decimal = decimalLeadingZero + decimal;
     while (decimal.endsWith("0")) decimal = decimal.slice(0, -1);
-    return `${this.n < 0n ? "-" : ""}${integer || "0"}${decimal ? `.${`${decimal}`}` : ""}`;
+    return `${this.n < 0n ? "-" : ""}${integer || "0"}.${decimal}`;
   }
 
   #setScale(options: MathOptions): Frac {
@@ -284,8 +284,7 @@ export class Frac {
 
     for (const digit of div.digits(true)) {
       if (bf.push(digit) < 2) continue;
-      remainder =
-        remainder * 100n + (bf.shift() ?? 0n) * 10n + (bf.shift() ?? 0n);
+      remainder = remainder * 100n + bf.shift()! * 10n + bf.shift()!;
       part *= 10n;
       // Find digit
       if (
@@ -469,14 +468,7 @@ function divide(
   digits: (infinity?: boolean) => Iterable<bigint>; // Iterate over each digit.
   hasRemainder: () => boolean;
 } {
-  if (!n)
-    return {
-      e: 0n,
-      *digits() {
-        yield 0n;
-      },
-      hasRemainder: () => false,
-    };
+  // if (!n) return ... // There is no need to consider it as it has already been processed.
 
   const e = BigInt(length(n) - length(d));
   let initRemainder = abs(n);
