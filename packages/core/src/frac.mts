@@ -188,21 +188,40 @@ export class Frac {
   public toString(): string {
     if (this.inf) return this.n > 0 ? "Infinity" : "-Infinity";
     if (this.d === 1n) return String(this.n);
-    const [i, e] = this.#toNum();
-    const p = 10n ** -e;
-    const integer = i / p;
-    let decimal = abs(i) % p;
-    let decimalLength = -Number(e);
-    while (decimal && !(decimal % 10n)) {
-      decimal /= 10n;
-      decimalLength--;
+    const div = divide(this.n, this.d);
+    let e = div.e;
+    let integer = "";
+    let decimalLeadingZero = "0".repeat(Number(e < 0n ? -e - 1n : 0));
+    let decimal = "";
+    const isFull = this.#finiteDecimal()
+      ? () => false
+      : () => decimal.length && integer.length + decimal.length >= 20;
+    for (const d of div.digits()) {
+      if (e-- >= 0n) {
+        if (integer || d) integer += d;
+      } else if (decimal || d) decimal += d;
+      else decimalLeadingZero += d;
+      if (isFull()) break;
     }
-    return `${integer || `${i < 0n ? "-0" : "0"}`}${decimal ? `.${`${decimal}`.padStart(decimalLength, "0")}` : ""}`;
+    decimal = decimalLeadingZero + decimal;
+    while (decimal.endsWith("0")) decimal = decimal.slice(0, -1);
+    return `${integer || `${this.n < 0n ? "-0" : "0"}`}${decimal ? `.${`${decimal}`}` : ""}`;
   }
 
   #setScale(options: MathOptions): Frac {
     if (this.inf) return this;
-    return Frac.numOf(...this.#toNum(options));
+    const { n, d } = this;
+    if (!n) return ZERO;
+    if (d === 1n) return this;
+    const div = divide(n, d);
+    const numCtx = numberContext(n < 0n ? -1 : 1, div.e + 1n, options);
+    for (const digit of div.digits()) {
+      numCtx.prepare();
+      numCtx.set(digit);
+      if (numCtx.overflow()) break;
+    }
+    numCtx.round(div.hasRemainder() ? 1n : 0n);
+    return Frac.numOf(...numCtx.toNum());
   }
 
   /** Checks whether the this fraction is a finite decimal. */
@@ -215,34 +234,6 @@ export class Frac {
       }
     }
     return t === 1n;
-  }
-
-  #toNum(options?: MathOptions): [bigint, bigint] {
-    if (this.inf) throw new Error("Infinity");
-    const { n, d } = this;
-    if (!n) return [0n, 0n];
-    if (d === 1n) return [n, 0n];
-    if (!options) {
-      options = this.#finiteDecimal()
-        ? {
-            overflow: () => false,
-            roundingMode: RoundingMode.trunc,
-          }
-        : {
-            roundingMode: RoundingMode.trunc,
-          };
-    }
-
-    const div = divide(n, d);
-
-    const numCtx = numberContext(n < 0n ? -1 : 1, div.e + 1n, options);
-    for (const digit of div.digits()) {
-      numCtx.prepare();
-      numCtx.set(digit);
-      if (numCtx.overflow()) break;
-    }
-    numCtx.round(div.hasRemainder() ? 1n : 0n);
-    return numCtx.toNum();
   }
 
   /** pow() for fraction */
@@ -493,11 +484,8 @@ function divide(
   const e = BigInt(length(n) - length(d));
   let initRemainder = abs(n);
   let initRemainderPow = 1n;
-  if (e >= 0n) {
-    initRemainderPow = 10n ** e;
-  } else {
-    initRemainder = initRemainder * 10n ** -e;
-  }
+  if (e >= 0n) initRemainderPow = 10n ** e;
+  else initRemainder = initRemainder * 10n ** -e;
 
   let remainder = initRemainder;
   const ctx = {
