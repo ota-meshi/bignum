@@ -18,6 +18,11 @@ export function abs(a: bigint): bigint {
   return a >= 0n ? a : -a;
 }
 
+/** Checks whether the given value is an even */
+export function isEven(a: bigint): boolean {
+  return !(a & 1n);
+}
+
 /** Find the greatest common divisor. */
 export function gcd(a: bigint, b: bigint): bigint {
   a = abs(a);
