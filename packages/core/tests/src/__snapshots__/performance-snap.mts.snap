@@ -8,7 +8,7 @@ exports[`performance tests () => {
   ->
   () => a.pow(48.723) 1`] = `
 "
-Time: 413.331833
+Time: 424.92358299999995
 "
 `;
 
@@ -40,7 +40,7 @@ exports[`performance tests () => {
                           }
                       } 1`] = `
 "
-Time: 16.538292000000183
+Time: 18.16187500000001
 "
 `;
 
@@ -72,7 +72,7 @@ exports[`performance tests () => {
                           }
                       } 1`] = `
 "
-Time: 16.367583000000195
+Time: 17.873291999999992
 "
 `;
 
@@ -104,7 +104,7 @@ exports[`performance tests () => {
                           }
                       } 1`] = `
 "
-Time: 22.589292000000114
+Time: 27.039374999999836
 "
 `;
 
@@ -124,7 +124,7 @@ exports[`performance tests () => {
                       }
                   } 1`] = `
 "
-Time: 281.82345899999996
+Time: 283.8104579999999
 "
 `;
 
@@ -144,7 +144,7 @@ exports[`performance tests () => {
                       }
                   } 1`] = `
 "
-Time: 277.9274169999999
+Time: 279.69045900000015
 "
 `;
 
@@ -164,7 +164,7 @@ exports[`performance tests () => {
                       }
                   } 1`] = `
 "
-Time: 6.597834000000148
+Time: 6.7575829999998405
 "
 `;
 
@@ -179,7 +179,7 @@ exports[`performance tests () => {
   ->(1)
   () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `
 "
-Time: 392.12533399999995
+Time: 396.5732919999999
 "
 `;
 
@@ -194,12 +194,12 @@ exports[`performance tests () => {
   ->(2)
   () => a.toString() 1`] = `
 "
-Time: 136.62404100000003
+Time: 137.3952079999999
 "
 `;
 
 exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `
 "
-Time: 2.648249999999962
+Time: 2.8824160000000347
 "
 `;
