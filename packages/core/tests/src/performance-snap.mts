@@ -87,7 +87,7 @@ if (process.env.UPDATE_PREF) {
               chai.expect(e).toMatchSnapshot();
               return;
             }
-            chai.expect(time).toMatchSnapshot();
+            chai.expect(`\nTime: ${time}\n`).toMatchSnapshot();
           });
           continue;
         }

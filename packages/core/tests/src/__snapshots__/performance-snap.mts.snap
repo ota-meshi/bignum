@@ -6,7 +6,11 @@ exports[`performance tests () => {
                 return () => a.pow(48.723);
             }
   ->
-  () => a.pow(48.723) 1`] = `410.693625`;
+  () => a.pow(48.723) 1`] = `
+"
+Time: 413.02220800000003
+"
+`;
 
 exports[`performance tests () => {
                 // setup
@@ -34,7 +38,11 @@ exports[`performance tests () => {
                           for (let i = 0; i < 1000; i++) {
                               a.sqrt();
                           }
-                      } 1`] = `16.595666000000165`;
+                      } 1`] = `
+"
+Time: 17.13124999999991
+"
+`;
 
 exports[`performance tests () => {
                 // setup
@@ -62,7 +70,11 @@ exports[`performance tests () => {
                           for (let i = 0; i < 1000; i++) {
                               a.nthRoot(2);
                           }
-                      } 1`] = `16.061332999999877`;
+                      } 1`] = `
+"
+Time: 16.237500000000182
+"
+`;
 
 exports[`performance tests () => {
                 // setup
@@ -90,7 +102,11 @@ exports[`performance tests () => {
                           for (let i = 0; i < 1000; i++) {
                               a.nthRoot(3);
                           }
-                      } 1`] = `23.18054200000006`;
+                      } 1`] = `
+"
+Time: 23.477542000000085
+"
+`;
 
 exports[`performance tests () => {
                 // setup
@@ -106,7 +122,11 @@ exports[`performance tests () => {
                       for (let i = 0; i < 1000; i++) {
                           length(n);
                       }
-                  } 1`] = `277.7699170000001`;
+                  } 1`] = `
+"
+Time: 280.24512500000014
+"
+`;
 
 exports[`performance tests () => {
                 // setup
@@ -122,7 +142,11 @@ exports[`performance tests () => {
                       for (let i = 0; i < 1000; i++) {
                           n.toString();
                       }
-                  } 1`] = `273.61920800000007`;
+                  } 1`] = `
+"
+Time: 320.0849169999999
+"
+`;
 
 exports[`performance tests () => {
                 // setup
@@ -138,7 +162,11 @@ exports[`performance tests () => {
                       for (let i = 0; i < 1000; i++) {
                           n.toString();
                       }
-                  } 1`] = `8.442000000000007`;
+                  } 1`] = `
+"
+Time: 8.957666999999901
+"
+`;
 
 exports[`performance tests () => {
                 // setup
@@ -149,7 +177,11 @@ exports[`performance tests () => {
                 ];
             }
   ->(1)
-  () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `365.26979199999994`;
+  () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `
+"
+Time: 370.4454579999999
+"
+`;
 
 exports[`performance tests () => {
                 // setup
@@ -160,6 +192,14 @@ exports[`performance tests () => {
                 ];
             }
   ->(2)
-  () => a.toString() 1`] = `144.7534169999999`;
+  () => a.toString() 1`] = `
+"
+Time: 145.45179199999984
+"
+`;
 
-exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `2.375500000000102`;
+exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `
+"
+Time: 2.49025000000006
+"
+`;
