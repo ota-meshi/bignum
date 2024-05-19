@@ -26,7 +26,16 @@ if (process.env.UPDATE_PREF) {
         // setup
         const n = 123456789n ** 1234n;
         return () => {
-          for (let i = 0; i < 100; i++) {
+          for (let i = 0; i < 1000; i++) {
+            n.toString();
+          }
+        };
+      },
+      () => {
+        // setup
+        const n = BigNum.valueOf(1234n).divide(123456789n).divide(1000000n);
+        return () => {
+          for (let i = 0; i < 1000; i++) {
             n.toString();
           }
         };
@@ -35,7 +44,7 @@ if (process.env.UPDATE_PREF) {
         // setup
         const n = 123456789n ** 1234n;
         return () => {
-          for (let i = 0; i < 100; i++) {
+          for (let i = 0; i < 1000; i++) {
             length(n);
           }
         };
@@ -45,12 +54,12 @@ if (process.env.UPDATE_PREF) {
         const a = BigNum.valueOf(123456789.12345678);
         return [
           () => {
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 1000; i++) {
               a.sqrt();
             }
           },
           () => {
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 1000; i++) {
               a.nthRoot(2);
             }
           },

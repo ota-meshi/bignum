@@ -5,7 +5,7 @@ import {
   type MathOptions,
   type OverflowContext,
 } from "./options.mjs";
-import { abs, compare, gcd, length, max } from "./util.mjs";
+import { abs, compare, gcd, isEven, length, max } from "./util.mjs";
 
 const NOT_SCALE_ZERO: IsOverflow = (ctx) => ctx.scale > 0n;
 
@@ -107,8 +107,7 @@ export class Frac {
         // minus
         const hasFrac = n.d > 1n;
         if (hasFrac) return INF; // Inf ** x.x
-        const even = !(n.n % 2n);
-        if (even) return INF; // Inf ** (2*int)
+        if (isEven(n.n)) return INF; // Inf ** (2*int)
       }
       return this; // inf ** num
     }
