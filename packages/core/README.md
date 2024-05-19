@@ -69,18 +69,23 @@ Returns a BigNum whose value is (this \* 10 \*\* n).
 
 Returns an approximation to the square root of this BigNum.
 
-If this BigNum is a negative value, an error will be raised.
-
 An object can be given as an option. See [MathOption](#type-mathoption).
+
+If this BigNum is a negative number, returns a BigNum instance indicating `NaN`.
+
+Note that `x.nthRoot(2)` and `x.sqrt()` behave differently.\
+`x.nthRoot(2)` imitates `x ** (1/2)`, while `x.sqrt()` imitates `Math.sqrt(x)`.
 
 ### BigNum.prototype.nthRoot(n, [options: MathOption]): BigNum
 
 Returns an approximation to the `n`th root of this BigNum.
 
-If this BigNum is a negative value, an error will be raised.\
-If `n` is given a non-integer value, an error will be raised.
-
 An object can be given as an option. See [MathOption](#type-mathoption).
+
+If this BigNum is a negative finite number, returns a BigNum instance indicating `NaN`.
+
+Note that `x.nthRoot(2)` and `x.sqrt()` behave differently.\
+`x.nthRoot(2)` imitates `x ** (1/2)`, while `x.sqrt()` imitates `Math.sqrt(x)`.
 
 ### BigNum.prototype.abs(): BigNum
 
