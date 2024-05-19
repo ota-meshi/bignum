@@ -5,7 +5,7 @@ import {
   type MathOptions,
   type OverflowContext,
 } from "./options.mjs";
-import { abs, compare, gcd, isEven, length, max } from "./util.mjs";
+import { abs, compare, gcd, isEven, length } from "./util.mjs";
 
 const NOT_SCALE_ZERO: IsOverflow = (ctx) => ctx.scale > 0n;
 
@@ -187,10 +187,8 @@ export class Frac {
 
   public toString(): string {
     if (this.inf) return this.n > 0 ? "Infinity" : "-Infinity";
+    if (this.d === 1n) return String(this.n);
     const [i, e] = this.#toNum();
-    if (e >= 0n) {
-      return String(i * 10n ** e);
-    }
     const p = 10n ** -e;
     const integer = i / p;
     let decimal = abs(i) % p;
@@ -235,28 +233,15 @@ export class Frac {
           };
     }
 
-    let remainder = abs(n);
+    const div = divide(n, d);
 
-    const digitExponent = max(BigInt(length(remainder) - length(d)) + 1n, 0n);
-    let pow: bigint = 10n ** digitExponent;
-
-    const numCtx = numberContext(n < 0n ? -1 : 1, digitExponent, options);
-    while (remainder > 0n && !numCtx.overflow()) {
+    const numCtx = numberContext(n < 0n ? -1 : 1, div.e + 1n, options);
+    for (const digit of div.digits()) {
       numCtx.prepare();
-      if (pow >= 10n) pow /= 10n;
-      else remainder *= 10n;
-      // Find digit
-      if (remainder < d * pow) continue; // Short circuit: If 1 is not available, it will not loop.
-      for (let nn = 9n; nn > 0n; nn--) {
-        const amount = d * nn * pow;
-        if (remainder < amount) continue;
-        // Set digit
-        numCtx.set(nn);
-        remainder -= amount;
-        break;
-      }
+      numCtx.set(digit);
+      if (numCtx.overflow()) break;
     }
-    numCtx.round(remainder);
+    numCtx.round(div.hasRemainder() ? 1n : 0n);
     return numCtx.toNum();
   }
 
@@ -287,31 +272,28 @@ export class Frac {
 
   static #sqrt(base: Frac, options?: MathOptions): Frac | null {
     // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
-    const [i, e] = base.#toNum();
-    const decimalLength = -e;
-    const decimalLengthIsOdd = decimalLength & 1n;
-
-    let remainder = i;
-    if (decimalLengthIsOdd) remainder *= 10n;
-    let part = 0n;
-
-    const digitExponent = BigInt(length(remainder)) / 2n + 1n;
-    let pow: bigint = 100n ** digitExponent;
+    const div = divide(base.n, base.d);
 
     const numCtx = numberContext(
       1,
-      digitExponent - decimalLength / 2n - (decimalLengthIsOdd ? 1n : 0n),
+      div.e / 2n + (div.e >= 0n || isEven(div.e) ? 0n : -1n) + 1n,
       options,
     );
-    while (remainder > 0n && !numCtx.overflow()) {
+
+    let remainder = 0n;
+    let part = 0n;
+    const bf: bigint[] = [];
+    if (isEven(div.e)) bf.push(0n);
+
+    const consume = (): void => {
       numCtx.prepare();
-      if (pow >= 100n) pow /= 100n;
-      else remainder *= 100n;
+      remainder =
+        remainder * 100n + (bf.shift() ?? 0n) * 10n + (bf.shift() ?? 0n);
       part *= 10n;
       // Find digit
-      if (remainder < (part + 1n) * pow) continue; // Short circuit: If 1 is not available, it will not loop.
+      if (remainder < part + 1n) return; // Short circuit: If 1 is not available, it will not loop.
       for (let nn = 9n; nn > 0n; nn--) {
-        const amount = (part + nn) * nn * pow;
+        const amount = (part + nn) * nn;
         if (remainder < amount) continue;
         // Set digit
         numCtx.set(nn);
@@ -319,7 +301,15 @@ export class Frac {
         part += nn * 2n;
         break;
       }
+    };
+
+    for (const digit of div.digits()) {
+      if (bf.push(digit) < 2) continue;
+      consume();
+      if (numCtx.overflow()) break;
     }
+    // eslint-disable-next-line no-unmodified-loop-condition -- ok
+    while (bf.length || (remainder && !numCtx.overflow())) consume();
     numCtx.round(remainder);
     return Frac.numOf(...numCtx.toNum());
   }
@@ -327,33 +317,32 @@ export class Frac {
   static #nthRoot(base: Frac, n: bigint, options?: MathOptions): Frac {
     // See https://fermiumbay13.hatenablog.com/entry/2019/03/07/002938
     const iN = abs(n);
-    const powOfTen = 10n ** iN;
 
-    const [i, e] = base.#toNum();
-
-    const decimalLength = -e;
-    const mod = decimalLength % iN;
-
-    let remainder = i;
-    if (mod) remainder *= 10n ** (iN - mod);
-    const table = createNthRootTable(iN);
-
-    const digitExponent = BigInt(length(remainder)) / iN + 1n;
-    let pow: bigint = powOfTen ** digitExponent;
+    const div = divide(base.n, base.d);
 
     const numCtx = numberContext(
       1,
-      digitExponent - decimalLength / iN - (mod ? 1n : 0n),
+      div.e / iN + (div.e >= 0n || !(div.e % iN) ? 0n : -1n) + 1n,
       options,
     );
-    while (remainder > 0n && !numCtx.overflow()) {
+
+    let remainder = 0n;
+    const powOfTen = 10n ** iN;
+    const table = createNthRootTable(iN);
+    const bf: bigint[] = [];
+    const initBfLen =
+      div.e >= 0n ? iN - ((abs(div.e) % iN) + 1n) : abs(div.e + 1n) % iN;
+    while (bf.length < initBfLen) bf.push(0n);
+
+    const consume = (): void => {
       numCtx.prepare();
-      if (pow >= powOfTen) pow /= powOfTen;
-      else remainder *= powOfTen;
+      remainder *= powOfTen;
+      let bfPow = powOfTen;
+      while (bf.length) remainder += bf.shift()! * (bfPow /= 10n);
       table.prepare();
       // Find digit
       for (let nn = 9n; nn > 0n; nn--) {
-        const amount = table.amount(nn) * pow;
+        const amount = table.amount(nn);
         if (remainder < amount) continue;
         // Set digit
         numCtx.set(nn);
@@ -361,10 +350,18 @@ export class Frac {
         table.set(numCtx.getInt());
         break;
       }
+    };
+
+    for (const digit of div.digits()) {
+      if (bf.push(digit) < iN) continue;
+      consume();
+      if (numCtx.overflow()) break;
     }
+    // eslint-disable-next-line no-unmodified-loop-condition -- ok
+    while (bf.length || (remainder && !numCtx.overflow())) consume();
     numCtx.round(remainder);
     const a = Frac.numOf(...numCtx.toNum());
-    if (i >= 0n) return a;
+    if (n >= 0n) return a;
     return new Frac(a.d, a.n);
   }
 }
@@ -468,6 +465,68 @@ function numberContext(
     },
     get precision() {
       return intLength;
+    },
+  };
+  return ctx;
+}
+
+/**
+ * Divide two numbers.
+ */
+function divide(
+  n: bigint,
+  d: bigint,
+): {
+  e: bigint;
+  hasRemainder: () => boolean;
+  digits: () => Iterable<bigint>;
+} {
+  if (!n)
+    return {
+      e: 0n,
+      *digits() {
+        yield 0n;
+      },
+      hasRemainder: () => false,
+    };
+
+  const e = BigInt(length(n) - length(d));
+  let initRemainder = abs(n);
+  let initRemainderPow = 1n;
+  if (e >= 0n) {
+    initRemainderPow = 10n ** e;
+  } else {
+    initRemainder = initRemainder * 10n ** -e;
+  }
+
+  let remainder = initRemainder;
+  const ctx = {
+    e,
+    hasRemainder: () => remainder > 0n,
+    *digits() {
+      remainder = initRemainder;
+      let pow = initRemainderPow;
+      while (remainder > 0n) {
+        // Find digit
+        let digit = 0n;
+        if (
+          // Short circuit: If 1 is not available, it will not loop.
+          remainder >=
+          d * pow
+        ) {
+          for (let nn = 9n; nn > 0n; nn--) {
+            const amount = d * nn * pow;
+            if (remainder < amount) continue;
+            // Set digit
+            digit = nn;
+            remainder -= amount;
+            break;
+          }
+        }
+        yield digit;
+        if (pow >= 10n) pow /= 10n;
+        else remainder *= 10n;
+      }
     },
   };
   return ctx;
