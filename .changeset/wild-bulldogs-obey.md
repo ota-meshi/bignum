@@ -5,4 +5,4 @@
 "@bignum/template": patch
 ---
 
-update docs
+update readme
