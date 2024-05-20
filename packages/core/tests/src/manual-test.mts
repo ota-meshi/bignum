@@ -2,6 +2,7 @@ import chai from "chai";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum, RoundingMode } from "../../src/index.mjs";
 import { stringify } from "../../../test/src/index.mjs";
+import { BigNumBasic } from "../../src/impl/bignum-basic.mts";
 
 chai.use(jestSnapshotPlugin());
 describe("standard tests", () => {
@@ -485,6 +486,11 @@ describe("standard tests", () => {
       // Same instance
       return v === new BigNum(v);
     },
+    () => {
+      const v = BigNumBasic.valueOf(123.456);
+      // Not same instance
+      return v === new BigNum(v);
+    },
     () => BigNum.valueOf(null as any),
     () => BigNum.valueOf("foo"),
     () => BigNum.valueOf("+"),
@@ -498,6 +504,8 @@ describe("standard tests", () => {
     () => BigNum.valueOf("-.0"),
     () => BigNum.valueOf("6.758057543099835e+41"),
     () => BigNum.valueOf(6.758057543099835e41),
+    () => BigNum.valueOf(Number.MAX_VALUE).add(12345),
+    () => BigNum.valueOf(Number.MIN_VALUE).subtract(12345),
   ]) {
     it(String(t), () => {
       let r = t();

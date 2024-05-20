@@ -34,6 +34,7 @@ module.exports = {
         "one-var": "off",
         "no-param-reassign": "off",
         "no-process-env": "off",
+        "@typescript-eslint/naming-convention": "off",
       },
     },
     {

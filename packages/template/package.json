@@ -3,6 +3,7 @@
   "version": "0.2.6",
   "description": "Write formulas with template literals.",
   "type": "module",
+  "main": "lib/index.js",
   "exports": {
     ".": {
       "import": "./lib/index.js",
@@ -37,6 +38,16 @@
     "bignum",
     "bigdecimal",
     "arbitrary-precision",
+    "arbitrary",
+    "precision",
+    "arithmetic",
+    "big",
+    "number",
+    "decimal",
+    "float",
+    "biginteger",
+    "bignumber",
+    "bigint",
     "formula",
     "template-literal"
   ],
@@ -46,7 +57,7 @@
   "bugs": {
     "url": "https://github.com/ota-meshi/bignum/issues"
   },
-  "homepage": "https://github.com/ota-meshi/bignum#readme",
+  "homepage": "https://github.com/ota-meshi/bignum/tree/main/packages/template#readme",
   "dependencies": {
     "@bignum/core": "^0.10.0",
     "@bignum/shared": "^0.1.1",

@@ -186,6 +186,12 @@ exports[`standard tests () => {
             return v === new BigNum(v);
         } 1`] = `"true"`;
 
+exports[`standard tests () => {
+            const v = BigNumBasic.valueOf(123.456);
+            // Not same instance
+            return v === new BigNum(v);
+        } 1`] = `"false"`;
+
 exports[`standard tests () => BigNum.valueOf("+") 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf("+.") 1`] = `"$NaN$"`;
@@ -869,6 +875,10 @@ exports[`standard tests () => BigNum.valueOf(NaN).subtract(NaN) 1`] = `"$NaN$"`;
 exports[`standard tests () => BigNum.valueOf(NaN).toJSON() 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(NaN).trunc() 1`] = `"$NaN$"`;
+
+exports[`standard tests () => BigNum.valueOf(Number.MAX_VALUE).add(12345) 1`] = `"\\"179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012345\\""`;
+
+exports[`standard tests () => BigNum.valueOf(Number.MIN_VALUE).subtract(12345) 1`] = `"\\"-12344.999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999995\\""`;
 
 exports[`standard tests () => BigNum.valueOf(null) 1`] = `"$NaN$"`;
 

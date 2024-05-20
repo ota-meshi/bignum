@@ -2,6 +2,11 @@
 
 Arbitrary-precision decimal arithmetic with BigInt.
 
+## 🚀 Features
+
+- Class for arbitrary-precision arithmetics using BigInt.
+- It can handle very large and very small numbers.
+
 ## 💿 Installation
 
 ```bash
@@ -15,7 +20,18 @@ import { BigNum } from "@bignum/core";
 
 // Perform exact calculations using the arbitrary-precision arithmetic with BigInt.
 console.log(BigNum.valueOf(0.2).add(BigNum.valueOf(0.1)).toString()); // 0.3
+// (Using the JavaScript built-in number:)
 console.log(0.2 + 0.1); // 0.30000000000000004
+
+// Can handle very large numbers.
+console.log(BigNum.valueOf(1.7976931348623157e308).add(12345).toString()); // 17976931348623157000...(Repeat `0` 281 times)...00012345
+// Can handle very small numbers.
+console.log(BigNum.valueOf(5e-324).subtract(12345).toString()); // -12344.999...(Repeat `9` 317 times)...9995
+
+// Since the value is held as a rational number, no rounding errors occur due to division.
+console.log(BigNum.valueOf(1).divide(3).multiply(3).toString()); // 1
+// (However, if you convert an infinite decimal value into a string, a rounding error will occur.)
+console.log(BigNum.valueOf(1).divide(3).toString()); // 0.33333333333333333333
 ```
 
 ## 🧮 API
@@ -127,10 +143,10 @@ Returns `true` if this is finite number.
 
 Options:
 
-| Name         | Type                                      | Description                                                                                                                                         |
-| :----------- | :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| overflow     | `(context)=>boolean`                      | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
-| roundingMode | [RoundingMode](#enum-roundingmode).trunc` | Specifies a rounding behavior for numerical operations capable of discarding precision.                                                             |
+| Name         | Type                                       | Description                                                                                                                                         |
+| :----------- | :----------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| overflow     | `(context)=>boolean`                       | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
+| roundingMode | [RoundingMode](#enum-roundingmode)`.trunc` | Specifies a rounding behavior for numerical operations capable of discarding precision.                                                             |
 
 - `context` parameter
 
@@ -149,6 +165,19 @@ The following enumerated values are available:
 - `RoundingMode.round`
 - `RoundingMode.floor`
 - `RoundingMode.ceil`
+
+## 🚀 Advanced Usage
+
+### BigNumBasic
+
+```js
+import { BigNumBasic } from "@bignum/core";
+```
+
+If you want something smaller, use BigNumBasic.
+
+It supports four arithmetic APIs and a basic API, which can be reduced to just 5kb with tree shaking and minification.\
+However, the API it provides is still experimental.
 
 ## 🛸 Prior Art
 

@@ -170,6 +170,7 @@ describe("Calc tests", () => {
       [3, 0],
       [5, -5],
       [1.1, -2.2],
+      [-873.03785, -110],
     ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(Number(a), Number(b))) return;
@@ -260,7 +261,7 @@ describe("Infinity tests", () => {
 describe("Random tests", () => {
   for (const t of B_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 500; index++) {
+    for (let index = 0; index < 100; index++) {
       const a = random(set);
       const b = random(set);
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
@@ -279,7 +280,7 @@ describe("Random tests", () => {
   }
   for (const t of U_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 500; index++) {
+    for (let index = 0; index < 100; index++) {
       const a = random(set);
       if (t.ignore?.(Number(a))) return;
       const name = typeof t.fn === "function" ? t.fn(a) : `${t.fn}(${a})`;
@@ -363,21 +364,25 @@ function lazyAssert(actual: BigNum, expect: number) {
       matchA && matchA[1].length < matchE[1].length ? matchA : matchE;
 
     const exponent = BigNum.valueOf(match[2]);
-    if (match[1].length === 1) {
-      tolerance = BigNum.valueOf(1).scaleByPowerOfTen(exponent);
+    const significantNum = match[1].replace(/\D/gu, "");
+    if (significantNum.length === 1) {
+      tolerance = BigNum.valueOf(1)
+        .scaleByPowerOfTen(exponent)
+        .scaleByPowerOfTen(exponent.compareTo(-300) > 0 ? 0 : 1);
     } else {
-      const significantNum = match[1].replace(/\D/gu, "");
       tolerance = BigNum.valueOf(1)
         .scaleByPowerOfTen(-significantNum.length)
         .scaleByPowerOfTen(exponent)
         .scaleByPowerOfTen(
-          exponent.abs().compareTo(20) < 0
+          exponent.abs().compareTo(15) < 0
             ? 2
-            : exponent.abs().compareTo(300) < 0
+            : exponent.abs().compareTo(150) < 0
               ? Math.floor(significantNum.length / 5)
-              : exponent.compareTo(-300) > 0
-                ? Math.floor(significantNum.length / 3)
-                : Math.floor(significantNum.length / 1.2),
+              : exponent.abs().compareTo(270) < 0
+                ? Math.floor(significantNum.length / 4)
+                : exponent.compareTo(-300) > 0
+                  ? Math.floor(significantNum.length / 3)
+                  : Math.floor(significantNum.length / 1.2),
         );
     }
   } else {

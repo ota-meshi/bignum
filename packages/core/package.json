@@ -3,6 +3,7 @@
   "version": "0.10.1",
   "description": "Arbitrary-precision decimal arithmetic with BigInt.",
   "type": "module",
+  "main": "lib/index.js",
   "exports": {
     ".": {
       "import": "./lib/index.js",
@@ -37,7 +38,17 @@
   "keywords": [
     "bignum",
     "bigdecimal",
-    "arbitrary-precision"
+    "arbitrary-precision",
+    "arbitrary",
+    "precision",
+    "arithmetic",
+    "big",
+    "number",
+    "decimal",
+    "float",
+    "biginteger",
+    "bignumber",
+    "bigint"
   ],
   "author": "Yosuke Ota",
   "funding": "https://github.com/sponsors/ota-meshi",
@@ -45,6 +56,6 @@
   "bugs": {
     "url": "https://github.com/ota-meshi/bignum/issues"
   },
-  "homepage": "https://github.com/ota-meshi/bignum#readme",
+  "homepage": "https://github.com/ota-meshi/bignum/tree/main/packages/core#readme",
   "devDependencies": {}
 }
