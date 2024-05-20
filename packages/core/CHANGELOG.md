@@ -1,5 +1,13 @@
 # @bignum/core
 
+## 0.10.1
+
+### Patch Changes
+
+- fix: error in unsafe integers ([#44](https://github.com/ota-meshi/bignum/pull/44))
+
+- fix: nthRoot(-1) ([#44](https://github.com/ota-meshi/bignum/pull/44))
+
 ## 0.10.0
 
 ### Minor Changes
