@@ -498,6 +498,8 @@ describe("standard tests", () => {
     () => BigNum.valueOf("-.0"),
     () => BigNum.valueOf("6.758057543099835e+41"),
     () => BigNum.valueOf(6.758057543099835e41),
+    () => BigNum.valueOf(Number.MAX_VALUE).add(12345),
+    () => BigNum.valueOf(Number.MIN_VALUE).subtract(12345),
   ]) {
     it(String(t), () => {
       let r = t();
