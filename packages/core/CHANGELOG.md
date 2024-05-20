@@ -1,5 +1,15 @@
 # @bignum/core
 
+## 0.11.0
+
+### Minor Changes
+
+- refactor ([#46](https://github.com/ota-meshi/bignum/pull/46))
+
+### Patch Changes
+
+- update readme ([#46](https://github.com/ota-meshi/bignum/pull/46))
+
 ## 0.10.1
 
 ### Patch Changes

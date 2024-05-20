@@ -1,5 +1,11 @@
 # @bignum/shared
 
+## 0.1.2
+
+### Patch Changes
+
+- update readme ([#46](https://github.com/ota-meshi/bignum/pull/46))
+
 ## 0.1.1
 
 ### Patch Changes
