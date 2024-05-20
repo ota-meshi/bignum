@@ -1,6 +1,6 @@
 # @bignum
 
-JavaScript bignum utilities.
+A various JavaScript utility library for performing arbitrary-precision arithmetics.
 
 ## 🚀 Packages
 

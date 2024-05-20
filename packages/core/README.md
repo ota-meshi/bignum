@@ -130,7 +130,7 @@ Options:
 | Name         | Type                                      | Description                                                                                                                                         |
 | :----------- | :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
 | overflow     | `(context)=>boolean`                      | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
-| roundingMode | [RoundingMode](#enum-roundingmode).trunc` | Specifies a rounding behavior for numerical operations capable of discarding precision.                                                             |
+| roundingMode | [RoundingMode](#enum-roundingmode)`.trunc` | Specifies a rounding behavior for numerical operations capable of discarding precision.                                                             |
 
 - `context` parameter
 
