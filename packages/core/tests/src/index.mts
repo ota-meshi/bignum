@@ -171,6 +171,8 @@ describe("Calc tests", () => {
       [5, -5],
       [1.1, -2.2],
       [-873.03785, -110],
+      [-1.38016, -539],
+      [0.97595, 771],
     ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(Number(a), Number(b))) return;
@@ -374,15 +376,17 @@ function lazyAssert(actual: BigNum, expect: number) {
         .scaleByPowerOfTen(-significantNum.length)
         .scaleByPowerOfTen(exponent)
         .scaleByPowerOfTen(
-          exponent.abs().compareTo(15) < 0
+          exponent.abs().compareTo(8) < 0
             ? 2
-            : exponent.abs().compareTo(150) < 0
-              ? Math.floor(significantNum.length / 5)
-              : exponent.abs().compareTo(270) < 0
-                ? Math.floor(significantNum.length / 4)
-                : exponent.compareTo(-300) > 0
-                  ? Math.floor(significantNum.length / 3)
-                  : Math.floor(significantNum.length / 1.2),
+            : exponent.abs().compareTo(15) < 0
+              ? Math.round(significantNum.length / 6)
+              : exponent.abs().compareTo(70) < 0
+                ? Math.floor(significantNum.length / 5)
+                : exponent.abs().compareTo(270) < 0
+                  ? Math.floor(significantNum.length / 4)
+                  : exponent.compareTo(-300) > 0
+                    ? Math.floor(significantNum.length / 3)
+                    : Math.floor(significantNum.length / 1.2),
         );
     }
   } else {

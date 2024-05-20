@@ -1,5 +1,5 @@
 import type { MathOptions } from "../../options.mts";
-import { abs as absFrac, compareTo, multiply, signum } from "./basic.mts";
+import { abs as absFrac, compareTo, divide, multiply } from "./basic.mts";
 import { divideDigits } from "../divide-digits.mts";
 import { Frac, INF, N_INF, ZERO } from "../frac.mts";
 import { createNthRootTable } from "../nth-root-utils.mts";
@@ -12,32 +12,30 @@ const TEN = Frac.numOf(10n);
 /** Returns a Frac whose value is `x ** n`. */
 export function pow(x: Frac, n: Frac, options?: MathOptions): Frac | null {
   if (x.inf) {
-    if (n.inf)
-      return n.n < 0n
-        ? ZERO // inf ** -inf
-        : INF; // inf ** inf
+    if (n.n < 0n) return ZERO; // inf ** -num, or inf ** -inf
+    if (n.inf) return INF; // inf ** inf
     if (!n.n) return ONE; // Inf ** 0
-    if (n.n < 0n) return ZERO; // Inf ** -num
     if (x.n < 0n) {
       // minus
       const hasFrac = n.d > 1n;
-      if (hasFrac) return INF; // Inf ** x.x
-      if (isEven(n.n)) return INF; // Inf ** (2*int)
+      if (
+        // inf ** x.x
+        hasFrac ||
+        // inf ** (2*int)
+        isEven(n.n)
+      )
+        return INF;
     }
     return x; // inf ** num
   }
   if (n.inf) {
     const minus = n.n < 0n;
     const cmpO = compareTo(absFrac(x), ONE);
-    return cmpO < 0
-      ? minus
-        ? INF // 0 ** -inf, or 0.x ** -inf
-        : ZERO // 0 ** inf, or 0.x ** inf
-      : !cmpO
-        ? null // 1 ** inf, or -1 ** inf
-        : minus
-          ? ZERO // num ** -inf
-          : INF; // num ** inf;
+    return !cmpO
+      ? null // 1 ** inf, or -1 ** inf
+      : (cmpO < 0 ? minus : !minus)
+        ? INF // 0 ** -inf, or 0.x ** -inf / num ** inf
+        : ZERO; // 0 ** inf, or 0.x ** inf / num ** -inf
   }
   return _pow(x, n.n, n.d, options);
 }
@@ -51,12 +49,9 @@ export function scaleByPowerOfTen(x: Frac, n: Frac): Frac | null {
 
 /** Returns a Frac whose value is `x ** (1/n)`. */
 export function nthRoot(x: Frac, n: Frac, options?: MathOptions): Frac | null {
-  if (x.inf)
-    return n.inf ? ONE : !compareTo(n, ONE) ? x : signum(n) < 0 ? ZERO : INF;
+  if (x.inf || n.inf || !compareTo(absFrac(n), ONE) || !n.n)
+    return pow(x, divide(ONE, n)!);
   if (n.d === 1n && n.n === 2n) return sqrt(x, options);
-  if (n.inf) return pow(x, ZERO);
-  if (!compareTo(absFrac(n), ONE)) return pow(x, n);
-  if (!n.n) return pow(x, INF);
   if (x.n < 0n)
     // Negative number
     return null;
@@ -65,11 +60,11 @@ export function nthRoot(x: Frac, n: Frac, options?: MathOptions): Frac | null {
 
 /** Returns a Frac whose value is `Math.sqrt(x)`. */
 export function sqrt(x: Frac, options?: MathOptions): Frac | null {
-  if (x.inf) return x.n < 0n ? null : INF;
-  if (!x.n) return ZERO;
   if (x.n < 0n)
     // Negative number
     return null;
+  if (!x.n) return ZERO;
+  if (x.inf) return INF;
   // See https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
   const div = divideDigits(x.n, x.d);
 

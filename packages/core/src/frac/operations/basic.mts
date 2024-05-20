@@ -1,6 +1,6 @@
 import { RoundingMode, type MathOptions } from "../../options.mts";
 import { divideDigits } from "../divide-digits.mts";
-import { Frac, ZERO } from "../frac.mts";
+import { Frac } from "../frac.mts";
 import { ROUND_OPTS, numberContext } from "../number-context.mts";
 import { compare } from "../util.mts";
 
@@ -8,7 +8,7 @@ import { compare } from "../util.mts";
  * Returns a number indicating the sign of the given Frac.
  */
 export function signum(x: Frac): 1 | 0 | -1 {
-  return !x.n ? 0 : x.n > 0n ? 1 : -1;
+  return compare(x.n, 0n);
 }
 
 /** Returns a Frac with value `-x`. */
@@ -18,8 +18,7 @@ export function negate(x: Frac): Frac {
 
 /** Returns a Frac whose value is the absolute value of x. */
 export function abs(x: Frac): Frac {
-  if (x.n >= 0n) return x;
-  return negate(x);
+  return x.n >= 0n ? x : negate(x);
 }
 
 /** Returns a Frac whose value is `x + y`. */
@@ -63,23 +62,17 @@ export function modulo(x: Frac, y: Frac): Frac | null {
 export function compareTo(x: Frac, y: Frac): 0 | -1 | 1 {
   return x.d === y.d
     ? compare(x.n, y.n)
-    : x.inf
-      ? x.n > 0
+    : x.inf || y.inf
+      ? (x.inf ? x.n : -y.n) > 0
         ? 1
         : -1
-      : y.inf
-        ? y.n > 0
-          ? -1
-          : 1
-        : compare(x.n * y.d, y.n * x.d);
+      : compare(x.n * y.d, y.n * x.d);
 }
 
 /** Returns a Frac rounded using the specified options. */
 export function round(x: Frac, options: MathOptions): Frac {
-  if (x.inf) return x;
+  if (x.inf || x.d === 1n) return x;
   const { n, d } = x;
-  if (!n) return ZERO;
-  if (d === 1n) return x;
   const div = divideDigits(n, d);
   const numCtx = numberContext(n < 0n ? -1 : 1, div.e, options);
   for (const digit of div.digits()) {
