@@ -24,7 +24,7 @@ console.log(BigNum.valueOf(0.2).add(BigNum.valueOf(0.1)).toString()); // 0.3
 console.log(0.2 + 0.1); // 0.30000000000000004
 
 // Can handle very large numbers.
-console.log(BigNum.valueOf(1.7976931348623157e+308).add(12345).toString()); // 17976931348623157000...(Repeat `0` 281 times)...00012345
+console.log(BigNum.valueOf(1.7976931348623157e308).add(12345).toString()); // 17976931348623157000...(Repeat `0` 281 times)...00012345
 // Can handle very small numbers.
 console.log(BigNum.valueOf(5e-324).subtract(12345).toString()); // -12344.999...(Repeat `9` 317 times)...9995
 
@@ -143,9 +143,9 @@ Returns `true` if this is finite number.
 
 Options:
 
-| Name         | Type                                      | Description                                                                                                                                         |
-| :----------- | :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| overflow     | `(context)=>boolean`                      | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
+| Name         | Type                                       | Description                                                                                                                                         |
+| :----------- | :----------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| overflow     | `(context)=>boolean`                       | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
 | roundingMode | [RoundingMode](#enum-roundingmode)`.trunc` | Specifies a rounding behavior for numerical operations capable of discarding precision.                                                             |
 
 - `context` parameter
