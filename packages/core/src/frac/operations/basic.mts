@@ -1,8 +1,8 @@
-import { RoundingMode, type MathOptions } from "../options.mts";
-import { divideDigits } from "./divide-digits.mts";
-import { Frac, ZERO } from "./frac.mts";
-import { ROUND_OPTS, numberContext } from "./number-context.mts";
-import { compare } from "./util.mts";
+import { RoundingMode, type MathOptions } from "../../options.mts";
+import { divideDigits } from "../divide-digits.mts";
+import { Frac, ZERO } from "../frac.mts";
+import { ROUND_OPTS, numberContext } from "../number-context.mts";
+import { compare } from "../util.mts";
 
 /**
  * Returns a number indicating the sign of the given Frac.

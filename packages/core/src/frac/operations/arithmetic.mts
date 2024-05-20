@@ -1,10 +1,10 @@
-import type { MathOptions } from "../options.mts";
+import type { MathOptions } from "../../options.mts";
 import { abs as absFrac, compareTo, multiply, signum } from "./basic.mts";
-import { divideDigits } from "./divide-digits.mts";
-import { Frac, INF, N_INF, ZERO } from "./frac.mts";
-import { createNthRootTable } from "./nth-root-utils.mts";
-import { numberContext } from "./number-context.mts";
-import { abs, isEven } from "./util.mts";
+import { divideDigits } from "../divide-digits.mts";
+import { Frac, INF, N_INF, ZERO } from "../frac.mts";
+import { createNthRootTable } from "../nth-root-utils.mts";
+import { numberContext } from "../number-context.mts";
+import { abs, isEven } from "../util.mts";
 
 const ONE = Frac.numOf(1n);
 const TEN = Frac.numOf(10n);

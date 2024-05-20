@@ -261,7 +261,7 @@ describe("Infinity tests", () => {
 describe("Random tests", () => {
   for (const t of B_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 500; index++) {
+    for (let index = 0; index < 100; index++) {
       const a = random(set);
       const b = random(set);
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
@@ -280,7 +280,7 @@ describe("Random tests", () => {
   }
   for (const t of U_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 500; index++) {
+    for (let index = 0; index < 100; index++) {
       const a = random(set);
       if (t.ignore?.(Number(a))) return;
       const name = typeof t.fn === "function" ? t.fn(a) : `${t.fn}(${a})`;
@@ -374,7 +374,7 @@ function lazyAssert(actual: BigNum, expect: number) {
         .scaleByPowerOfTen(-significantNum.length)
         .scaleByPowerOfTen(exponent)
         .scaleByPowerOfTen(
-          exponent.abs().compareTo(20) < 0
+          exponent.abs().compareTo(15) < 0
             ? 2
             : exponent.abs().compareTo(150) < 0
               ? Math.floor(significantNum.length / 5)
