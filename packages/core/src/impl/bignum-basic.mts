@@ -9,7 +9,7 @@ import {
   round,
   signum,
 } from "../frac/operations/basic.mts";
-import { Frac, INF, N_INF } from "../frac/frac.mts";
+import { Frac, INF, N_INF, numOf } from "../frac/frac.mts";
 import { ROUND_OPTS } from "../frac/number-context.mts";
 import { RoundingMode } from "../options.mjs";
 
@@ -25,7 +25,7 @@ function parseValue(
   if (value === -Infinity) return N_INF;
   const prop = parsePrimValue(value);
   if (!prop) return null;
-  return Frac.numOf(prop.intValue, prop.exponent ?? 0n);
+  return numOf(prop.intValue, prop.exponent ?? 0n);
 }
 
 /** Parse a primitive value to a BigNum prop */

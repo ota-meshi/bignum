@@ -1,6 +1,6 @@
 import { RoundingMode, type MathOptions } from "../../options.mts";
 import { divideDigits } from "../divide-digits.mts";
-import { Frac } from "../frac.mts";
+import { Frac, numOf } from "../frac.mts";
 import { ROUND_OPTS, numberContext } from "../number-context.mts";
 import { compare } from "../util.mts";
 
@@ -81,5 +81,5 @@ export function round(x: Frac, options: MathOptions): Frac {
     numCtx.prepareNext();
   }
   numCtx.round(div.hasRemainder());
-  return Frac.numOf(...numCtx.toNum());
+  return numOf(...numCtx.toNum());
 }

@@ -1,6 +1,12 @@
 import { gcd } from "./util.mjs";
 import { divideDigits } from "./divide-digits.mts";
 
+/**
+ * Returns a Frac from the given decimal values
+ */
+export function numOf(i: bigint, e = 0n): Frac {
+  return e >= 0n ? new Frac(i * 10n ** e, 1n) : new Frac(i, 10n ** -e);
+}
 /** Internal Fraction class */
 export class Frac {
   /** numerator */
@@ -8,10 +14,6 @@ export class Frac {
 
   /** denominator */
   public readonly d: bigint;
-
-  public static numOf(i: bigint, e = 0n): Frac {
-    return e >= 0n ? new Frac(i * 10n ** e, 1n) : new Frac(i, 10n ** -e);
-  }
 
   public constructor(numerator: bigint, denominator: bigint) {
     let n = numerator,
@@ -70,7 +72,7 @@ export class Frac {
   }
 }
 let init = false;
-export const ZERO = Frac.numOf(0n);
+export const ZERO = numOf(0n);
 export const INF = new Frac(1n, 0n);
 export const N_INF = new Frac(-1n, 0n);
 init = true;

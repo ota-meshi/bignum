@@ -1,13 +1,13 @@
 import type { MathOptions } from "../../options.mts";
 import { abs as absFrac, compareTo, divide, multiply } from "./basic.mts";
 import { divideDigits } from "../divide-digits.mts";
-import { Frac, INF, N_INF, ZERO } from "../frac.mts";
+import { Frac, INF, N_INF, ZERO, numOf } from "../frac.mts";
 import { createNthRootTable } from "../nth-root-utils.mts";
 import { numberContext } from "../number-context.mts";
 import { abs, isEven } from "../util.mts";
 
-const ONE = Frac.numOf(1n);
-const TEN = Frac.numOf(10n);
+const ONE = numOf(1n);
+const TEN = numOf(10n);
 
 /** Returns a Frac whose value is `x ** n`. */
 export function pow(x: Frac, n: Frac, options?: MathOptions): Frac | null {
@@ -103,7 +103,7 @@ export function sqrt(x: Frac, options?: MathOptions): Frac | null {
     numCtx.prepareNext();
   }
   numCtx.round(remainder > 0n);
-  return Frac.numOf(...numCtx.toNum());
+  return numOf(...numCtx.toNum());
 }
 
 /** pow() by bigint fractions */
@@ -172,7 +172,7 @@ function _nthRoot(base: Frac, n: bigint, options?: MathOptions): Frac {
     numCtx.prepareNext();
   }
   numCtx.round(remainder > 0n);
-  const a = Frac.numOf(...numCtx.toNum());
+  const a = numOf(...numCtx.toNum());
   if (n >= 0n) return a;
   return new Frac(a.d, a.n);
 }
