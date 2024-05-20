@@ -24,7 +24,7 @@ function parsePrimValue(
     return { intValue: BigInt(value) };
   if (typeof value === "number") {
     if (Number.isNaN(value)) return null;
-    if (Number.isInteger(value)) return { intValue: BigInt(value) };
+    if (Number.isSafeInteger(value)) return { intValue: BigInt(value) };
   }
   const match = RE_NUMBER.exec(String(value));
   if (!match) return null;

@@ -154,7 +154,7 @@ export class Frac {
             : INF;
     if (n.d === 1n && n.n === 2n) return this.sqrt(options);
     if (n.inf) return this.pow(ZERO);
-    if (!n.abs().compareTo(ONE)) return this;
+    if (!n.abs().compareTo(ONE)) return this.pow(n);
     if (!n.n) return this.pow(INF);
     if (this.n < 0n)
       // Negative number
