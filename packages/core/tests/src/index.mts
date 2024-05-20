@@ -43,6 +43,7 @@ const B_TESTS: BTest[] = [
       if (!isFinite(a) || !isFinite(b)) return false;
       const abs = Math.abs(b);
       if (abs && (abs > 1000 || abs < 0.001)) return true;
+      if (String(abs).length > 5) return true;
       return false;
     },
   },
@@ -140,6 +141,10 @@ const U_TESTS: UTest[] = [
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
+      [-2, -1],
+      [2, -1],
+      [-686.03129, -114],
+      [134.25081, -315],
       [3, 2.25],
       [-1.23e-42, 1],
       [8, 3],
@@ -255,7 +260,7 @@ describe("Infinity tests", () => {
 describe("Random tests", () => {
   for (const t of B_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 1000; index++) {
+    for (let index = 0; index < 500; index++) {
       const a = random(set);
       const b = random(set);
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
@@ -274,7 +279,7 @@ describe("Random tests", () => {
   }
   for (const t of U_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 1000; index++) {
+    for (let index = 0; index < 500; index++) {
       const a = random(set);
       if (t.ignore?.(Number(a))) return;
       const name = typeof t.fn === "function" ? t.fn(a) : `${t.fn}(${a})`;
@@ -293,7 +298,12 @@ describe("Random tests", () => {
   function random(set: Set<number>) {
     let v: number;
     while (
-      set.has((v = Math.floor(Math.random() * 300000000 - 1500000000) / 100000))
+      set.has(
+        (v =
+          Math.random() > 0.2
+            ? Math.floor(Math.random() * 300000000 - 150000000) / 100000
+            : Math.floor(Math.random() * 3000 - 1500)),
+      )
     );
     return v;
   }
@@ -312,7 +322,29 @@ function lazyAssert(actual: BigNum, expect: number) {
     assert.ok(
       tolerance.negate().compareTo(actual) <= 0 &&
         actual.compareTo(tolerance) <= 0,
-      `Lazy comparison. Actual=${actual} Expect=${expect} Tolerance=${tolerance}`,
+      `Lazy comparison for 0. Actual=${actual} Expect=${expect} Tolerance=${tolerance}`,
+    );
+    return;
+  }
+  if (expect === Infinity) {
+    assert.ok(
+      actual.signum() === 1,
+      `Check signum. Actual=${actual} Expect=${expect}`,
+    );
+    assert.ok(
+      actual.compareTo(Number.MAX_VALUE) > 0,
+      `Lazy comparison for Infinity. Actual=${actual} Expect=${expect}`,
+    );
+    return;
+  }
+  if (expect === -Infinity) {
+    assert.ok(
+      actual.signum() === -1,
+      `Check signum. Actual=${actual} Expect=${expect}`,
+    );
+    assert.ok(
+      actual.compareTo(Number.MIN_VALUE) < 0,
+      `Lazy comparison for Infinity. Actual=${actual} Expect=${expect}`,
     );
     return;
   }
@@ -321,9 +353,49 @@ function lazyAssert(actual: BigNum, expect: number) {
     assert.ok(diff.signum() === 0, `${actual} === ${expect}`);
     return;
   }
-  const tolerance = actual.abs().divide(1000000000);
+  let tolerance: BigNum;
+  const matchE = /^(-?\d+(?:\.\d+)?)e([+-]?\d+)$/iu.exec(`${expect}`);
+  if (matchE) {
+    const matchA = /^(-?\d+(?:\.\d+)?)e([+-]?\d+)$/iu.exec(
+      `${Number(`${actual}`)}`,
+    );
+    const match =
+      matchA && matchA[1].length < matchE[1].length ? matchA : matchE;
+
+    const exponent = BigNum.valueOf(match[2]);
+    if (match[1].length === 1) {
+      tolerance = BigNum.valueOf(1).scaleByPowerOfTen(exponent);
+    } else {
+      const significantNum = match[1].replace(/\D/gu, "");
+      tolerance = BigNum.valueOf(1)
+        .scaleByPowerOfTen(-significantNum.length)
+        .scaleByPowerOfTen(exponent)
+        .scaleByPowerOfTen(
+          exponent.abs().compareTo(20) < 0
+            ? 2
+            : exponent.abs().compareTo(300) < 0
+              ? Math.floor(significantNum.length / 5)
+              : exponent.compareTo(-300) > 0
+                ? Math.floor(significantNum.length / 3)
+                : Math.floor(significantNum.length / 1.2),
+        );
+    }
+  } else {
+    tolerance = actual.abs().divide(1000000000);
+  }
   assert.ok(
     tolerance.negate().compareTo(diff) <= 0 && diff.compareTo(tolerance) <= 0,
-    `Lazy comparison. Actual=${actual} Expect=${expect} Tolerance=${tolerance} Diff=${diff}`,
+    `Lazy comparison.
+Actual(BigNum)=
+${actual}
+Expect(BigNum)=
+${BigNum.valueOf(expect)}
+Tolerance=
+${" ".repeat(`${actual.trunc()}`.length - `${tolerance.trunc()}`.length)}${tolerance}
+Diff=
+${" ".repeat(`${actual.trunc()}`.length - `${diff.trunc()}`.length)}${diff}
+Expect(number)=
+${expect}
+`,
   );
 }

@@ -218,6 +218,8 @@ exports[`standard tests () => BigNum.valueOf("-.1").multiply(10).round() 1`] = `
 
 exports[`standard tests () => BigNum.valueOf("2e2").divide(1000).add(0.1) 1`] = `"0.3"`;
 
+exports[`standard tests () => BigNum.valueOf("6.758057543099835e+41") 1`] = `"\\"675805754309983500000000000000000000000000\\""`;
+
 exports[`standard tests () => BigNum.valueOf("foo") 1`] = `"$NaN$"`;
 
 exports[`standard tests () => BigNum.valueOf(-0).ceil() 1`] = `"0"`;
@@ -679,6 +681,8 @@ exports[`standard tests () => BigNum.valueOf(4).sqrt() 1`] = `"2"`;
 exports[`standard tests () => BigNum.valueOf(5).sqrt() 1`] = `"\\"2.2360679774997896964\\""`;
 
 exports[`standard tests () => BigNum.valueOf(6).sqrt() 1`] = `"\\"2.4494897427831780981\\""`;
+
+exports[`standard tests () => BigNum.valueOf(6.758057543099835e41) 1`] = `"\\"675805754309983500000000000000000000000000\\""`;
 
 exports[`standard tests () => BigNum.valueOf(7).sqrt() 1`] = `"\\"2.6457513110645905905\\""`;
 
