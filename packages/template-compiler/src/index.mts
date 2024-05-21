@@ -13,16 +13,16 @@ const enum TokenType {
   operand,
   identifier,
 }
-type PunctuatorToken = { t: TokenType.punctuator; v: "(" | ")" | "," };
-type OperatorToken = {
-  t: TokenType.operator;
-  v: BTBinaryOperator | BTUnaryOperator;
-};
-type OperandToken = {
-  t: TokenType.operand;
-  v: BTCompiled;
-};
-type IdentifierToken = { t: TokenType.identifier; v: string };
+type Punctuator = "(" | ")" | ",";
+type DefineToken<T extends TokenType, V> = V extends infer E extends any
+  ? { t: T; v: E }
+  : never;
+type PunctuatorToken = DefineToken<TokenType.punctuator, Punctuator>;
+type BinaryOperatorToken = DefineToken<TokenType.operator, BTBinaryOperator>;
+type UnaryOperatorToken = DefineToken<TokenType.operator, BTUnaryOperator>;
+type OperatorToken = BinaryOperatorToken | UnaryOperatorToken;
+type OperandToken = DefineToken<TokenType.operand, BTCompiled>;
+type IdentifierToken = DefineToken<TokenType.identifier, string>;
 type Token = PunctuatorToken | OperatorToken | OperandToken | IdentifierToken;
 
 const RE_SP = /\s*/uy;
@@ -155,7 +155,7 @@ function parse(tokenizer: Tokenizer): BTCompiled {
 
   /** Parse for operand */
   function parseOperand(): OperandToken {
-    const stack: Token[] = [];
+    const stack: (OperandToken | BinaryOperatorToken)[] = [];
 
     let processOperand = identity;
 
@@ -164,7 +164,7 @@ function parse(tokenizer: Tokenizer): BTCompiled {
       if (!token || isCloseParen(token) || isComma(token)) break;
       tokenizer.next();
       if (token.t === TokenType.punctuator) {
-        if (token.v !== "(") throw new SyntaxError(`Unexpected '${token.v}'`);
+        // if (token.v !== "(") throw new SyntaxError(`Unexpected '${token.v}'`);
         const operand = parseOperand();
         if (tokenizer.finished() || !isCloseParen(tokenizer.next()))
           throw new SyntaxError(`Unterminated paren`);
@@ -193,7 +193,7 @@ function parse(tokenizer: Tokenizer): BTCompiled {
             )
               stack.push(processBinary(stack));
           }
-          stack.push(token);
+          stack.push(token as BinaryOperatorToken);
         }
       } else if (token.t === TokenType.operand) {
         stack.push(processOperand(token));
@@ -262,7 +262,9 @@ function parse(tokenizer: Tokenizer): BTCompiled {
   /**
    * Process for binary expression
    */
-  function processBinary(stack: Token[]): OperandToken {
+  function processBinary(
+    stack: (OperandToken | BinaryOperatorToken)[],
+  ): OperandToken {
     const right = stack.pop();
     const op = stack.pop();
     const left = stack.pop();

@@ -9,20 +9,20 @@ export default defineConfig([
     outDir: "lib",
     target: "node18",
   },
-  // {
-  //   entryPoints: {
-  //     "index.min": "src/index.mts",
-  //   },
-  //   format: ["esm"],
-  //   outDir: "lib",
-  //   target: "node18",
-  //   minify: true,
-  // },
-  // {
-  //   entryPoints: ["src/bignum-mini.mts"],
-  //   format: ["esm"],
-  //   outDir: "lib",
-  //   target: "node18",
-  //   minify: true,
-  // },
+  {
+    entryPoints: {
+      "index.min": "src/index.mts",
+    },
+    format: ["esm"],
+    outDir: "temp",
+    target: "node18",
+    minify: true,
+  },
+  {
+    entryPoints: ["src/bignum-basic.mts"],
+    format: ["esm"],
+    outDir: "temp",
+    target: "node18",
+    minify: true,
+  },
 ]);

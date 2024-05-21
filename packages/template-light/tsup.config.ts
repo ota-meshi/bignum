@@ -14,7 +14,7 @@ export default defineConfig([
       "index.min": "src/index.mts",
     },
     format: ["esm"],
-    outDir: "lib",
+    outDir: "temp",
     target: "node18",
     minify: true,
   },
