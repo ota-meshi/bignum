@@ -395,7 +395,7 @@ ${expect}
 `;
   const matchE = /^-?\d+(?:\.\d+)?e[+-]?\d+$/iu.exec(`${expect}`);
   const expectSignificant = matchE && matchE[0].split("e")[0];
-  const _expectSignificantE = matchE && Number(matchE?.[0].split("e")[1] || 0);
+  // const _expectSignificantE = matchE && Number(matchE?.[0].split("e")[1] || 0);
 
   if (actualChars[0] === "-") {
     assert.strictEqual(actualChars.shift(), expectChars.shift(), message);

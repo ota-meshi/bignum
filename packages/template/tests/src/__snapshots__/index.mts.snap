@@ -64,6 +64,8 @@ exports[`Compare tests \`0.2 + 0.1 != 0.3\` 1`] = `0`;
 
 exports[`Compare tests \`0.3 - 0.1 >= 0.2\` 1`] = `1`;
 
+exports[`standard tests \`\${0.000002} * \${10}\` 1`] = `0.00002`;
+
 exports[`standard tests \`\${0.1} + 0.1 * 2\` 1`] = `0.3`;
 
 exports[`standard tests \`\${0.3} + -\${0.1}\` 1`] = `0.2`;
