@@ -8,6 +8,8 @@ A various JavaScript utility library for performing arbitrary-precision arithmet
   - Arbitrary-precision decimal arithmetic with BigInt.
 - [@bignum/template](./packages/template)
   - Write formulas with template literals.
+- [@bignum/template-light](./packages/template-light)
+  - Write formulas with template literals.
 
 ## 📖 Basic Examples
 
