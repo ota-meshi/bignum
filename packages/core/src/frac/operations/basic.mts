@@ -47,7 +47,7 @@ export function modulo(x: Frac, y: Frac): Frac | null {
     ? null
     : y.inf
       ? x
-      : add(x, negate(multiply(y, trunc(divide(x, y)!))!));
+      : new Frac((x.n * y.d) % (x.d * y.n), x.d * y.d);
 }
 
 /** Compare the two given `Frac`s. */
