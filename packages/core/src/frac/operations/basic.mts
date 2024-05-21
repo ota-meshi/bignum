@@ -1,8 +1,5 @@
-import { RoundingMode, type MathOptions } from "../../options.mts";
-import { divideDigits } from "../divide-digits.mts";
-import { Frac, numOf } from "../frac.mts";
-import { ROUND_OPTS, numberContext } from "../number-context.mts";
-import { compare } from "../util.mts";
+import { Frac } from "../frac.mts";
+import { compare, abs as absInt } from "../util.mts";
 
 /**
  * Returns a number indicating the sign of the given Frac.
@@ -50,12 +47,7 @@ export function modulo(x: Frac, y: Frac): Frac | null {
     ? null
     : y.inf
       ? x
-      : add(
-          x,
-          negate(
-            multiply(y, round(divide(x, y)!, ROUND_OPTS[RoundingMode.trunc]))!,
-          ),
-        );
+      : add(x, negate(multiply(y, trunc(divide(x, y)!))!));
 }
 
 /** Compare the two given `Frac`s. */
@@ -69,17 +61,36 @@ export function compareTo(x: Frac, y: Frac): 0 | -1 | 1 {
       : compare(x.n * y.d, y.n * x.d);
 }
 
-/** Returns a Frac rounded using the specified options. */
-export function round(x: Frac, options: MathOptions): Frac {
-  if (x.inf || x.d === 1n) return x;
-  const { n, d } = x;
-  const div = divideDigits(n, d);
-  const numCtx = numberContext(n < 0n ? -1 : 1, div.e, options);
-  for (const digit of div.digits()) {
-    numCtx.set(digit);
-    if (numCtx.overflow()) break;
-    numCtx.prepareNext();
-  }
-  numCtx.round(div.hasRemainder());
-  return numOf(...numCtx.toNum());
+/** Returns a Frac that is the integral part of x, with removing any fractional digits. */
+export function trunc(x: Frac): Frac {
+  return x.inf ? x : new Frac(x.n / x.d, 1n);
+}
+
+/** Returns this Frac rounded to the nearest integer. */
+export function round(x: Frac): Frac {
+  if (x.inf) return x;
+  const dblMod = (absInt(x.n) % x.d) * 2n;
+  if (!dblMod) return x;
+  const minus = x.n < 0n;
+  return (minus ? dblMod > x.d : dblMod >= x.d)
+    ? new Frac(x.n / x.d + (minus ? -1n : 1n), 1n)
+    : trunc(x);
+}
+
+/** Returns the largest integer less than or equal to x. */
+export function floor(x: Frac): Frac {
+  return x.n >= 0n
+    ? trunc(x)
+    : x.inf || !(x.n % x.d)
+      ? x
+      : new Frac(x.n / x.d - 1n, 1n);
+}
+
+/** Returns the smallest integer greater than or equal to x. */
+export function ceil(x: Frac): Frac {
+  return x.n <= 0n
+    ? trunc(x)
+    : x.inf || !(x.n % x.d)
+      ? x
+      : new Frac(x.n / x.d + 1n, 1n);
 }

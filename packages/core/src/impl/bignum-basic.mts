@@ -1,17 +1,18 @@
 import {
   abs,
   add,
+  ceil,
   compareTo,
   divide,
+  floor,
   modulo,
   multiply,
   negate,
   round,
   signum,
+  trunc,
 } from "../frac/operations/basic.mts";
 import { Frac, INF, N_INF, numOf } from "../frac/frac.mts";
-import { ROUND_OPTS } from "../frac/number-context.mts";
-import { RoundingMode } from "../options.mjs";
 
 const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 
@@ -181,25 +182,25 @@ class BigNum {
   /** Returns a BigNum that is the integral part of this BigNum, with removing any fractional digits. */
   public trunc(): this {
     const x = this.#p;
-    return num(this, x && round(x, ROUND_OPTS[RoundingMode.trunc]));
+    return num(this, x && trunc(x));
   }
 
   /** Returns this BigNum rounded to the nearest integer. */
   public round(): this {
     const x = this.#p;
-    return num(this, x && round(x, ROUND_OPTS[RoundingMode.round]));
+    return num(this, x && round(x));
   }
 
   /** Returns the greatest integer less than or equal to this BigNum. */
   public floor(): this {
     const x = this.#p;
-    return num(this, x && round(x, ROUND_OPTS[RoundingMode.floor]));
+    return num(this, x && floor(x));
   }
 
   /** Returns the smallest integer greater than or equal to this BigNum. */
   public ceil(): this {
     const x = this.#p;
-    return num(this, x && round(x, ROUND_OPTS[RoundingMode.ceil]));
+    return num(this, x && ceil(x));
   }
 
   /** Compares this BigNum with the specified BigNum. */
