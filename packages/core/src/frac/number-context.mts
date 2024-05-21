@@ -5,14 +5,6 @@ import {
   type OverflowContext,
 } from "../options.mts";
 
-const NOT_SCALE_ZERO: IsOverflow = (ctx) => ctx.scale > 0n;
-
-export const ROUND_OPTS = Object.fromEntries(
-  (
-    Object.keys(RoundingMode).map(Number).filter(isFinite) as RoundingMode[]
-  ).map((k) => [k, { overflow: NOT_SCALE_ZERO, roundingMode: k }]),
-) as Record<RoundingMode, MathOptions>;
-
 const DEF_OPT: IsOverflow = (ctx) => ctx.scale > 0n && ctx.precision > 20n;
 
 /**
