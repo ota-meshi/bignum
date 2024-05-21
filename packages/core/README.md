@@ -2,6 +2,14 @@
 
 Arbitrary-precision decimal arithmetic with BigInt.
 
+[![NPM license](https://img.shields.io/npm/l/@bignum/core.svg)](https://www.npmjs.com/package/@bignum/core)
+[![NPM version](https://img.shields.io/npm/v/@bignum/core.svg)](https://www.npmjs.com/package/@bignum/core)
+[![NPM downloads](https://img.shields.io/badge/dynamic/json.svg?label=downloads&colorB=green&suffix=/day&query=$.downloads&uri=https://api.npmjs.org//downloads/point/last-day/@bignum/core&maxAge=3600)](http://www.npmtrends.com/@bignum/core)
+[![NPM downloads](https://img.shields.io/npm/dw/@bignum/core.svg)](http://www.npmtrends.com/@bignum/core)
+[![NPM downloads](https://img.shields.io/npm/dm/@bignum/core.svg)](http://www.npmtrends.com/@bignum/core)
+[![NPM downloads](https://img.shields.io/npm/dy/@bignum/core.svg)](http://www.npmtrends.com/@bignum/core)
+[![NPM downloads](https://img.shields.io/npm/dt/@bignum/core.svg)](http://www.npmtrends.com/@bignum/core)
+
 ## 🚀 Features
 
 - Class for arbitrary-precision arithmetics using BigInt.

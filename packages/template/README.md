@@ -2,6 +2,14 @@
 
 Write formulas with template literals.
 
+[![NPM license](https://img.shields.io/npm/l/@bignum/template.svg)](https://www.npmjs.com/package/@bignum/template)
+[![NPM version](https://img.shields.io/npm/v/@bignum/template.svg)](https://www.npmjs.com/package/@bignum/template)
+[![NPM downloads](https://img.shields.io/badge/dynamic/json.svg?label=downloads&colorB=green&suffix=/day&query=$.downloads&uri=https://api.npmjs.org//downloads/point/last-day/@bignum/template&maxAge=3600)](http://www.npmtrends.com/@bignum/template)
+[![NPM downloads](https://img.shields.io/npm/dw/@bignum/template.svg)](http://www.npmtrends.com/@bignum/template)
+[![NPM downloads](https://img.shields.io/npm/dm/@bignum/template.svg)](http://www.npmtrends.com/@bignum/template)
+[![NPM downloads](https://img.shields.io/npm/dy/@bignum/template.svg)](http://www.npmtrends.com/@bignum/template)
+[![NPM downloads](https://img.shields.io/npm/dt/@bignum/template.svg)](http://www.npmtrends.com/@bignum/template)
+
 ## 🚀 Features
 
 - You can write formulas with template literals.\

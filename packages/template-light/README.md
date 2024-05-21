@@ -6,6 +6,14 @@ This is the light version of [@bignum/template]. It has significantly more limit
 
 [@bignum/template]: ../template/README.md
 
+[![NPM license](https://img.shields.io/npm/l/@bignum/template-light.svg)](https://www.npmjs.com/package/@bignum/template-light)
+[![NPM version](https://img.shields.io/npm/v/@bignum/template-light.svg)](https://www.npmjs.com/package/@bignum/template-light)
+[![NPM downloads](https://img.shields.io/badge/dynamic/json.svg?label=downloads&colorB=green&suffix=/day&query=$.downloads&uri=https://api.npmjs.org//downloads/point/last-day/@bignum/template-light&maxAge=3600)](http://www.npmtrends.com/@bignum/template-light)
+[![NPM downloads](https://img.shields.io/npm/dw/@bignum/template-light.svg)](http://www.npmtrends.com/@bignum/template-light)
+[![NPM downloads](https://img.shields.io/npm/dm/@bignum/template-light.svg)](http://www.npmtrends.com/@bignum/template-light)
+[![NPM downloads](https://img.shields.io/npm/dy/@bignum/template-light.svg)](http://www.npmtrends.com/@bignum/template-light)
+[![NPM downloads](https://img.shields.io/npm/dt/@bignum/template-light.svg)](http://www.npmtrends.com/@bignum/template-light)
+
 ## 🚀 Features
 
 - You can write formulas with template literals.\
