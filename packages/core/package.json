@@ -1,6 +1,6 @@
 {
   "name": "@bignum/core",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Arbitrary-precision decimal arithmetic with BigInt.",
   "type": "module",
   "main": "lib/index.js",
