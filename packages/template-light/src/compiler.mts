@@ -12,6 +12,10 @@ const PRECEDENCE = {
 } as const;
 type BinaryOperator = keyof typeof PRECEDENCE;
 const BINARY_OPERATORS = new Set(Object.keys(PRECEDENCE) as BinaryOperator[]);
+const enum Paren {
+  open = "(",
+  close = ")",
+}
 
 const BINARY_OPERATIONS = {
   "+": (a: Frac, b: Frac) => a.add(b),
@@ -26,83 +30,42 @@ type Compiled = <OPERAND extends string | number | bigint>(
 ) => Frac;
 
 const enum TokenType {
-  paren,
-  operator,
+  punctuator,
   operand,
 }
-type PunctuatorToken = { t: TokenType.paren; v: "(" | ")" };
-type OperatorToken = {
-  t: TokenType.operator;
-  v: BinaryOperator;
-};
-type OperandToken = {
-  t: TokenType.operand;
-  v: Compiled;
-};
-type Token = PunctuatorToken | OperatorToken | OperandToken;
+type PunctuatorToken<V> = V extends infer E extends string
+  ? { t: TokenType.punctuator; v: E }
+  : never;
+type ParenToken = PunctuatorToken<Paren>;
+type OperatorToken = PunctuatorToken<BinaryOperator>;
+type OperandToken = { t: TokenType.operand; v: Compiled };
+type Token = ParenToken | OperatorToken | OperandToken;
 
-const RE_SP = /\s*/uy;
-
-const TOKENS: (PunctuatorToken | OperatorToken)[] = [
-  { t: TokenType.paren, v: "(" },
-  { t: TokenType.paren, v: ")" },
-  ...[...BINARY_OPERATORS].map(
-    (v): OperatorToken => ({
-      t: TokenType.operator,
-      v,
-    }),
-  ),
-];
-
-type Tokenizer = {
-  finished: () => boolean;
-  next: () => Token;
-};
+const TOKEN_CHARS: Set<Paren | BinaryOperator> = new Set([
+  ...BINARY_OPERATORS,
+  Paren.open,
+  Paren.close,
+]);
 
 /**
- * Build Tokenizer
+ * Template elements to tokens
  */
-function buildTokenizer(elements: readonly string[]): Tokenizer {
-  const buffer: OperandToken[] = [];
-  let index = 0;
-  let position = 0;
-  updated();
-
-  /** Get next token and consume */
-  function next(): Token {
-    if (buffer.length) return buffer.shift()!;
-    const curr = elements[index];
-    for (const token of TOKENS) {
-      if (token.v === curr[position]) {
-        position += 1;
-        updated();
-        return token;
-      }
+function* tokens(elements: readonly string[]): Iterable<Token> {
+  for (let index = 0; index < elements.length; index++) {
+    for (const ch of elements[index].split(/\s*/u).filter(Boolean)) {
+      if (!TOKEN_CHARS.has(ch as Paren | BinaryOperator))
+        throw new SyntaxError(`Unexpected character: ${ch}`);
+      yield {
+        t: TokenType.punctuator,
+        v: ch as Paren | BinaryOperator,
+      };
     }
-    throw new SyntaxError(`Unexpected token`);
-  }
-
-  return {
-    finished: () => elements.length <= index && !buffer.length,
-    next,
-  };
-
-  /** Postprocess for updated position. */
-  function updated() {
-    const curr = elements[index];
-    RE_SP.lastIndex = position;
-    position += RE_SP.exec(curr)![0].length;
-    if (position >= curr.length) {
-      const curIndex = index;
-      index++;
-      if (elements.length > index) {
-        position = 0;
-        buffer.push({
-          t: TokenType.operand,
-          v: (params) => valueOf(params[curIndex]),
-        });
-        updated();
-      }
+    if (elements.length > index + 1) {
+      const target = index;
+      yield {
+        t: TokenType.operand,
+        v: (params) => valueOf(params[target]),
+      };
     }
   }
 }
@@ -111,43 +74,47 @@ function buildTokenizer(elements: readonly string[]): Tokenizer {
  * Parse and evaluate a template string with operands.
  */
 export function compile(templateElements: readonly string[]): Compiled {
-  const tokenizer = buildTokenizer(templateElements);
+  const tokenizer = tokens(templateElements)[Symbol.iterator]();
   const result = parse(tokenizer);
-  if (!tokenizer.finished()) throw new SyntaxError(`Parsing error`);
+  if (!tokenizer.next().done) throw new SyntaxError(`Parsing error`);
   return result;
 }
 
 /**
  * Parse a template string.
  */
-function parse(tokenizer: Tokenizer): Compiled {
+function parse(tokenizer: Iterator<Token>): Compiled {
   return parseOperand(false).v;
 
   /** Parse for operand */
   function parseOperand(inParen: boolean): OperandToken {
-    const stack: Token[] = [];
+    const stack: (OperandToken | OperatorToken)[] = [];
     let hasCloseParen = false;
 
-    while (!tokenizer.finished()) {
-      const token = tokenizer.next();
-      if (token.t === TokenType.paren) {
-        if (token.v === ")") {
+    while (true) {
+      const tokenResult = tokenizer.next();
+      if (tokenResult.done) break;
+      const token = tokenResult.value;
+      if (token.t === TokenType.punctuator) {
+        if (token.v === Paren.close) {
           if (!inParen) throw new SyntaxError(`Unexpected token: ${token.v}`);
           hasCloseParen = true;
           break;
         }
-        const operand = parseOperand(true);
-        stack.push(operand);
-      } else if (token.t === TokenType.operator) {
-        if (stack.length >= 3) {
-          const beforeOpToken = stack[stack.length - 2];
-          if (
-            beforeOpToken.t === TokenType.operator &&
-            PRECEDENCE[token.v] <= PRECEDENCE[beforeOpToken.v]
-          )
-            stack.push(processBinary(stack));
+        if (token.v === Paren.open) {
+          const operand = parseOperand(true);
+          stack.push(operand);
+        } else {
+          if (stack.length >= 3) {
+            const beforeOpToken = stack[stack.length - 2];
+            if (
+              beforeOpToken.t === TokenType.punctuator &&
+              PRECEDENCE[token.v] <= PRECEDENCE[beforeOpToken.v]
+            )
+              stack.push(processBinary(stack));
+          }
+          stack.push(token);
         }
-        stack.push(token);
       } else if (token.t === TokenType.operand) {
         stack.push(token);
       } else {
@@ -165,7 +132,9 @@ function parse(tokenizer: Tokenizer): Compiled {
   /**
    * Process for binary expression
    */
-  function processBinary(stack: Token[]): OperandToken {
+  function processBinary(
+    stack: (OperandToken | OperatorToken)[],
+  ): OperandToken {
     const right = stack.pop();
     const op = stack.pop();
     const left = stack.pop();
@@ -174,7 +143,7 @@ function parse(tokenizer: Tokenizer): Compiled {
       !left ||
       left.t !== TokenType.operand ||
       !op ||
-      op.t !== TokenType.operator ||
+      op.t !== TokenType.punctuator ||
       !BINARY_OPERATORS.has(op.v) ||
       !right ||
       right.t !== TokenType.operand

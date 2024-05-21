@@ -4,10 +4,7 @@ const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 export function valueOf(
   value: string | number | bigint | boolean | Frac,
 ): Frac {
-  if (value == null) throw new Error(`Invalid value: ${value}`);
   if (value instanceof Frac) return value;
-  if (value === Infinity) return new Frac(1n, 0n);
-  if (value === -Infinity) return new Frac(-1n, 0n);
   return parsePrimValue(value);
 }
 

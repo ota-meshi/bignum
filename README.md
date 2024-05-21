@@ -4,12 +4,12 @@ A various JavaScript utility library for performing arbitrary-precision arithmet
 
 ## 🚀 Packages
 
-- [@bignum/core](./packages/core)
+- [@bignum/core](./packages/core/README.md)
   - Arbitrary-precision decimal arithmetic with BigInt.
-- [@bignum/template](./packages/template)
+- [@bignum/template](./packages/template/README.md)
   - Write formulas with template literals.
-- [@bignum/template-light](./packages/template-light)
-  - Write formulas with template literals.
+- [@bignum/template-light](./packages/template-light/README.md)
+  - Write formulas with template literals. (**light version**)
 
 ## 📖 Basic Examples
 

@@ -176,7 +176,7 @@ import { BigNumBasic } from "@bignum/core";
 
 If you want something smaller, use BigNumBasic.
 
-It supports four arithmetic APIs and a basic API, which can be reduced to just 5kb with tree shaking and minification.\
+It supports four arithmetic APIs and a basic API, which can be reduced to just 4kb with tree shaking and minification.\
 However, the API it provides is still experimental.
 
 ## 🛸 Prior Art
