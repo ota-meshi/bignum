@@ -1,5 +1,6 @@
 /* eslint @typescript-eslint/no-shadow: 0 -- ignore check */
-import { assert } from "chai";
+import chai, { assert } from "chai";
+import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
 
 type BTest = {
@@ -138,6 +139,7 @@ const U_TESTS: UTest[] = [
   },
 ];
 
+chai.use(jestSnapshotPlugin());
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
@@ -173,6 +175,10 @@ describe("Calc tests", () => {
       [-873.03785, -110],
       [-1.38016, -539],
       [0.97595, 771],
+      [974.79177, -318],
+      [8.7411, 274],
+      [-135.22035, -321],
+      [-706.23193, -112],
     ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(Number(a), Number(b))) return;
@@ -185,7 +191,8 @@ describe("Calc tests", () => {
           const bb = new BigNum(b);
           const actual = t.b(ba, bb);
           const expect = t.n(Number(a), Number(b));
-          lazyAssert(actual, expect);
+          lazyAssert(name, actual, expect);
+          chai.expect(JSON.stringify(actual)).toMatchSnapshot();
         });
       });
     }
@@ -213,7 +220,8 @@ describe("Calc tests", () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
         const expect = t.n(Number(a));
-        lazyAssert(actual, expect);
+        lazyAssert(name, actual, expect);
+        chai.expect(JSON.stringify(actual)).toMatchSnapshot();
       });
     }
   }
@@ -261,9 +269,10 @@ describe("Infinity tests", () => {
 });
 
 describe("Random tests", () => {
+  const randomCount = 100;
   for (const t of B_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 100; index++) {
+    for (let index = 0; index < randomCount; index++) {
       const a = random(set);
       const b = random(set);
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
@@ -275,14 +284,14 @@ describe("Random tests", () => {
           const bb = new BigNum(b);
           const actual = t.b(ba, bb);
           const expect = t.n(a, b);
-          lazyAssert(actual, expect);
+          lazyAssert(name, actual, expect);
         });
       });
     }
   }
   for (const t of U_TESTS) {
     const set = new Set<number>();
-    for (let index = 0; index < 100; index++) {
+    for (let index = 0; index < randomCount; index++) {
       const a = random(set);
       if (t.ignore?.(Number(a))) return;
       const name = typeof t.fn === "function" ? t.fn(a) : `${t.fn}(${a})`;
@@ -290,7 +299,7 @@ describe("Random tests", () => {
         const ba = new BigNum(a);
         const actual = t.b(ba);
         const expect = t.n(a);
-        lazyAssert(actual, expect);
+        lazyAssert(name, actual, expect);
       });
     }
   }
@@ -315,7 +324,7 @@ describe("Random tests", () => {
 /**
  * Lazy assert function
  */
-function lazyAssert(actual: BigNum, expect: number) {
+function lazyAssert(name: string, actual: BigNum, expect: number) {
   if (!actual.isFinite()) {
     assert.strictEqual(`${actual}`, `${expect}`);
     return;
@@ -330,8 +339,9 @@ function lazyAssert(actual: BigNum, expect: number) {
     return;
   }
   if (expect === Infinity) {
-    assert.ok(
-      actual.signum() === 1,
+    assert.strictEqual(
+      actual.signum(),
+      1,
       `Check signum. Actual=${actual} Expect=${expect}`,
     );
     assert.ok(
@@ -341,8 +351,9 @@ function lazyAssert(actual: BigNum, expect: number) {
     return;
   }
   if (expect === -Infinity) {
-    assert.ok(
-      actual.signum() === -1,
+    assert.strictEqual(
+      actual.signum(),
+      -1,
       `Check signum. Actual=${actual} Expect=${expect}`,
     );
     assert.ok(
@@ -351,60 +362,113 @@ function lazyAssert(actual: BigNum, expect: number) {
     );
     return;
   }
+  if (expect === 1) {
+    assert.strictEqual(
+      Number(`${actual}`),
+      expect,
+      `Lazy comparison for 1. Actual=${actual} Expect=${expect}`,
+    );
+    return;
+  }
   const diff = actual.subtract(expect).abs();
   if (diff.signum() === 0) {
     assert.ok(diff.signum() === 0, `${actual} === ${expect}`);
     return;
   }
-  let tolerance: BigNum;
-  const matchE = /^(-?\d+(?:\.\d+)?)e([+-]?\d+)$/iu.exec(`${expect}`);
-  if (matchE) {
-    const matchA = /^(-?\d+(?:\.\d+)?)e([+-]?\d+)$/iu.exec(
-      `${Number(`${actual}`)}`,
-    );
-    const match =
-      matchA && matchA[1].length < matchE[1].length ? matchA : matchE;
 
-    const exponent = BigNum.valueOf(match[2]);
-    const significantNum = match[1].replace(/\D/gu, "");
-    if (significantNum.length === 1) {
-      tolerance = BigNum.valueOf(1)
-        .scaleByPowerOfTen(exponent)
-        .scaleByPowerOfTen(exponent.compareTo(-300) > 0 ? 0 : 1);
-    } else {
-      tolerance = BigNum.valueOf(1)
-        .scaleByPowerOfTen(-significantNum.length)
-        .scaleByPowerOfTen(exponent)
-        .scaleByPowerOfTen(
-          exponent.abs().compareTo(8) < 0
-            ? 2
-            : exponent.abs().compareTo(15) < 0
-              ? Math.round(significantNum.length / 6)
-              : exponent.abs().compareTo(70) < 0
-                ? Math.floor(significantNum.length / 5)
-                : exponent.abs().compareTo(270) < 0
-                  ? Math.floor(significantNum.length / 4)
-                  : exponent.compareTo(-300) > 0
-                    ? Math.floor(significantNum.length / 3)
-                    : Math.floor(significantNum.length / 1.2),
-        );
-    }
-  } else {
-    tolerance = actual.abs().divide(1000000000);
-  }
-  assert.ok(
-    tolerance.negate().compareTo(diff) <= 0 && diff.compareTo(tolerance) <= 0,
-    `Lazy comparison.
+  const actualChars = [...`${actual}`];
+  const expectChars = [...`${BigNum.valueOf(expect)}`];
+  const diffChars = [
+    ...`${" ".repeat(`${actual}`.split(".")[0].length - `${diff}`.split(".")[0].length)}${diff}`,
+  ];
+
+  const message = `Lazy comparison.
+Expression=${name}
 Actual(BigNum)=
 ${actual}
 Expect(BigNum)=
-${BigNum.valueOf(expect)}
-Tolerance=
-${" ".repeat(`${actual.trunc()}`.length - `${tolerance.trunc()}`.length)}${tolerance}
+${expectChars.join("")}
 Diff=
-${" ".repeat(`${actual.trunc()}`.length - `${diff.trunc()}`.length)}${diff}
+${diffChars.join("")}
 Expect(number)=
 ${expect}
-`,
-  );
+`;
+  const matchE = /^-?\d+(?:\.\d+)?e[+-]?\d+$/iu.exec(`${expect}`);
+  const expectSignificant = matchE && matchE[0].split("e")[0];
+  const _expectSignificantE = matchE && Number(matchE?.[0].split("e")[1] || 0);
+
+  if (actualChars[0] === "-") {
+    assert.strictEqual(actualChars.shift(), expectChars.shift(), message);
+    assert.strictEqual(diffChars.shift(), " ", message);
+  }
+  while (actualChars[0] === "0" || actualChars[0] === ".") {
+    let ch;
+    assert.strictEqual(
+      actualChars.shift(),
+      (ch = expectChars.shift()),
+      message,
+    );
+    assert.strictEqual(diffChars.shift(), ch, message);
+  }
+  const numOfSignificant = expectSignificant
+    ? Math.min(
+        expectSignificant.length,
+        actualChars.join("").replace(/0+$/u, "").length,
+        expectChars.join("").replace(/0+$/u, "").length,
+      )
+    : Math.min(actualChars.length, expectChars.length);
+  if (numOfSignificant === 0) {
+    console.log(message);
+  }
+  for (let i = 0; i < numOfSignificant; i++) {
+    if (actualChars[i] === expectChars[i]) continue;
+    const ratio = i / numOfSignificant;
+    // Difference check 1:
+    // It is OK if 82.3% of the number of significant digits matches.
+    if (ratio >= 0.823) {
+      // OK
+      break;
+    }
+    // Difference check 2:
+    // It is OK if 80% of the number of significant digits matches
+    // and the target digit of the difference value is 0.
+    if (ratio >= 0.8 && diffChars[i] === "0") {
+      // OK
+      break;
+    }
+    // Difference check 3:
+    // It is OK if 62.5% of the number of significant digits matches
+    // and the difference between the numerical values of the target digit is 1 or less.
+    const digitDiff = Number(actualChars[i]) - Number(expectChars[i]);
+    if (ratio >= 0.625 && digitDiff >= -1 && digitDiff <= 1) {
+      // OK
+      break;
+    }
+    // Difference check 4:
+    // It is OK if the number of significant digits is 2 or less
+    // and the value of the target digit of the difference value is 1 or less.
+    const diffDigit = Number(diffChars[i]);
+    if (numOfSignificant <= 2 && diffDigit >= -1 && diffDigit <= 1) {
+      // OK
+      break;
+    }
+    // Difference check 5:
+    // It is OK if 80% of the number of significant digits matches
+    // and the value of the target digit of the difference value is 1 or less.
+    if (ratio >= 0.8 && diffDigit >= -1 && diffDigit <= 1) {
+      // OK
+      break;
+    }
+    // Difference check 6:
+    // It is OK if the number of significant digits is 6 or less
+    // and 33.3% of the number of significant digits matches
+    // and the difference between the numerical values of the target digit is 1 or less.
+    if (numOfSignificant <= 6 && i >= 2 && digitDiff >= -1 && digitDiff <= 1) {
+      // OK
+      break;
+    }
+    console.log(ratio, message);
+    assert.fail(message);
+    break;
+  }
 }

@@ -23,6 +23,14 @@ export default defineConfig([
     format: ["esm"],
     outDir: "temp",
     target: "node18",
+  },
+  {
+    entryPoints: {
+      "bignum-basic.min": "src/bignum-basic.mts",
+    },
+    format: ["esm"],
+    outDir: "temp",
+    target: "node18",
     minify: true,
   },
 ]);
