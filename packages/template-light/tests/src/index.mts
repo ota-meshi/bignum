@@ -11,8 +11,7 @@ describe("standard tests", () => {
     // subtract
     test`${0.3} - ${0.1}`, // 0.2
     // multiply
-    test`${0.000002} * ${10}`, // 1
-    test`${0.1} * ${10}`, // 1
+    test`${0.07} * ${100}`, // 7
     // divide
     test`${0.6} / ${0.2}`, // 0.3
     // modulo
@@ -23,6 +22,8 @@ describe("standard tests", () => {
     /* Unary Operators */
     test`${0.3} + ${-0.1}`, // 0.2
 
+    test`${0.000002} * ${10}`, // 0.000002
+    test`${0.1} * ${10}`, // 1
     test`${1} + ${2}`,
     test`${0.1} + ${0.1} * ${2}`,
     test`${1}+${2}`,

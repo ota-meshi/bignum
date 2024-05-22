@@ -66,6 +66,8 @@ exports[`Compare tests \`0.3 - 0.1 >= 0.2\` 1`] = `1`;
 
 exports[`standard tests \`\${0.000002} * \${10}\` 1`] = `0.00002`;
 
+exports[`standard tests \`\${0.07} * \${100}\` 1`] = `7`;
+
 exports[`standard tests \`\${0.1} + 0.1 * 2\` 1`] = `0.3`;
 
 exports[`standard tests \`\${0.3} + -\${0.1}\` 1`] = `0.2`;
@@ -91,6 +93,8 @@ exports[`standard tests \`-1.23e42+1\` 1`] = `"-12299999999999999999999999999999
 exports[`standard tests \`0 > 1\` 1`] = `0`;
 
 exports[`standard tests \`0 >= 1\` 1`] = `0`;
+
+exports[`standard tests \`0.07 * 100\` 1`] = `7`;
 
 exports[`standard tests \`0.1 * 10\` 1`] = `1`;
 
