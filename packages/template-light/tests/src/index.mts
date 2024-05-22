@@ -13,7 +13,7 @@ describe("standard tests", () => {
     // multiply
     test`${0.07} * ${100}`, // 7
     // divide
-    test`${0.6} / ${0.2}`, // 0.3
+    test`${0.6} / ${0.2}`, // 3
     // modulo
     test`${0.6} % ${0.2}`, // 0
     /* Parentheses */
