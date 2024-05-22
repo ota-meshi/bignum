@@ -1,5 +1,11 @@
 # @bignum/template
 
+## 0.2.9
+
+### Patch Changes
+
+- docs: fix readme ([#52](https://github.com/ota-meshi/bignum/pull/52))
+
 ## 0.2.8
 
 ### Patch Changes
