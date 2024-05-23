@@ -900,6 +900,18 @@ exports[`Calc tests 5 compareTo -5 1`] = `"1"`;
 
 exports[`Calc tests 5 compareTo 4 1`] = `"1"`;
 
+exports[`Calc tests 7 % 683.28419 1`] = `"7"`;
+
+exports[`Calc tests 7 * 683.28419 1`] = `"4782.98933"`;
+
+exports[`Calc tests 7 + 683.28419 1`] = `"690.28419"`;
+
+exports[`Calc tests 7 / 683.28419 1`] = `"\\"0.010244639203491595495\\""`;
+
+exports[`Calc tests 7 - 683.28419 1`] = `"-676.28419"`;
+
+exports[`Calc tests 7 compareTo 683.28419 1`] = `"-1"`;
+
 exports[`Calc tests 8 % 3 1`] = `"2"`;
 
 exports[`Calc tests 8 * 3 1`] = `"24"`;
@@ -1217,6 +1229,26 @@ exports[`Calc tests 274 / 8.7411 1`] = `"\\"31.346169246433515232\\""`;
 exports[`Calc tests 274 - 8.7411 1`] = `"265.2589"`;
 
 exports[`Calc tests 274 compareTo 8.7411 1`] = `"1"`;
+
+exports[`Calc tests 683.28419 % 7 1`] = `"4.28419"`;
+
+exports[`Calc tests 683.28419 * 7 1`] = `"4782.98933"`;
+
+exports[`Calc tests 683.28419 * 10 ** 7 1`] = `"6832841900"`;
+
+exports[`Calc tests 683.28419 ** (1/7) 1`] = `"\\"2.5406395424073547939\\""`;
+
+exports[`Calc tests 683.28419 ** /*pow*/ (1/7) 1`] = `"\\"2.5406395424073547939\\""`;
+
+exports[`Calc tests 683.28419 ** 7 1`] = `"\\"69535983914119081764.39308801341559844495443455119354539\\""`;
+
+exports[`Calc tests 683.28419 + 7 1`] = `"690.28419"`;
+
+exports[`Calc tests 683.28419 / 7 1`] = `"\\"97.612027142857142857\\""`;
+
+exports[`Calc tests 683.28419 - 7 1`] = `"676.28419"`;
+
+exports[`Calc tests 683.28419 compareTo 7 1`] = `"1"`;
 
 exports[`Calc tests 771 % 0.97595 1`] = `"0.97545"`;
 
