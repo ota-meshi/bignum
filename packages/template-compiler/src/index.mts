@@ -25,7 +25,7 @@ type OperandToken = DefineToken<TokenType.operand, BTCompiled>;
 type IdentifierToken = DefineToken<TokenType.identifier, string>;
 type Token = PunctuatorToken | OperatorToken | OperandToken | IdentifierToken;
 
-const RE_SP = /\s*/uy;
+const RE_SP = /\s+/u;
 type TokenProcessor = {
   re: { lastIndex: number; exec(s: string): null | string[] };
   create: (v: string) => Token;
@@ -65,7 +65,7 @@ const TOKEN_PROC: TokenProcessor[] = [
 ];
 
 type Tokenizer = {
-  finished: () => boolean;
+  finished: () => boolean | undefined;
   next: () => Token;
   lookahead: () => Token | null;
 };
@@ -78,63 +78,62 @@ function identity(token: OperandToken): OperandToken {
 /**
  * Build Tokenizer
  */
-function buildTokenizer(elements: ArrayLike<string>): Tokenizer {
-  let finished = false;
+function buildTokenizer(elements: readonly string[]): Tokenizer {
   const buffer: Token[] = [];
-  let curr = elements[0];
-  let index = 0;
-  let position = 0;
-  updated();
+  const tokens = splitTokens(elements)[Symbol.iterator]();
+  let item = tokens.next();
 
   /** Get next token and consume */
   function next(): Token {
     if (buffer.length) return buffer.shift()!;
-    for (const { re, create } of TOKEN_PROC) {
-      re.lastIndex = position;
-      const token = re.exec(curr)?.[0];
-      if (token) {
-        position += token.length;
-        updated();
-        return create(token);
-      }
-    }
-    throw new SyntaxError(`Unexpected token`);
+    const token = (item as IteratorYieldResult<Token>).value;
+    item = tokens.next();
+    return token;
   }
 
   /** Lookahead token */
   function lookahead(): Token | null {
     if (buffer.length) return buffer[0];
-    if (finished) return null;
+    if (item.done) return null;
     const nextToken = next();
     buffer.unshift(nextToken);
     return nextToken;
   }
 
   return {
-    finished: () => finished && !buffer.length,
+    finished: () => item.done && !buffer.length,
     next,
     lookahead,
   };
+}
 
-  /** Postprocess for updated position. */
-  function updated() {
-    RE_SP.lastIndex = position;
-    position += RE_SP.exec(curr)![0].length;
-    if (position >= curr.length) {
-      const curIndex = index;
-      if (elements.length <= curIndex + 1) {
-        finished = true;
-      } else {
-        curr = elements[++index];
-        position = 0;
-        buffer.push({
-          t: TokenType.operand,
-          v: (params) => params[curIndex],
-        });
-        updated();
-      }
+/**
+ * Template elements to tokens
+ */
+function* splitTokens(elements: readonly string[]): Iterable<Token> {
+  for (const [index, element] of elements.entries()) {
+    yield* element.split(RE_SP).flatMap((word) => wordTokens(word));
+    if (elements.length > index + 1)
+      yield {
+        t: TokenType.operand,
+        v: (params) => params[index],
+      };
+  }
+}
+
+/**
+ * Word to tokens
+ */
+function wordTokens(word: string, position = 0): Token[] {
+  if (word.length <= position) return [];
+  for (const { re, create } of TOKEN_PROC) {
+    re.lastIndex = position;
+    const token = re.exec(word)?.[0];
+    if (token) {
+      return [create(token), ...wordTokens(word, position + token.length)];
     }
   }
+  throw new SyntaxError(`Unexpected token`);
 }
 
 /**

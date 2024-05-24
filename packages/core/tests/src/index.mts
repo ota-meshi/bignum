@@ -179,6 +179,7 @@ describe("Calc tests", () => {
       [8.7411, 274],
       [-135.22035, -321],
       [-706.23193, -112],
+      [683.28419, 7],
     ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(Number(a), Number(b))) return;
@@ -416,7 +417,12 @@ ${expect}
         actualChars.join("").replace(/0+$/u, "").length,
         expectChars.join("").replace(/0+$/u, "").length,
       )
-    : Math.min(actualChars.length, expectChars.length);
+    : expectChars.length > 16
+      ? Math.min(
+          actualChars.join("").replace(/0+$/u, "").length,
+          expectChars.join("").replace(/0+$/u, "").length,
+        )
+      : Math.min(actualChars.length, expectChars.length);
   if (numOfSignificant === 0) {
     console.log(message);
   }

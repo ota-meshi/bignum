@@ -51,8 +51,8 @@ const TOKEN_CHARS: Set<Paren | BinaryOperator> = new Set([
  * Template elements to tokens
  */
 function* tokens(elements: readonly string[]): Iterable<Token> {
-  for (let index = 0; index < elements.length; index++) {
-    for (const ch of elements[index].split(/\s*/u).filter(Boolean)) {
+  for (const [index, element] of elements.entries()) {
+    for (const ch of element.split(/\s*/u).filter(Boolean)) {
       if (!TOKEN_CHARS.has(ch as Paren | BinaryOperator))
         throw new SyntaxError(`Unexpected character: ${ch}`);
       yield {
@@ -61,10 +61,9 @@ function* tokens(elements: readonly string[]): Iterable<Token> {
       };
     }
     if (elements.length > index + 1) {
-      const target = index;
       yield {
         t: TokenType.operand,
-        v: (params) => valueOf(params[target]),
+        v: (params) => valueOf(params[index]),
       };
     }
   }
