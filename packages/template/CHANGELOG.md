@@ -1,5 +1,16 @@
 # @bignum/template
 
+## 0.3.0
+
+### Minor Changes
+
+- minor refactor ([#55](https://github.com/ota-meshi/bignum/pull/55))
+
+### Patch Changes
+
+- Updated dependencies [[`1fffee1e5f18d24ae1f332868ff8a4f0a894bae6`](https://github.com/ota-meshi/bignum/commit/1fffee1e5f18d24ae1f332868ff8a4f0a894bae6)]:
+  - @bignum/template-compiler@0.3.0
+
 ## 0.2.9
 
 ### Patch Changes
