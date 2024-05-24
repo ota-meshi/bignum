@@ -1,6 +1,6 @@
 {
   "name": "@bignum/template",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "description": "Write formulas with template literals.",
   "type": "module",
   "main": "lib/index.js",
@@ -61,7 +61,7 @@
   "dependencies": {
     "@bignum/core": "^0.12.0",
     "@bignum/shared": "^0.1.2",
-    "@bignum/template-compiler": "^0.2.0"
+    "@bignum/template-compiler": "^0.3.0"
   },
   "devDependencies": {}
 }

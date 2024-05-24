@@ -1,5 +1,11 @@
 # @bignum/template-light
 
+## 0.2.0
+
+### Minor Changes
+
+- minor refactor ([#54](https://github.com/ota-meshi/bignum/pull/54))
+
 ## 0.1.1
 
 ### Patch Changes
