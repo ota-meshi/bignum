@@ -23,7 +23,7 @@ const RE_VALID_INTEGER = /^[+-]?(?:[1-9]\d*|0)$/u;
 function normalize(value: BigNum | string | number | bigint) {
   if (value instanceof BigNum || typeof value === "bigint") return value;
   if (typeof value === "number") {
-    if (Math.trunc(value) === value) return BigInt(value);
+    if (Number.isSafeInteger(value)) return BigInt(value);
   } else if (typeof value === "string") {
     if (RE_VALID_INTEGER.test(value)) return BigInt(value);
   }

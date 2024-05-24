@@ -488,8 +488,23 @@ describe("standard tests", () => {
     },
     () => {
       const v = BigNumBasic.valueOf(123.456);
+      // Same instance
+      return v === BigNumBasic.valueOf(v);
+    },
+    () => {
+      const v = BigNumBasic.valueOf(123.456);
+      // Same instance
+      return v === new BigNumBasic(v);
+    },
+    () => {
+      const v = BigNumBasic.valueOf(123.456);
       // Not same instance
       return v === new BigNum(v);
+    },
+    () => {
+      const v = BigNum.valueOf(123.456);
+      // Not same instance
+      return v === new BigNumBasic(v);
     },
     () => BigNum.valueOf(null as any),
     () => BigNum.valueOf("foo"),
