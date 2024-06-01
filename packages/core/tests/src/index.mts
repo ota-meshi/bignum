@@ -129,6 +129,7 @@ const U_TESTS: UTest[] = [
   },
   {
     fn: (a) => `${a} ** (1/2)`,
+    // eslint-disable-next-line math/prefer-math-sqrt -- ignore for test
     n: (a) => a ** 0.5,
     b: (a: BigNum) => a.nthRoot(2),
   },

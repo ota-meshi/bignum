@@ -1,4 +1,5 @@
 import plugin from "@ota-meshi/eslint-plugin";
+import eslintPluginMath from "eslint-plugin-math";
 import tseslint from "typescript-eslint";
 export default [
   ...plugin.config({
@@ -8,6 +9,7 @@ export default [
     packageJson: true,
     prettier: true,
   }),
+  eslintPluginMath.configs.recommended,
   {
     files: ["*.ts", "**/*.ts", "*.mts", "**/*.mts"],
     languageOptions: {
