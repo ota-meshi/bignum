@@ -17,7 +17,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "clean": "rimraf .nyc_output lib coverage",
-    "lint": "eslint . --ext .js,.ts,.json",
+    "lint": "eslint .",
     "eslint-fix": "npm run lint -- --fix && prettier **/README.md --write",
     "pretest": "npm run build",
     "test": "npm run test --workspaces --if-present",
@@ -55,7 +55,7 @@
     "@typescript-eslint/parser": "^7.3.1",
     "c8": "^9.0.0",
     "chai": "^4.3.4",
-    "eslint": "^8.3.0",
+    "eslint": "^9.4.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-jsdoc": "^48.2.4",
@@ -71,6 +71,7 @@
     "rimraf": "^5.0.0",
     "ts-node": "^10.4.0",
     "tsup": "^8.0.0",
-    "typescript": "~5.4.0"
+    "typescript": "~5.4.0",
+    "typescript-eslint": "^7.11.0"
   }
 }

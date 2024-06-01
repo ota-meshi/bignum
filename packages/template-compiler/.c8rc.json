@@ -1,5 +1,5 @@
 {
-    "include": ["src/**/*.mts"],
-    "reporter": ["lcov", "text-summary"],
-    "extension": [".mts",".cts", ".ts", ".mjs", ".cjs", ".js"]
+  "include": ["src/**/*.mts"],
+  "reporter": ["lcov", "text-summary"],
+  "extension": [".mts", ".cts", ".ts", ".mjs", ".cjs", ".js"]
 }
