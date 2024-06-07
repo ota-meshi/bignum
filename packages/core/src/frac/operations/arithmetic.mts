@@ -106,6 +106,36 @@ export function sqrt(x: Frac, options?: MathOptions): Frac | null {
   return numOf(...numCtx.toNum());
 }
 
+/**
+ * Converts a string to a Frac.
+ * @param str A string to convert into a number.
+ * @param radix A value between 2 and 36 that specifies the base of the number in `str`.
+ */
+export function parse(str: string, radix: number): Frac | null {
+  const radixInt = BigInt(radix);
+  const chars = [...str];
+  const sign = (chars[0] === "-" || chars[0] === "+") && chars.shift();
+  let n = 0n;
+  let c: string | undefined;
+  while ((c = chars.shift())) {
+    if (c === ".") break;
+    const int = parseInt(c, radix);
+    if (isNaN(int)) return null;
+    n = n * radixInt + BigInt(int);
+  }
+  let d = 1n;
+  for (const [i, digit] of chars.entries()) {
+    const int = parseInt(digit, radix);
+    if (isNaN(int)) return null;
+    if (!int) continue;
+    const dd = radixInt ** BigInt(i + 1);
+    n = n * dd + d * BigInt(int);
+    d *= dd;
+  }
+
+  return new Frac(sign !== "-" ? n : -n, d);
+}
+
 /** pow() by bigint fractions */
 function _pow(
   base: Frac,

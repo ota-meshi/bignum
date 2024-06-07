@@ -1,5 +1,6 @@
 import {
   nthRoot,
+  parse,
   pow,
   scaleByPowerOfTen,
   sqrt,
@@ -15,6 +16,10 @@ export class BigNum extends BigNumBasic {
       return value;
     }
     return new BigNum(value);
+  }
+
+  public static parse(str: string, radix: number): BigNum {
+    return new BigNum(parse(str, radix));
   }
 
   /** Returns a BigNum whose value is `this**n`. */
