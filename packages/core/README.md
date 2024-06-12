@@ -55,6 +55,10 @@ Note that numbers that have already lost precision are not handled well.
 Translates a value into a BigNum.\
 Same as constructor, but if given a BigNum instance, that instance is returned.
 
+### BigNum.parse(string, radix): BigNum
+
+Converts a string to a BigNum.
+
 ### BigNum.prototype.add(augend): BigNum
 
 Returns a BigNum whose value is (this + augend).

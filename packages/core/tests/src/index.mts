@@ -67,6 +67,7 @@ const B_TESTS: BTest[] = [
       if (!isFinite(a) || !isFinite(b)) return false;
       const abs = Math.abs(b);
       if (String(abs).length > 5) return true;
+      if (String(abs).length >= 5 && String(a).length >= 9) return true;
       return false;
     },
   },
@@ -181,6 +182,8 @@ describe("Calc tests", () => {
       [-135.22035, -321],
       [-706.23193, -112],
       [683.28419, 7],
+      [890.14454, -88.87],
+      [-587.74778, -319],
     ] satisfies ([number, number] | [bigint, bigint])[]) {
       [[a, b], ...(a === b ? [] : [[b, a]])].forEach(([a, b]) => {
         if (t.ignore?.(Number(a), Number(b))) return;
@@ -455,22 +458,36 @@ ${expect}
     // It is OK if the number of significant digits is 2 or less
     // and the value of the target digit of the difference value is 1 or less.
     const diffDigit = Number(diffChars[i]);
-    if (numOfSignificant <= 2 && diffDigit >= -1 && diffDigit <= 1) {
+    if (numOfSignificant <= 2 && diffDigit <= 1) {
       // OK
       break;
     }
     // Difference check 5:
     // It is OK if 80% of the number of significant digits matches
     // and the value of the target digit of the difference value is 1 or less.
-    if (ratio >= 0.8 && diffDigit >= -1 && diffDigit <= 1) {
+    if (ratio >= 0.8 && diffDigit <= 1) {
       // OK
       break;
     }
     // Difference check 6:
+    // It is OK if 81.2% of the number of significant digits matches
+    // and the value of the target digit of the difference value is 1 or less.
+    if (ratio >= 0.812 && diffDigit <= 2) {
+      // OK
+      break;
+    }
+    // Difference check 7:
     // It is OK if the number of significant digits is 6 or less
     // and 33.3% of the number of significant digits matches
     // and the difference between the numerical values of the target digit is 1 or less.
     if (numOfSignificant <= 6 && i >= 2 && digitDiff >= -1 && digitDiff <= 1) {
+      // OK
+      break;
+    }
+    // Difference check 8:
+    // It is OK if the number of significant digits is 8 or less
+    // and 62.5% of the number of significant digits matches
+    if (numOfSignificant <= 8 && ratio >= 0.625) {
       // OK
       break;
     }

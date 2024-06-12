@@ -521,6 +521,49 @@ describe("standard tests", () => {
     () => BigNum.valueOf(6.758057543099835e41),
     () => BigNum.valueOf(Number.MAX_VALUE).add(12345),
     () => BigNum.valueOf(Number.MIN_VALUE).subtract(12345),
+    () => {
+      return [
+        BigNum.parse("11111111.000110011001101", 2),
+        BigNum.parse("377.06315", 8),
+        BigNum.parse("ff.199a", 16),
+      ];
+    },
+    () => {
+      return [
+        BigNum.parse(
+          "0.0001100110011001100110011001100110011001100110011001101",
+          2,
+        ),
+        BigNum.parse("0.0631463146314631464", 8),
+        BigNum.parse("0.1999999999999a", 16),
+      ];
+    },
+    () => {
+      return [
+        BigNum.parse("+11111111.000110011001101", 2),
+        BigNum.parse("+377.06315", 8),
+        BigNum.parse("+ff.199a", 16),
+        BigNum.parse(
+          "+0.0001100110011001100110011001100110011001100110011001101",
+          2,
+        ),
+        BigNum.parse("+0.0631463146314631464", 8),
+        BigNum.parse("+0.1999999999999a", 16),
+      ];
+    },
+    () => {
+      return [
+        BigNum.parse("-11111111.000110011001101", 2),
+        BigNum.parse("-377.06315", 8),
+        BigNum.parse("-ff.199a", 16),
+        BigNum.parse(
+          "-.0001100110011001100110011001100110011001100110011001101",
+          2,
+        ),
+        BigNum.parse("-.0631463146314631464", 8),
+        BigNum.parse("-.1999999999999a", 16),
+      ];
+    },
   ]) {
     it(String(t), () => {
       let r = t();
