@@ -116,23 +116,19 @@ export function parse(str: string, radix: number): Frac | null {
   const chars = [...str];
   const sign = /[+-]/u.test(chars[0]) && chars.shift();
   let num = 0n;
-  let ch: string | undefined;
-  while ((ch = chars.shift())) {
-    if (ch === ".") break;
-    const int = parseInt(ch, radix);
-    if (isNaN(int)) return null;
-    num = num * radixInt + BigInt(int);
+  for (let ch = chars.shift(); ch && ch !== "."; ch = chars.shift()) {
+    const i = parseInt(ch, radix);
+    if (isNaN(i)) return null;
+    num = num * radixInt + BigInt(i);
   }
-  let denom = 1n;
-  let digitDenom = 1n;
-  for (const digit of chars) {
-    digitDenom *= radixInt;
-    const int = parseInt(digit, radix);
-    if (isNaN(int)) return null;
-    if (!int) continue;
-    num = num * digitDenom + denom * BigInt(int);
-    denom *= digitDenom;
+  let fracNum = 0n;
+  for (const ch of chars) {
+    const i = parseInt(ch, radix);
+    if (isNaN(i)) return null;
+    fracNum = fracNum * radixInt + BigInt(i);
   }
+  const denom = radixInt ** BigInt(chars.length);
+  if (fracNum) num = num * denom + fracNum;
 
   return new Frac(sign !== "-" ? num : -num, denom);
 }
