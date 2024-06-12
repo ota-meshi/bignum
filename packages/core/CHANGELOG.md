@@ -1,5 +1,11 @@
 # @bignum/core
 
+## 0.13.0
+
+### Minor Changes
+
+- feat: add parse method ([#58](https://github.com/ota-meshi/bignum/pull/58))
+
 ## 0.12.0
 
 ### Minor Changes
