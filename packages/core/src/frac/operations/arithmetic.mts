@@ -114,26 +114,27 @@ export function sqrt(x: Frac, options?: MathOptions): Frac | null {
 export function parse(str: string, radix: number): Frac | null {
   const radixInt = BigInt(radix);
   const chars = [...str];
-  const sign = (chars[0] === "-" || chars[0] === "+") && chars.shift();
-  let n = 0n;
-  let c: string | undefined;
-  while ((c = chars.shift())) {
-    if (c === ".") break;
-    const int = parseInt(c, radix);
+  const sign = /[+-]/u.test(chars[0]) && chars.shift();
+  let num = 0n;
+  let ch: string | undefined;
+  while ((ch = chars.shift())) {
+    if (ch === ".") break;
+    const int = parseInt(ch, radix);
     if (isNaN(int)) return null;
-    n = n * radixInt + BigInt(int);
+    num = num * radixInt + BigInt(int);
   }
-  let d = 1n;
-  for (const [i, digit] of chars.entries()) {
+  let denom = 1n;
+  let digitDenom = 1n;
+  for (const digit of chars) {
+    digitDenom *= radixInt;
     const int = parseInt(digit, radix);
     if (isNaN(int)) return null;
     if (!int) continue;
-    const dd = radixInt ** BigInt(i + 1);
-    n = n * dd + d * BigInt(int);
-    d *= dd;
+    num = num * digitDenom + denom * BigInt(int);
+    denom *= digitDenom;
   }
 
-  return new Frac(sign !== "-" ? n : -n, d);
+  return new Frac(sign !== "-" ? num : -num, denom);
 }
 
 /** pow() by bigint fractions */
