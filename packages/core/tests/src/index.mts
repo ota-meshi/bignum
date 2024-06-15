@@ -1,7 +1,8 @@
 /* eslint @typescript-eslint/no-shadow: 0 -- ignore check */
-import chai, { assert } from "chai";
+import chai from "chai";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
+import assert from "assert";
 
 type BTest = {
   op: string | ((a: number, b: number) => string);
