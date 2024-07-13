@@ -1,8 +1,6 @@
-import chai from "chai";
-import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { setupEngine } from "../../src/index.mjs";
+import * as snap from "../../../test/src/snap.mjs";
 
-chai.use(jestSnapshotPlugin());
 describe("standard tests", () => {
   const f = setupEngine();
   for (const t of [
@@ -112,7 +110,7 @@ describe("standard tests", () => {
     ]),
   ]) {
     it(t.name, () => {
-      chai.expect(f(...t.param)).toMatchSnapshot();
+      snap.expect(f(...t.param)).toMatchSnapshot();
     });
   }
 });
@@ -127,7 +125,7 @@ describe("Big Number tests", () => {
     test`${0.3} - ${0.1}`,
   ]) {
     it(t.name, () => {
-      chai.expect(f(...t.param)).toMatchSnapshot();
+      snap.expect(f(...t.param)).toMatchSnapshot();
     });
   }
 });
@@ -156,7 +154,7 @@ describe("Compare tests", () => {
     ]),
   ]) {
     it(t.name, () => {
-      chai.expect(f(...t.param)).toMatchSnapshot();
+      snap.expect(f(...t.param)).toMatchSnapshot();
     });
   }
 });

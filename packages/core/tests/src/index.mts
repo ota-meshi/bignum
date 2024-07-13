@@ -1,8 +1,7 @@
 /* eslint @typescript-eslint/no-shadow: 0 -- ignore check */
-import chai from "chai";
-import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
 import assert from "assert";
+import * as snap from "../../../test/src/snap.mjs";
 
 type BTest = {
   op: string | ((a: number, b: number) => string);
@@ -142,7 +141,6 @@ const U_TESTS: UTest[] = [
   },
 ];
 
-chai.use(jestSnapshotPlugin());
 describe("Calc tests", () => {
   for (const t of B_TESTS) {
     for (const [a, b] of [
@@ -198,7 +196,7 @@ describe("Calc tests", () => {
           const actual = t.b(ba, bb);
           const expect = t.n(Number(a), Number(b));
           lazyAssert(name, actual, expect);
-          chai.expect(JSON.stringify(actual)).toMatchSnapshot();
+          snap.expect(JSON.stringify(actual)).toMatchSnapshot();
         });
       });
     }
@@ -227,7 +225,7 @@ describe("Calc tests", () => {
         const actual = t.b(ba);
         const expect = t.n(Number(a));
         lazyAssert(name, actual, expect);
-        chai.expect(JSON.stringify(actual)).toMatchSnapshot();
+        snap.expect(JSON.stringify(actual)).toMatchSnapshot();
       });
     }
   }

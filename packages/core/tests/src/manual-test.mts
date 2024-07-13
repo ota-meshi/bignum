@@ -1,10 +1,8 @@
-import chai from "chai";
-import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum, RoundingMode } from "../../src/index.mjs";
 import { stringify } from "../../../test/src/index.mjs";
 import { BigNumBasic } from "../../src/impl/bignum-basic.mts";
+import * as snap from "../../../test/src/snap.mjs";
 
-chai.use(jestSnapshotPlugin());
 describe("standard tests", () => {
   for (const t of [
     () => BigNum.valueOf(0.2).add(0.1),
@@ -570,10 +568,10 @@ describe("standard tests", () => {
       try {
         r = t();
       } catch (e) {
-        chai.expect(e).toMatchSnapshot();
+        snap.expect(e).toMatchSnapshot();
         return;
       }
-      chai.expect(stringify(r)).toMatchSnapshot();
+      snap.expect(stringify(r)).toMatchSnapshot();
     });
   }
 });
@@ -585,10 +583,10 @@ describe("Error tests", () => {
       try {
         r = t();
       } catch (e) {
-        chai.expect(e).toMatchSnapshot();
+        snap.expect(e).toMatchSnapshot();
         return;
       }
-      chai.expect(stringify(r)).toMatchSnapshot();
+      snap.expect(stringify(r)).toMatchSnapshot();
     });
   }
 });
