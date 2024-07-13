@@ -1,6 +1,6 @@
 import { compile } from "../../src/index.mjs";
 import type { BTContext } from "@bignum/shared";
-import * as snap from "../../../test/src/snap.mjs";
+import * as snap from "@ota-meshi/test-snapshot";
 
 const context: BTContext<number | bigint | string, string> = {
   binaryOperations: {

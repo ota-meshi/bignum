@@ -1,4 +1,4 @@
-// Snapshot v1
+// test-snapshot v1
 
 exports[`Big Number tests \`\${0.1} + \${0.1} + \${0.1}\` 1`] = `0.3`;
 

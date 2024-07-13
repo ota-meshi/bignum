@@ -1,6 +1,6 @@
 import { BigNum } from "../../src/index.mjs";
 import { length } from "../../src/frac/util.mjs";
-import * as snap from "../../../test/src/snap.mjs";
+import * as snap from "@ota-meshi/test-snapshot";
 
 if (process.env.UPDATE_PREF) {
   describe("performance tests", () => {

@@ -1,7 +1,7 @@
 import { BigNum, RoundingMode } from "../../src/index.mjs";
 import { stringify } from "../../../test/src/index.mjs";
 import { BigNumBasic } from "../../src/impl/bignum-basic.mts";
-import * as snap from "../../../test/src/snap.mjs";
+import * as snap from "@ota-meshi/test-snapshot";
 
 describe("standard tests", () => {
   for (const t of [
