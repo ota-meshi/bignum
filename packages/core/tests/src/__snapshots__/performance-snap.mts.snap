@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Snapshot v1
 
 exports[`performance tests () => {
                 // setup
@@ -8,7 +8,7 @@ exports[`performance tests () => {
   ->
   () => a.pow(48.723) 1`] = `
 "
-Time: 424.92358299999995
+Time: 421.86100000000005
 "
 `;
 
@@ -40,7 +40,7 @@ exports[`performance tests () => {
                           }
                       } 1`] = `
 "
-Time: 18.16187500000001
+Time: 16.57441700000004
 "
 `;
 
@@ -72,7 +72,7 @@ exports[`performance tests () => {
                           }
                       } 1`] = `
 "
-Time: 17.873291999999992
+Time: 15.67274999999995
 "
 `;
 
@@ -104,7 +104,7 @@ exports[`performance tests () => {
                           }
                       } 1`] = `
 "
-Time: 27.039374999999836
+Time: 24.410290999999916
 "
 `;
 
@@ -124,7 +124,7 @@ exports[`performance tests () => {
                       }
                   } 1`] = `
 "
-Time: 283.8104579999999
+Time: 278.63762500000007
 "
 `;
 
@@ -144,7 +144,7 @@ exports[`performance tests () => {
                       }
                   } 1`] = `
 "
-Time: 279.69045900000015
+Time: 279.03270799999996
 "
 `;
 
@@ -164,7 +164,7 @@ exports[`performance tests () => {
                       }
                   } 1`] = `
 "
-Time: 6.7575829999998405
+Time: 6.263792000000194
 "
 `;
 
@@ -179,7 +179,7 @@ exports[`performance tests () => {
   ->(1)
   () => (a = BigNum.valueOf(20.56).pow(48.723)) 1`] = `
 "
-Time: 396.5732919999999
+Time: 389.033542
 "
 `;
 
@@ -194,12 +194,12 @@ exports[`performance tests () => {
   ->(2)
   () => a.toString() 1`] = `
 "
-Time: 137.3952079999999
+Time: 145.50304199999982
 "
 `;
 
 exports[`performance tests () => BigNum.valueOf(100).pow(123.456) 1`] = `
 "
-Time: 2.8824160000000347
+Time: 7.519874999999956
 "
 `;

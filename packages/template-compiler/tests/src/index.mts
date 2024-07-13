@@ -1,9 +1,6 @@
-import chai from "chai";
-import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { compile } from "../../src/index.mjs";
 import type { BTContext } from "@bignum/shared";
-
-chai.use(jestSnapshotPlugin());
+import * as snap from "../../../test/src/snap.mjs";
 
 const context: BTContext<number | bigint | string, string> = {
   binaryOperations: {
@@ -103,7 +100,7 @@ describe("standard tests", () => {
     test`(2 ** 3) ** 4`,
   ]) {
     it(t.name, () => {
-      chai
+      snap
         .expect(compile(t.template)(t.substitutions, context))
         .toMatchSnapshot();
     });
@@ -119,7 +116,7 @@ describe("Big Number tests", () => {
     test`${0.3} - ${0.1}`,
   ]) {
     it(t.name, () => {
-      chai
+      snap
         .expect(compile(t.template)(t.substitutions, context))
         .toMatchSnapshot();
     });
@@ -149,7 +146,7 @@ describe("Compare tests", () => {
     ]),
   ]) {
     it(t.name, () => {
-      chai
+      snap
         .expect(compile(t.template)(t.substitutions, context))
         .toMatchSnapshot();
     });

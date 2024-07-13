@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Snapshot v1
 
 exports[`Big Number tests \`\${0.1} + \${0.1} + \${0.1}\` 1`] = `"((0.1 + 0.1) + 0.1)"`;
 

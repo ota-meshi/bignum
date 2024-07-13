@@ -1,11 +1,8 @@
-import chai from "chai";
-import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { BigNum } from "../../src/index.mjs";
 import { length } from "../../src/frac/util.mjs";
+import * as snap from "../../../test/src/snap.mjs";
 
 if (process.env.UPDATE_PREF) {
-  chai.use(jestSnapshotPlugin());
-
   describe("performance tests", () => {
     for (const t of [
       () => {
@@ -84,10 +81,10 @@ if (process.env.UPDATE_PREF) {
               const end = performance.now();
               time = end - start;
             } catch (e) {
-              chai.expect(e).toMatchSnapshot();
+              snap.expect(e).toMatchSnapshot();
               return;
             }
-            chai.expect(`\nTime: ${time}\n`).toMatchSnapshot();
+            snap.expect(`\nTime: ${time}\n`).toMatchSnapshot();
           });
           continue;
         }

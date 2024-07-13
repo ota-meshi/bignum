@@ -1,8 +1,6 @@
-import chai from "chai";
-import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { f } from "../../src/index.mjs";
+import * as snap from "../../../test/src/snap.mjs";
 
-chai.use(jestSnapshotPlugin());
 describe("standard tests", () => {
   for (const t of [
     // Doc tests
@@ -56,7 +54,7 @@ describe("standard tests", () => {
     test`${"-1.23e+42"}/${"1e31"}`,
   ]) {
     it(t.name, () => {
-      chai.expect(f(...t.param)).toMatchSnapshot();
+      snap.expect(f(...t.param)).toMatchSnapshot();
     });
   }
 });
@@ -67,7 +65,7 @@ describe("Round tests", () => {
     test`${0.3} - ${0.1}`,
   ]) {
     it(t.name, () => {
-      chai.expect(f(...t.param)).toMatchSnapshot();
+      snap.expect(f(...t.param)).toMatchSnapshot();
     });
   }
 });
