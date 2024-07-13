@@ -89,6 +89,7 @@ function setupSnap(): SnapshotTester {
     if (reports.length) {
       assert.fail(reports.join("\n"));
     }
+    unusedTests.clear();
   });
 
   return {
@@ -118,18 +119,6 @@ function setupSnap(): SnapshotTester {
     },
   };
 }
-
-// function reportUnused(ctx: SnapshotContext) {
-//   const unused: string[] = [];
-//   for (const [key, sequences] of ctx.snap.unused) {
-//     for (const seq of sequences) {
-//       unused.push(`${key} ${seq}`);
-//     }
-//   }
-//   if (unused.length) {
-//     assert.fail(`Unused snapshots:\n${unused.join("\n")}`);
-//   }
-// }
 
 function saveIfNeeded(snapshotFile: SnapshotFile) {
   if (!snapshotFile.updated) return;
