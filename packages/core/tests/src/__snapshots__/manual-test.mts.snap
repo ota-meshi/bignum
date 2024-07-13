@@ -1,4 +1,4 @@
-// Snapshot v1
+// test-snapshot v1
 
 exports[`Error tests () => BigNum.valueOf(2).sqrt({ roundingMode: 42 }) 1`] = `[Error: Unknown rounding mode: 42]`;
 

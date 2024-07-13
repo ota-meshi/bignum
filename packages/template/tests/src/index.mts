@@ -1,5 +1,5 @@
 import { setupEngine } from "../../src/index.mjs";
-import * as snap from "../../../test/src/snap.mjs";
+import * as snap from "@ota-meshi/test-snapshot";
 
 describe("standard tests", () => {
   const f = setupEngine();

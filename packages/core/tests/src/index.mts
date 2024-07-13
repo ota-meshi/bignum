@@ -1,7 +1,7 @@
 /* eslint @typescript-eslint/no-shadow: 0 -- ignore check */
 import { BigNum } from "../../src/index.mjs";
 import assert from "assert";
-import * as snap from "../../../test/src/snap.mjs";
+import * as snap from "@ota-meshi/test-snapshot";
 
 type BTest = {
   op: string | ((a: number, b: number) => string);
