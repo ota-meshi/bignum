@@ -1,5 +1,11 @@
 # @bignum/core
 
+## 0.14.0
+
+### Minor Changes
+
+- feat: minor refactor ([#69](https://github.com/ota-meshi/bignum/pull/69))
+
 ## 0.13.0
 
 ### Minor Changes
