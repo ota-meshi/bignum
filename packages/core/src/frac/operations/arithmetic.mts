@@ -1,7 +1,8 @@
 import type { MathOptions } from "../../options.mts";
 import { abs as absFrac, compareTo, divide, multiply } from "./basic.mts";
 import { divideDigits } from "../divide-digits.mts";
-import { Frac, INF, N_INF, ZERO, numOf } from "../frac.mts";
+import type { Frac } from "../frac.mts";
+import { INF, N_INF, ZERO, fracOf, numOf } from "../frac.mts";
 import { createNthRootTable } from "../nth-root-utils.mts";
 import { numberContext } from "../number-context.mts";
 import { abs, isEven } from "../util.mts";
@@ -130,7 +131,7 @@ export function parse(str: string, radix: number): Frac | null {
   const denom = radixInt ** BigInt(chars.length);
   if (fracNum) num = num * denom + fracNum;
 
-  return new Frac(sign !== "-" ? num : -num, denom);
+  return fracOf(sign !== "-" ? num : -num, denom);
 }
 
 /** pow() by bigint fractions */
@@ -154,8 +155,8 @@ function _pow(
     const root = _nthRoot(base, d, options);
     a = [a[0] * root.n ** remN, a[1] * root.d ** remN];
   }
-  if (sign >= 0) return new Frac(a[0], a[1]);
-  return new Frac(a[1], a[0]);
+  if (sign >= 0) return fracOf(a[0], a[1]);
+  return fracOf(a[1], a[0]);
 }
 
 /** nthRoot() by bigint */
@@ -201,5 +202,5 @@ function _nthRoot(base: Frac, n: bigint, options?: MathOptions): Frac {
   numCtx.round(remainder > 0n);
   const a = numOf(...numCtx.toNum());
   if (n >= 0n) return a;
-  return new Frac(a.d, a.n);
+  return fracOf(a.d, a.n);
 }

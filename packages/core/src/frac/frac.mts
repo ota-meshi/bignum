@@ -5,8 +5,28 @@ import { divideDigits } from "./divide-digits.mts";
  * Returns a Frac from the given decimal values
  */
 export function numOf(i: bigint, e = 0n): Frac {
-  return e >= 0n ? new Frac(i * 10n ** e, 1n) : new Frac(i, 10n ** -e);
+  return e >= 0n ? fracOf(i * 10n ** e, 1n) : fracOf(i, 10n ** -e);
 }
+/**
+ * Returns a Frac from the given numerator and denominator
+ */
+export function fracOf(n: bigint, d: bigint): Frac {
+  if (!n) {
+    // zero
+    return ZERO;
+  }
+  if (!d) {
+    // infinity
+    return n >= 0n ? INF : N_INF;
+  }
+  if (d < 0n) {
+    n = -n;
+    d = -d;
+  }
+  const g = gcd(n, d);
+  return new Frac(n / g, d / g);
+}
+
 /** Internal Fraction class */
 export class Frac {
   /** numerator */
@@ -15,28 +35,12 @@ export class Frac {
   /** denominator */
   public readonly d: bigint;
 
-  public constructor(numerator: bigint, denominator: bigint) {
-    let n = numerator,
-      d = denominator;
-    if (!n) {
-      // zero
-      this.n = 0n;
-      this.d = 1n;
-      return init ? ZERO : this;
-    }
-    if (!d) {
-      // infinity
-      this.n = n >= 0n ? 1n : -1n;
-      this.d = d;
-      return init ? (n >= 0n ? INF : N_INF) : this;
-    }
-    if (d < 0n) {
-      n = -n;
-      d = -d;
-    }
-    const g = gcd(n, d);
-    this.n = n / g;
-    this.d = d / g;
+  /**
+   * @deprecated Use `fracOf` instead.
+   */
+  constructor(n: bigint, g: bigint) {
+    this.n = n;
+    this.d = g;
   }
 
   public get inf(): boolean {
@@ -71,11 +75,9 @@ export class Frac {
     return `${this.n < 0n ? "-" : ""}${integer || "0"}.${decimal}`;
   }
 }
-let init = false;
-export const ZERO = numOf(0n);
+export const ZERO = new Frac(0n, 1n);
 export const INF = new Frac(1n, 0n);
 export const N_INF = new Frac(-1n, 0n);
-init = true;
 
 /** Checks whether the x is a finite decimal. */
 function finiteDecimal(x: Frac): boolean {
