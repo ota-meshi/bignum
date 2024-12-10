@@ -3,42 +3,46 @@ import { BigNum } from "../../src/index.mjs";
 import assert from "assert";
 import * as snap from "@ota-meshi/test-snapshot";
 
+import Decimal from "decimal.js";
+Decimal.set({
+  precision: 500,
+  rounding: Decimal.ROUND_HALF_UP,
+});
 type BTest = {
   op: string | ((a: number, b: number) => string);
-  n: (a: number, b: number) => number;
+  n: (a: number, b: number) => number | string;
   b: (a: BigNum, b: BigNum) => BigNum;
   ignore?: (a: number, b: number) => boolean;
 };
 const B_TESTS: BTest[] = [
   {
     op: "+",
-    n: (a, b) => a + b,
+    n: (a, b) => new Decimal(a).add(b).toString(),
     b: (a: BigNum, b: BigNum) => a.add(b),
   },
   {
     op: "-",
-    n: (a, b) => a - b,
+    n: (a, b) => new Decimal(a).sub(b).toString(),
     b: (a: BigNum, b: BigNum) => a.subtract(b),
   },
   {
     op: "*",
-    n: (a, b) => a * b,
+    n: (a, b) => new Decimal(a).mul(b).toString(),
     b: (a: BigNum, b: BigNum) => a.multiply(b),
   },
   {
     op: "/",
-    n: (a, b) => a / b,
+    n: (a, b) => new Decimal(a).div(b).toString(),
     b: (a: BigNum, b: BigNum) => a.divide(b),
   },
   {
     op: "%",
-    n: (a, b) =>
-      isFinite(a) && isFinite(b) && Number.isInteger(a / b) ? 0 : a % b,
+    n: (a, b) => new Decimal(a).mod(b).toString(),
     b: (a: BigNum, b: BigNum) => a.modulo(b),
   },
   {
     op: "**",
-    n: (a, b) => a ** b,
+    n: (a, b) => new Decimal(a).pow(b).toString(),
     b: (a: BigNum, b: BigNum) => a.pow(b),
     ignore: (a, b) => {
       if (!isFinite(a) || !isFinite(b)) return false;
@@ -50,7 +54,7 @@ const B_TESTS: BTest[] = [
   },
   {
     op: "* 10 **",
-    n: (a, b) => a * 10 ** b,
+    n: (a, b) => new Decimal(a).mul(new Decimal(10).pow(b)).toString(),
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
     ignore: (a, b) => {
       if (!isFinite(a) || !isFinite(b)) return false;
@@ -61,7 +65,7 @@ const B_TESTS: BTest[] = [
   },
   {
     op: (a, b) => `${a} ** (1/${b})`,
-    n: (a, b) => a ** (1 / b),
+    n: (a, b) => new Decimal(a).pow(new Decimal(1).div(b)).toString(),
     b: (a: BigNum, b: BigNum) => a.nthRoot(b),
     ignore: (a, b) => {
       if (!isFinite(a) || !isFinite(b)) return false;
@@ -74,7 +78,7 @@ const B_TESTS: BTest[] = [
   {
     // use pow for nthRoot
     op: (a, b) => `${a} ** /*pow*/ (1/${b})`,
-    n: (a, b) => a ** (1 / b),
+    n: (a, b) => new Decimal(a).pow(new Decimal(1).div(b)).toString(),
     b: (a: BigNum, b: BigNum) => a.pow(BigNum.valueOf(1).divide(b)),
     ignore: (a, b) =>
       isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 5),
@@ -328,7 +332,7 @@ describe("Random tests", () => {
 /**
  * Lazy assert function
  */
-function lazyAssert(name: string, actual: BigNum, expect: number) {
+function lazyAssert(name: string, actual: BigNum, expect: number | string) {
   if (!actual.isFinite()) {
     assert.strictEqual(`${actual}`, `${expect}`);
     return;
@@ -380,8 +384,7 @@ function lazyAssert(name: string, actual: BigNum, expect: number) {
     return;
   }
 
-  const actualChars = [...`${actual}`];
-  const expectChars = [...`${BigNum.valueOf(expect)}`];
+  const diffRatio = diff.divide(expect).abs();
   const diffChars = [
     ...`${" ".repeat(`${actual}`.split(".")[0].length - `${diff}`.split(".")[0].length)}${diff}`,
   ];
@@ -391,107 +394,18 @@ Expression=${name}
 Actual(BigNum)=
 ${actual}
 Expect(BigNum)=
-${expectChars.join("")}
+${BigNum.valueOf(expect)}
 Diff=
 ${diffChars.join("")}
 Expect(number)=
 ${expect}
+DiffRatio=
+${diffRatio}
 `;
-  const matchE = /^-?\d+(?:\.\d+)?e[+-]?\d+$/iu.exec(`${expect}`);
-  const expectSignificant = matchE && matchE[0].split("e")[0];
-  // const _expectSignificantE = matchE && Number(matchE?.[0].split("e")[1] || 0);
 
-  if (actualChars[0] === "-") {
-    assert.strictEqual(actualChars.shift(), expectChars.shift(), message);
-    assert.strictEqual(diffChars.shift(), " ", message);
-  }
-  while (actualChars[0] === "0" || actualChars[0] === ".") {
-    let ch;
-    assert.strictEqual(
-      actualChars.shift(),
-      (ch = expectChars.shift()),
-      message,
-    );
-    assert.strictEqual(diffChars.shift(), ch, message);
-  }
-  const numOfSignificant = expectSignificant
-    ? Math.min(
-        expectSignificant.length,
-        actualChars.join("").replace(/0+$/u, "").length,
-        expectChars.join("").replace(/0+$/u, "").length,
-      )
-    : expectChars.length > 16
-      ? Math.min(
-          actualChars.join("").replace(/0+$/u, "").length,
-          expectChars.join("").replace(/0+$/u, "").length,
-        )
-      : Math.min(actualChars.length, expectChars.length);
-  if (numOfSignificant === 0) {
+  const threshold = 1e-15;
+  if (diffRatio.compareTo(threshold) >= 0) {
     console.log(message);
   }
-  for (let i = 0; i < numOfSignificant; i++) {
-    if (actualChars[i] === expectChars[i]) continue;
-    const ratio = i / numOfSignificant;
-    // Difference check 1:
-    // It is OK if 82.3% of the number of significant digits matches.
-    if (ratio >= 0.823) {
-      // OK
-      break;
-    }
-    // Difference check 2:
-    // It is OK if 80% of the number of significant digits matches
-    // and the target digit of the difference value is 0.
-    if (ratio >= 0.8 && diffChars[i] === "0") {
-      // OK
-      break;
-    }
-    // Difference check 3:
-    // It is OK if 62.5% of the number of significant digits matches
-    // and the difference between the numerical values of the target digit is 1 or less.
-    const digitDiff = Number(actualChars[i]) - Number(expectChars[i]);
-    if (ratio >= 0.625 && digitDiff >= -1 && digitDiff <= 1) {
-      // OK
-      break;
-    }
-    // Difference check 4:
-    // It is OK if the number of significant digits is 2 or less
-    // and the value of the target digit of the difference value is 1 or less.
-    const diffDigit = Number(diffChars[i]);
-    if (numOfSignificant <= 2 && diffDigit <= 1) {
-      // OK
-      break;
-    }
-    // Difference check 5:
-    // It is OK if 80% of the number of significant digits matches
-    // and the value of the target digit of the difference value is 1 or less.
-    if (ratio >= 0.8 && diffDigit <= 1) {
-      // OK
-      break;
-    }
-    // Difference check 6:
-    // It is OK if 81.2% of the number of significant digits matches
-    // and the value of the target digit of the difference value is 1 or less.
-    if (ratio >= 0.812 && diffDigit <= 2) {
-      // OK
-      break;
-    }
-    // Difference check 7:
-    // It is OK if the number of significant digits is 6 or less
-    // and 33.3% of the number of significant digits matches
-    // and the difference between the numerical values of the target digit is 1 or less.
-    if (numOfSignificant <= 6 && i >= 2 && digitDiff >= -1 && digitDiff <= 1) {
-      // OK
-      break;
-    }
-    // Difference check 8:
-    // It is OK if the number of significant digits is 8 or less
-    // and 62.5% of the number of significant digits matches
-    if (numOfSignificant <= 8 && ratio >= 0.625) {
-      // OK
-      break;
-    }
-    console.log(ratio, message);
-    assert.fail(message);
-    break;
-  }
+  assert.ok(diffRatio.compareTo(threshold) < 0, message);
 }
