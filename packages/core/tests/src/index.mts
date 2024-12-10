@@ -2,8 +2,7 @@
 import { BigNum } from "../../src/index.mjs";
 import assert from "assert";
 import * as snap from "@ota-meshi/test-snapshot";
-
-import Decimal from "decimal.js";
+import { Decimal } from "decimal.js";
 Decimal.set({
   precision: 500,
   rounding: Decimal.ROUND_HALF_UP,
