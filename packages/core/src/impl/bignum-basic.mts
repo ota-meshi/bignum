@@ -24,20 +24,18 @@ function parseValue(
   if (value instanceof Frac) return value;
   if (value === Infinity) return INF;
   if (value === -Infinity) return N_INF;
-  const prop = parsePrimValue(value);
-  if (!prop) return null;
-  return numOf(prop.intValue, prop.exponent ?? 0n);
+  return parsePrimValue(value);
 }
 
 /** Parse a primitive value to a BigNum prop */
 function parsePrimValue(
   value: string | number | bigint | boolean,
-): { intValue: bigint; exponent?: bigint } | null {
+): Frac | null {
   if (typeof value === "boolean" || typeof value === "bigint")
-    return { intValue: BigInt(value) };
+    return numOf(BigInt(value));
   if (typeof value === "number") {
     if (Number.isNaN(value)) return null;
-    if (Number.isSafeInteger(value)) return { intValue: BigInt(value) };
+    if (Number.isSafeInteger(value)) return numOf(BigInt(value));
   }
   const match = RE_NUMBER.exec(String(value));
   if (!match) return null;
@@ -48,10 +46,10 @@ function parsePrimValue(
     // Empty numbers. e.g. `+`, `-`, `.`, `+.` or `-.`.
     return null;
 
-  return {
-    intValue: BigInt(integer + decimal),
-    exponent: -BigInt(decimal.length) + BigInt(exponent),
-  };
+  return numOf(
+    BigInt(integer + decimal),
+    -BigInt(decimal.length) + BigInt(exponent),
+  );
 }
 
 /** Get BigNum instance from value */
