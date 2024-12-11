@@ -562,6 +562,15 @@ describe("standard tests", () => {
         BigNum.parse("-.1999999999999a", 16),
       ];
     },
+    () => {
+      return [
+        // @ts-expect-error -- test
+        BigNum.valueOf(0.2).add(0.1) + 42, // eslint-disable-line @typescript-eslint/restrict-plus-operands -- test
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands, prefer-template -- test
+        BigNum.valueOf(0.2).add(0.1) + "str",
+        -BigNum.valueOf(0.2).add(0.1),
+      ];
+    },
   ]) {
     it(String(t), () => {
       let r = t();

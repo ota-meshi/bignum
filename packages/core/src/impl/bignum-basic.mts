@@ -224,13 +224,31 @@ class BigNum {
     return this.#p?.toString() ?? "NaN";
   }
 
+  public [Symbol.toPrimitive](
+    hint: "default" | "number" | "string",
+  ): string | number {
+    return hint === "number"
+      ? this.toNumber()
+      : hint === "string"
+        ? this.toString()
+        : this.toJSON();
+  }
+
   public toJSON(): string | number {
+    const n = this.toNumber();
+    if (!this.isFinite()) return n;
+    const s = this.toString();
+    if (!isFinite(n) || String(n).includes("e")) return s;
+    const f1 = parsePrimValue(n)!;
+    const f2 = parsePrimValue(s)!;
+    return f1.n === f2.n && f1.d === f2.d ? n : s;
+  }
+
+  public toNumber(): number {
     const x = this.#p;
     if (!x) return NaN;
     if (x.inf) return x.n > 0 ? Infinity : -Infinity;
-    const str = this.toString();
-    const nVal = Number(str);
-    return String(nVal) === str ? nVal : str;
+    return Number(x.n) / Number(x.d);
   }
 }
 
