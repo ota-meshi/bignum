@@ -1,6 +1,6 @@
 import type { Frac } from "../frac.mts";
 import { fracOf } from "../frac.mts";
-import { compare, abs as absInt } from "../util.mts";
+import { compare, abs as absInt, gcd } from "../util.mts";
 
 /**
  * Returns a number indicating the sign of the given Frac.
@@ -30,18 +30,17 @@ export function add(x: Frac, y: Frac): Frac | null {
 
 /** Returns a Frac whose value is `x * y`. */
 export function multiply(x: Frac, y: Frac): Frac | null {
-  return (x.inf && !y.n) || (y.inf && !x.n)
-    ? null
-    : fracOf(x.n * y.n, x.d * y.d);
+  return (x.inf && !y.n) || (y.inf && !x.n) ? null : mul(x.n, y.n, x.d, y.d);
 }
 /** Returns a Frac whose value is `x / y`. */
 export function divide(x: Frac, y: Frac): Frac | null {
   return x.inf && y.inf
     ? null
     : y.n >= 0n
-      ? fracOf(x.n * y.d, x.d * y.n)
-      : fracOf(x.n * -y.d, x.d * -y.n);
+      ? mul(x.n, y.d, x.d, y.n)
+      : mul(x.n, -y.d, x.d, -y.n);
 }
+
 /** Returns a Frac whose value is `x % y`. */
 export function modulo(x: Frac, y: Frac): Frac | null {
   return x.inf || !y.n
@@ -94,4 +93,12 @@ export function ceil(x: Frac): Frac {
     : x.inf || !(x.n % x.d)
       ? x
       : fracOf(x.n / x.d + 1n, 1n);
+}
+
+/** Multiply two fractions. */
+function mul(n1: bigint, n2: bigint, d1: bigint, d2: bigint): Frac {
+  // Avoid large integers by reducing the value by the greatest common divisor of each element.
+  const gA = gcd(n1, d2);
+  const gB = gcd(n2, d1);
+  return fracOf((n1 / gA) * (n2 / gB), (d1 / gB) * (d2 / gA));
 }
