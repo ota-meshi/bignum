@@ -1,5 +1,15 @@
 # @bignum/core
 
+## 0.15.0
+
+### Minor Changes
+
+- feat: reduce memory for multiplication ([#77](https://github.com/ota-meshi/bignum/pull/77))
+
+- feat: minor refactor ([#74](https://github.com/ota-meshi/bignum/pull/74))
+
+- feat: add support for Symbol.toPrimitive ([#76](https://github.com/ota-meshi/bignum/pull/76))
+
 ## 0.14.0
 
 ### Minor Changes
