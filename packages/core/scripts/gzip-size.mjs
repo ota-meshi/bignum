@@ -11,18 +11,25 @@ const minified = fs.readFileSync(path.join(__dirname, "../temp/index.min.js"));
 const bignumber = fs.readFileSync(
   path.join(__dirname, "../temp/bignumber.min.js"),
 );
+const bignumBasic = fs.readFileSync(
+  path.join(__dirname, "../temp/bignum-basic.min.js"),
+);
 
 fs.writeFileSync(
   README_PATH,
   fs
     .readFileSync(README_PATH, "utf8")
     .replace(
-      /- [^\n]*(?:\n\s*)?minified\s*\([^\n]*/u,
-      `- ${displayFileSize(Buffer.byteLength(minified, "utf8"))} minified ([bignumber.js]: ${displayFileSize(Buffer.byteLength(bignumber, "utf8"))}).`,
+      /<span class="minified-size">[\s\S]*?<\/span>/u,
+      `<span class="minified-size"> ${displayFileSize(Buffer.byteLength(minified, "utf8"))} minified ([bignumber.js]: ${displayFileSize(Buffer.byteLength(bignumber, "utf8"))}) </span>`,
     )
     .replace(
-      /- [^\n]*(?:\n\s*)?minified\s+and\s+gzipped\s*\([^\n]*/u,
-      `- ${displayFileSize(gzipSizeSync(minified))} minified and gzipped ([bignumber.js]: ${displayFileSize(gzipSizeSync(bignumber))}).`,
+      /<span class="minified-and-gzipped-size">[\s\S]*?<\/span>/u,
+      `<span class="minified-and-gzipped-size"> ${displayFileSize(gzipSizeSync(minified))} minified and gzipped ([bignumber.js]: ${displayFileSize(gzipSizeSync(bignumber))}) </span>`,
+    )
+    .replace(
+      /<span class="bignum-basic-size">[\s\S]*?<\/span>/u,
+      `<span class="bignum-basic-size"> ${displayFileSize(Buffer.byteLength(bignumBasic, "utf8"))} with tree shaking and minification (minified and gzipped: ${displayFileSize(gzipSizeSync(bignumBasic))}) </span>`,
     ),
 );
 
@@ -32,6 +39,3 @@ fs.writeFileSync(
 function displayFileSize(size) {
   return `${(size / 1024).toFixed(1)} KB`;
 }
-
-// - 7.5 KB minified.
-// - 3.2 KB minified and gzipped.

@@ -25,7 +25,8 @@
     "test": "mocha --loader=ts-node/esm \"tests/src/**/*.mts\" --reporter dot --timeout 60000",
     "cover": "c8 --reporter=lcov npm run test",
     "debug": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot",
-    "update-snap": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot --update"
+    "update-snap": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot --update",
+    "update-readme-size": "node ./scripts/gzip-size.mjs"
   },
   "publishConfig": {
     "access": "public"

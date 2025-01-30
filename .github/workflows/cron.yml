@@ -20,9 +20,9 @@ jobs:
             - name: Install Packages
               run: npm install
             - name: BUild
-              run: npm run build -w packages/core
+              run: npm run build
             - name: Update
-              run: npm run update-readme-size -w packages/core
+              run: npm run update-readme-size --workspaces --if-present
             - name: Format
               run: npm run eslint-fix
             - uses: peter-evans/create-pull-request@v7
