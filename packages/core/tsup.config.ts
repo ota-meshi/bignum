@@ -19,6 +19,15 @@ export default defineConfig([
     minify: true,
   },
   {
+    entryPoints: {
+      "bignumber.min": "tests/bignumber.mts",
+    },
+    format: ["esm"],
+    outDir: "temp",
+    target: "node18",
+    minify: true,
+  },
+  {
     entryPoints: ["src/bignum-basic.mts"],
     format: ["esm"],
     outDir: "temp",

@@ -1,0 +1,33 @@
+name: cron
+on:
+    workflow_dispatch: null
+    schedule:
+        - cron: 0 0 * * 0
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    update-file-size :
+        name: update-size
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+            - name: Install Packages
+              run: npm install
+            - name: BUild
+              run: npm run build -w packages/core
+            - name: Update
+              run: npm run update-readme-size -w packages/core
+            - name: Format
+              run: npm run eslint-fix
+            - uses: peter-evans/create-pull-request@v7
+              with:
+                  commit-message: Updates file size in README.md
+                  branch: update-file-size 
+                  branch-suffix: timestamp
+                  title: Updates file size in README.md
