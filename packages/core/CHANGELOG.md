@@ -1,5 +1,11 @@
 # @bignum/core
 
+## 0.16.0
+
+### Minor Changes
+
+- feat: reduce size ([#79](https://github.com/ota-meshi/bignum/pull/79))
+
 ## 0.15.0
 
 ### Minor Changes
