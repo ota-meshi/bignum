@@ -1,4 +1,4 @@
-import { valueOf, type Frac } from "./frac.mts";
+import { add, div, mod, mul, sub, valueOf, type Frac } from "./frac.mts";
 
 // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
 const PRECEDENCE = {
@@ -18,11 +18,11 @@ const enum Paren {
 }
 
 const BINARY_OPERATIONS = {
-  "+": (a: Frac, b: Frac) => a.add(b),
-  "-": (a: Frac, b: Frac) => a.sub(b),
-  "*": (a: Frac, b: Frac) => a.mul(b),
-  "/": (a: Frac, b: Frac) => a.div(b),
-  "%": (a: Frac, b: Frac) => a.mod(b),
+  "+": (a: Frac, b: Frac) => add(a, b),
+  "-": (a: Frac, b: Frac) => sub(a, b),
+  "*": (a: Frac, b: Frac) => mul(a, b),
+  "/": (a: Frac, b: Frac) => div(a, b),
+  "%": (a: Frac, b: Frac) => mod(a, b),
 } as const;
 
 type Compiled = <OPERAND extends string | number | bigint>(

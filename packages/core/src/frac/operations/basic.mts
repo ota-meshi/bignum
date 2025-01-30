@@ -21,7 +21,7 @@ export function abs(x: Frac): Frac {
 
 /** Returns a Frac whose value is `x + y`. */
 export function add(x: Frac, y: Frac): Frac | null {
-  return x.inf && y.inf && x.n !== y.n
+  return !x.d && !y.d && x.n !== y.n
     ? null
     : x.d === y.d
       ? fracOf(x.n + y.n, x.d)
@@ -30,11 +30,11 @@ export function add(x: Frac, y: Frac): Frac | null {
 
 /** Returns a Frac whose value is `x * y`. */
 export function multiply(x: Frac, y: Frac): Frac | null {
-  return (x.inf && !y.n) || (y.inf && !x.n) ? null : mul(x.n, y.n, x.d, y.d);
+  return (!x.d && !y.n) || (!y.d && !x.n) ? null : mul(x.n, y.n, x.d, y.d);
 }
 /** Returns a Frac whose value is `x / y`. */
 export function divide(x: Frac, y: Frac): Frac | null {
-  return x.inf && y.inf
+  return !x.d && !y.d
     ? null
     : y.n >= 0n
       ? mul(x.n, y.d, x.d, y.n)
@@ -43,9 +43,9 @@ export function divide(x: Frac, y: Frac): Frac | null {
 
 /** Returns a Frac whose value is `x % y`. */
 export function modulo(x: Frac, y: Frac): Frac | null {
-  return x.inf || !y.n
+  return !x.d || !y.n
     ? null
-    : y.inf
+    : !y.d
       ? x
       : fracOf((x.n * y.d) % (x.d * y.n), x.d * y.d);
 }
@@ -54,8 +54,8 @@ export function modulo(x: Frac, y: Frac): Frac | null {
 export function compareTo(x: Frac, y: Frac): 0 | -1 | 1 {
   return x.d === y.d
     ? compare(x.n, y.n)
-    : x.inf || y.inf
-      ? (x.inf ? x.n : -y.n) > 0
+    : !x.d || !y.d
+      ? (!x.d ? x.n : -y.n) > 0
         ? 1
         : -1
       : compare(x.n * y.d, y.n * x.d);
@@ -63,12 +63,12 @@ export function compareTo(x: Frac, y: Frac): 0 | -1 | 1 {
 
 /** Returns a Frac that is the integral part of x, with removing any fractional digits. */
 export function trunc(x: Frac): Frac {
-  return x.inf ? x : fracOf(x.n / x.d, 1n);
+  return !x.d ? x : fracOf(x.n / x.d, 1n);
 }
 
 /** Returns this Frac rounded to the nearest integer. */
 export function round(x: Frac): Frac {
-  if (x.inf) return x;
+  if (!x.d) return x;
   const dblMod = (absInt(x.n) % x.d) * 2n;
   if (!dblMod) return x;
   const minus = x.n < 0n;
@@ -81,7 +81,7 @@ export function round(x: Frac): Frac {
 export function floor(x: Frac): Frac {
   return x.n >= 0n
     ? trunc(x)
-    : x.inf || !(x.n % x.d)
+    : !x.d || !(x.n % x.d)
       ? x
       : fracOf(x.n / x.d - 1n, 1n);
 }
@@ -90,7 +90,7 @@ export function floor(x: Frac): Frac {
 export function ceil(x: Frac): Frac {
   return x.n <= 0n
     ? trunc(x)
-    : x.inf || !(x.n % x.d)
+    : !x.d || !(x.n % x.d)
       ? x
       : fracOf(x.n / x.d + 1n, 1n);
 }
