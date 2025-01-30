@@ -24,60 +24,52 @@ export function fracOf(n: bigint, d: bigint): Frac {
     d = -d;
   }
   const g = gcd(n, d);
-  return new Frac(n / g, d / g);
+  return { n: n / g, d: d / g };
 }
 
-/** Internal Fraction class */
-export class Frac {
+/** Internal Fraction type */
+export type Frac = {
   /** numerator */
-  public readonly n: bigint;
+  n: bigint;
 
   /** denominator */
-  public readonly d: bigint;
+  d: bigint;
+};
 
-  /**
-   * @deprecated Use `fracOf` instead.
-   */
-  constructor(n: bigint, g: bigint) {
-    this.n = n;
-    this.d = g;
+/**
+ * Returns a string representation of the given Frac
+ */
+export function toString(x: Frac | null): string {
+  if (!x) return "NaN";
+  if (!x.d) return x.n > 0 ? "Infinity" : "-Infinity";
+  if (x.d === 1n) return String(x.n);
+  const div = divideDigits(x.n, x.d);
+  let e = div.e;
+  let integer = "";
+  let decimalLeadingZero = "0".repeat(Number(e < 0n ? -e - 1n : 0));
+  let decimal = "";
+  const isFull = finiteDecimal(x)
+    ? () => false
+    : () =>
+        decimal.length &&
+        integer.length +
+          (integer.length && decimalLeadingZero.length) +
+          decimal.length >=
+          20;
+  for (const d of div.digits()) {
+    if (e-- >= 0n) {
+      if (integer || d) integer += d;
+    } else if (decimal || d) decimal += d;
+    else decimalLeadingZero += d;
+    if (isFull()) break;
   }
-
-  public get inf(): boolean {
-    return !this.d;
-  }
-
-  public toString(): string {
-    if (this.inf) return this.n > 0 ? "Infinity" : "-Infinity";
-    if (this.d === 1n) return String(this.n);
-    const div = divideDigits(this.n, this.d);
-    let e = div.e;
-    let integer = "";
-    let decimalLeadingZero = "0".repeat(Number(e < 0n ? -e - 1n : 0));
-    let decimal = "";
-    const isFull = finiteDecimal(this)
-      ? () => false
-      : () =>
-          decimal.length &&
-          integer.length +
-            (integer.length && decimalLeadingZero.length) +
-            decimal.length >=
-            20;
-    for (const d of div.digits()) {
-      if (e-- >= 0n) {
-        if (integer || d) integer += d;
-      } else if (decimal || d) decimal += d;
-      else decimalLeadingZero += d;
-      if (isFull()) break;
-    }
-    decimal = decimalLeadingZero + decimal;
-    while (decimal.endsWith("0")) decimal = decimal.slice(0, -1);
-    return `${this.n < 0n ? "-" : ""}${integer || "0"}.${decimal}`;
-  }
+  decimal = decimalLeadingZero + decimal;
+  while (decimal.endsWith("0")) decimal = decimal.slice(0, -1);
+  return `${x.n < 0n ? "-" : ""}${integer || "0"}.${decimal}`;
 }
-export const ZERO = new Frac(0n, 1n);
-export const INF = new Frac(1n, 0n);
-export const N_INF = new Frac(-1n, 0n);
+export const ZERO: Frac = { n: 0n, d: 1n };
+export const INF: Frac = { n: 1n, d: 0n };
+export const N_INF: Frac = { n: -1n, d: 0n };
 
 /** Checks whether the x is a finite decimal. */
 function finiteDecimal(x: Frac): boolean {

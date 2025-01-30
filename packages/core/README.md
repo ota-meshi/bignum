@@ -14,8 +14,8 @@ Arbitrary-precision decimal arithmetic with BigInt.
 
 - Class for arbitrary-precision arithmetics using BigInt.
 - It can handle very large and very small numbers.
-- <span class="minified-size"> 7.5 KB minified ([bignumber.js]: 18.2 KB) </span>.
-- <span class="minified-and-gzipped-size"> 3.2 KB minified and gzipped ([bignumber.js]: 8.1 KB) </span>.
+- <span class="minified-size"> 7.3 KB minified ([bignumber.js]: 18.2 KB) </span>.
+- <span class="minified-and-gzipped-size"> 3.1 KB minified and gzipped ([bignumber.js]: 8.1 KB) </span>.
 
 ## 💿 Installation
 
@@ -190,7 +190,7 @@ import { BigNumBasic } from "@bignum/core";
 
 If you want something smaller, use BigNumBasic.
 
-It supports four arithmetic APIs and a basic API, which can be reduced to just <span class="bignum-basic-size"> 4.1 KB with tree shaking and minification (minified and gzipped: 1.7 KB) </span>.\
+It supports four arithmetic APIs and a basic API, which can be reduced to just <span class="bignum-basic-size"> 3.9 KB with tree shaking and minification (minified and gzipped: 1.6 KB) </span>.\
 However, the API it provides is still experimental.
 
 ## 🛸 Prior Art

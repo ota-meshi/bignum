@@ -1,21 +1,20 @@
 const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 
 /** Get a Frac from the given value */
-export function valueOf(
-  value: string | number | bigint | boolean | Frac,
-): Frac {
-  if (value instanceof Frac) return value;
+export function valueOf(value: string | number | bigint | boolean): Frac {
+  if (typeof value === "object") return value;
+  if (Number.isNaN(value)) throw new Error(`Invalid value: ${value}`);
+  if (
+    typeof value === "boolean" ||
+    typeof value === "bigint" ||
+    Number.isSafeInteger(value)
+  )
+    return fracOf(BigInt(value), 1n);
   return parsePrimValue(value);
 }
 
 /** Parse a primitive value to a BigNum prop */
-function parsePrimValue(value: string | number | bigint | boolean): Frac {
-  if (typeof value === "boolean" || typeof value === "bigint")
-    return new Frac(BigInt(value), 1n);
-  if (typeof value === "number") {
-    if (Number.isNaN(value)) throw new Error(`Invalid value: ${value}`);
-    if (Number.isSafeInteger(value)) return new Frac(BigInt(value), 1n);
-  }
+function parsePrimValue(value: string | number): Frac {
   const match = RE_NUMBER.exec(String(value));
   if (!match) throw new Error(`Invalid value: ${value}`);
   const integer = match[1];
@@ -27,64 +26,71 @@ function parsePrimValue(value: string | number | bigint | boolean): Frac {
   const i = BigInt(integer + decimal);
   const e = -BigInt(decimal.length) + BigInt(exponent);
 
-  return e >= 0n ? new Frac(i * 10n ** e, 1n) : new Frac(i, 10n ** -e);
+  return e >= 0n ? fracOf(i * 10n ** e, 1n) : fracOf(i, 10n ** -e);
 }
 
-/** Internal Fraction class */
-export class Frac {
+/**
+ * Returns a Frac from the given numerator and denominator
+ */
+export function fracOf(n: bigint, d: bigint): Frac {
+  if (!n) {
+    // zero
+    return { n: 0n, d: 1n };
+  }
+  if (!d) {
+    // infinity
+    return { n: n >= 0n ? 1n : -1n, d: 0n };
+  }
+  if (d < 0n) {
+    n = -n;
+    d = -d;
+  }
+  const g = gcd(n, d);
+  return { n: n / g, d: d / g };
+}
+
+/** Internal Fraction type */
+export type Frac = {
   /** numerator */
-  public readonly n: bigint;
+  n: bigint;
 
   /** denominator */
-  public readonly d: bigint;
+  d: bigint;
+};
 
-  public constructor(numerator: bigint, denominator: bigint) {
-    let n = numerator,
-      d = denominator;
-    if (!n) {
-      // zero
-      this.n = 0n;
-      this.d = 1n;
-      return;
-    }
-    if (!d) {
-      // infinity
-      this.n = n >= 0n ? 1n : -1n;
-      this.d = d;
-      return;
-    }
-    if (d < 0n) {
-      n = -n;
-      d = -d;
-    }
-    const g = gcd(n, d);
-    this.n = n / g;
-    this.d = d / g;
-  }
+/**
+ * Add two Frac
+ */
+export function add(a: Frac, b: Frac): Frac {
+  return fracOf(a.n * b.d + b.n * a.d, a.d * b.d);
+}
 
-  public get inf(): boolean {
-    return !this.d;
-  }
+/**
+ * Subtract two Frac
+ */
+export function sub(a: Frac, b: Frac): Frac {
+  return fracOf(a.n * b.d - b.n * a.d, a.d * b.d);
+}
 
-  public add(x: Frac): Frac {
-    return new Frac(this.n * x.d + x.n * this.d, this.d * x.d);
-  }
+/**
+ * Multiply two Frac
+ */
+export function mul(a: Frac, b: Frac): Frac {
+  return fracOf(a.n * b.n, a.d * b.d);
+}
 
-  public sub(x: Frac): Frac {
-    return new Frac(this.n * x.d - x.n * this.d, this.d * x.d);
-  }
+/**
+ * Divide two Frac
+ */
+export function div(a: Frac, b: Frac): Frac {
+  return fracOf(a.n * b.d, a.d * b.n);
+}
 
-  public mul(x: Frac): Frac {
-    return new Frac(this.n * x.n, this.d * x.d);
-  }
-
-  public div(x: Frac): Frac {
-    return new Frac(this.n * x.d, this.d * x.n);
-  }
-
-  public mod(x: Frac): Frac {
-    return new Frac((this.n * x.d) % (this.d * x.n), this.d * x.d);
-  }
+/**
+ * Modulo two Frac
+ */
+export function mod(a: Frac, b: Frac): Frac {
+  return fracOf((a.n * b.d) % (a.d * b.n), a.d * b.d);
 }
 
 /** Get abs value */

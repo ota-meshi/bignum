@@ -12,7 +12,8 @@ import {
   signum,
   trunc,
 } from "../frac/operations/basic.mts";
-import { Frac, INF, N_INF, numOf } from "../frac/frac.mts";
+import type { Frac } from "../frac/frac.mts";
+import { INF, N_INF, numOf, toString } from "../frac/frac.mts";
 
 const RE_NUMBER = /^([+-]?(?:[1-9]\d*|0)?)(?:\.(\d+))?(?:e([+-]?\d+))?$/iu;
 
@@ -21,22 +22,21 @@ function parseValue(
   value: string | number | bigint | boolean | Frac | null | undefined,
 ): Frac | null {
   if (value == null) return null;
-  if (value instanceof Frac) return value;
+  if (typeof value === "object") return value;
   if (value === Infinity) return INF;
   if (value === -Infinity) return N_INF;
+  if (Number.isNaN(value)) return null;
+  if (
+    typeof value === "boolean" ||
+    typeof value === "bigint" ||
+    Number.isSafeInteger(value)
+  )
+    return numOf(BigInt(value));
   return parsePrimValue(value);
 }
 
 /** Parse a primitive value to a BigNum prop */
-function parsePrimValue(
-  value: string | number | bigint | boolean,
-): Frac | null {
-  if (typeof value === "boolean" || typeof value === "bigint")
-    return numOf(BigInt(value));
-  if (typeof value === "number") {
-    if (Number.isNaN(value)) return null;
-    if (Number.isSafeInteger(value)) return numOf(BigInt(value));
-  }
+function parsePrimValue(value: string | number): Frac | null {
   const match = RE_NUMBER.exec(String(value));
   if (!match) return null;
   const integer = match[1];
@@ -217,11 +217,11 @@ class BigNum {
 
   public isFinite(): boolean {
     const x = this.#p;
-    return x != null && !x.inf;
+    return x != null && Boolean(x.d);
   }
 
   public toString(): string {
-    return this.#p?.toString() ?? "NaN";
+    return toString(this.#p);
   }
 
   public [Symbol.toPrimitive](
@@ -247,7 +247,7 @@ class BigNum {
   public toNumber(): number {
     const x = this.#p;
     if (!x) return NaN;
-    if (x.inf) return x.n > 0 ? Infinity : -Infinity;
+    if (!x.d) return x.n > 0 ? Infinity : -Infinity;
     return Number(x.n) / Number(x.d);
   }
 }
