@@ -1,5 +1,16 @@
 # @bignum/template-compiler
 
+## 1.0.0
+
+### Major Changes
+
+- major version release ([#83](https://github.com/ota-meshi/bignum/pull/83))
+
+### Patch Changes
+
+- Updated dependencies [[`398c80f1224f122de10afbaa134dfb3703e3ab0d`](https://github.com/ota-meshi/bignum/commit/398c80f1224f122de10afbaa134dfb3703e3ab0d)]:
+  - @bignum/shared@1.0.0
+
 ## 0.3.0
 
 ### Minor Changes
