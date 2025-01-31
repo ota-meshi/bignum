@@ -1,5 +1,13 @@
 # @bignum/babel-plugin
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`398c80f1224f122de10afbaa134dfb3703e3ab0d`](https://github.com/ota-meshi/bignum/commit/398c80f1224f122de10afbaa134dfb3703e3ab0d)]:
+  - @bignum/template@1.0.0
+  - @bignum/template-compiler@1.0.0
+
 ## 1.0.0
 
 ### Minor Changes
