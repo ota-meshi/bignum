@@ -1,5 +1,11 @@
 # @bignum/template
 
+## 0.4.0
+
+### Minor Changes
+
+- feat: add babel-plugin ([#81](https://github.com/ota-meshi/bignum/pull/81))
+
 ## 0.3.4
 
 ### Patch Changes
