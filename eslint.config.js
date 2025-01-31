@@ -49,6 +49,13 @@ export default [
     },
   },
   {
+    files: ["**/fixtures/**/*.{js,ts,mjs,mts,cjs,cts}"],
+    rules: {
+      "n/no-extraneous-import": "off",
+      "no-console": "off",
+    },
+  },
+  {
     ignores: [
       ".nyc_output/",
       "lib/",
@@ -57,6 +64,7 @@ export default [
       "packages/*/lib/",
       "packages/*/temp/",
       "packages/*/coverage/",
+      "**/fixtures/**/*output.{js,ts,mjs,mts,cjs,cts}",
     ],
   },
 ];
