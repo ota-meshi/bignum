@@ -17,6 +17,7 @@ Write formulas with template literals.
 - Returns exact calculation results using arbitrary-precision arithmetic with BigInt.\
   (Similar to [big.js].)
 - The calculation engine is customizable.
+- You can pre-compiled using [@bignum/babel-plugin].
 
 ## 💿 Installation
 
@@ -27,9 +28,8 @@ npm install @bignum/template
 ## 📖 Usage
 
 ```js
-import { setupEngine } from "@bignum/template";
+import { f } from "@bignum/template";
 
-const f = setupEngine();
 const num = 0.1;
 const result = f`${num} + 0.1 * 2`;
 console.log(result); // 0.3
@@ -40,6 +40,10 @@ console.log(0.2 + 0.1); // 0.30000000000000004
 ```
 
 ## 🧮 API
+
+### f: BTEngine
+
+The standard calculation engine.
 
 ### setupEngine([context]): BTEngine
 
@@ -156,7 +160,8 @@ f`sqrt(2)`; // Returns the square root of 2.
 
 - [bigjs-literal]\
   This package is similar to [bigjs-literal] in that it uses template literals for calculations, but [bigjs-literal] has a 49kB file for the parser alone.\
-  The JavaScript file for the compiler that `@bignum/template` has is 8kB (without minify). (However, there is no ability to compile it in advance.)
+  The JavaScript file for the compiler that `@bignum/template` has is 8kB (without minify).
 
+[@bignum/babel-plugin]: ../babel-plugin/README.md
 [big.js]: https://github.com/MikeMcl/big.js
 [bigjs-literal]: https://www.npmjs.com/package/bigjs-literal

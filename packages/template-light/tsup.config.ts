@@ -4,13 +4,14 @@ export default defineConfig([
   {
     clean: true,
     dts: true,
-    entryPoints: ["src/index.mts"],
+    entry: ["src/index.mts"],
     format: ["esm", "cjs"],
     outDir: "lib",
     target: "node18",
   },
   {
-    entryPoints: {
+    clean: true,
+    entry: {
       "index.min": "src/index.mts",
     },
     format: ["esm"],

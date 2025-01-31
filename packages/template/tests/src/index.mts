@@ -1,8 +1,7 @@
-import { setupEngine } from "../../src/index.mjs";
+import { f } from "../../src/index.mjs";
 import * as snap from "@ota-meshi/test-snapshot";
 
 describe("standard tests", () => {
-  const f = setupEngine();
   for (const t of [
     // Doc tests
     // add
@@ -115,7 +114,6 @@ describe("standard tests", () => {
   }
 });
 describe("Big Number tests", () => {
-  const f = setupEngine();
   for (const t of [
     test`0.1 + 0.1 + 0.1`,
     test`${0.1} + ${0.1} + ${0.1}`,
@@ -130,7 +128,6 @@ describe("Big Number tests", () => {
   }
 });
 describe("Compare tests", () => {
-  const f = setupEngine();
   for (const t of [
     test`0.1 + 0.1 + 0.1 <= 0.3`,
     test`${0.1} + ${0.1} + ${0.1} == ${0.3}`,

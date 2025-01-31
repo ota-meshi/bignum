@@ -6,6 +6,7 @@ import {
 } from "@bignum/shared";
 import { compile } from "@bignum/template-compiler";
 import { BigNum } from "@bignum/core";
+import { toResult } from "./core.mts";
 export type {
   BTEngine,
   BTContext,
@@ -136,9 +137,7 @@ const defaultContext: BTContext<
     "+": (a) => normalize(a),
   },
   normalizeResult: (value) => {
-    const str = String(normalize(value));
-    const num = Number(str);
-    return String(num) === str ? num : str;
+    return toResult(normalize(value));
   },
   variables: Object.fromEntries(
     (
@@ -190,3 +189,4 @@ export function setupEngine<
       : (result as NORMALIZED);
   };
 }
+export const f = setupEngine();
