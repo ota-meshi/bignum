@@ -1,0 +1,5 @@
+import { multiply as _multiply, subtract as _subtract, toResult as _toResult, divide as _divide, modulo as _modulo, pow as _pow, negate as _negate, add as _add, equal as _equal, notEqual as _notEqual, gte as _gte, gt as _gt, lte as _lte, lt as _lt, sqrt as _sqrt, abs as _abs, trunc as _trunc, round as _round, floor as _floor, ceil as _ceil } from "@bignum/template/core";
+import * as t from "@bignum/template";
+export default function test() {
+  return [_toResult(_subtract(1, _multiply(2, 3))), _toResult(_subtract(1, _divide(6, 3))), _toResult(_subtract(4, _modulo(7, 3))), _toResult(_add(_pow(2, 4), _negate(3))), _toResult(_subtract(_negate(1), _multiply(2, 3))), _toResult(_subtract(_negate(1), _divide(6, 3))), _toResult(_subtract(_negate(4), _modulo(7, 3))), _toResult(_add(_pow(_negate(2), 4), 3)), _toResult(_equal(_add(1, 2), 3)), _toResult(_notEqual(_add(1, 2), 3)), _toResult(_gte(3, 3)), _toResult(_gt(3, 3)), _toResult(_lte(3, 3)), _toResult(_lt(3, 3)), _toResult(_sqrt(2)), _toResult(_abs(-2)), _toResult(_trunc("1.5")), _toResult(_round("1.5")), _toResult(_floor("1.5")), _toResult(_ceil("1.5"))];
+}

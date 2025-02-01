@@ -74,7 +74,7 @@ export default declare(() => {
                       name: "f",
                     })
                   ) {
-                    apply(parent.parentPath);
+                    apply(parent);
                   }
                 }
               }
