@@ -53,6 +53,7 @@ export default [
     rules: {
       "n/no-extraneous-import": "off",
       "no-console": "off",
+      "jsdoc/require-jsdoc": "off",
     },
   },
   {

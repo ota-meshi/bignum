@@ -33,6 +33,15 @@ describe("@bignum/babel-plugin", () => {
           fs.writeFileSync(outputPath, output?.code || "", "utf8");
         }
       });
+
+      it(`should match input and output`, async () => {
+        const inputPath = path.resolve(FIXTURES_ROOT, fileName);
+        const outputPath = inputPath.replace(/input\.(mjs|cjs)$/, "output.$1");
+
+        const expected = (await import(inputPath)).default();
+        const output = (await import(outputPath)).default();
+        assert.deepStrictEqual(output, expected);
+      });
     }
   }
 });

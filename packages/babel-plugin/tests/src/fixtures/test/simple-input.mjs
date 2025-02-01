@@ -1,3 +1,5 @@
 import { f } from "@bignum/template";
 
-console.log(f`1 + 2 + 3`);
+export default function test() {
+  return [f`1 + 2 + 3`];
+}
