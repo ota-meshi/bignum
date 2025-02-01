@@ -46,6 +46,16 @@ console.log(result); // 0.3
 console.log(f`${0.2} + ${0.1}`); // 0.3
 ```
 
+Output:
+
+```js
+import { multiply, add, toResult } from "@bignum/template/core";
+const num = 0.1;
+const result = toResult(add(num, multiply("0.1", 2)));
+console.log(result); // 0.3
+console.log(toResult(add(0.2, 0.1))); // 0.3
+```
+
 ## 🛸 Prior Art
 
 - [bigjs-literal]\

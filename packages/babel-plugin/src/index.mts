@@ -4,10 +4,12 @@ import { compile } from "@bignum/template-compiler";
 import { BigNum, toResult } from "@bignum/template/core";
 import type { NodePath } from "@babel/traverse";
 import * as t from "@babel/types";
+import type * as coreAll from "@bignum/template/core";
+
+type CoreMethod = keyof typeof coreAll;
 
 type Context = {
-  get bigNumId(): t.Identifier;
-  get toResultId(): t.Identifier;
+  getId(name: CoreMethod): t.Identifier;
 };
 
 export default declare(() => {
@@ -16,8 +18,17 @@ export default declare(() => {
 
     visitor: {
       Program(progPath) {
-        let bigNumId: t.Identifier | null = null;
-        let toResultId: t.Identifier | null = null;
+        const idMap = new Map<string, t.Identifier>();
+
+        /**
+         * Get the identifier for the name.
+         */
+        function getId(name: CoreMethod) {
+          if (idMap.has(name)) return idMap.get(name)!;
+          const id = addNamed(progPath, name, "@bignum/template/core");
+          idMap.set(name, id);
+          return id;
+        }
 
         /**
          * Apply the macro to the tagged template expression.
@@ -28,22 +39,7 @@ export default declare(() => {
           if (parentPath.isTaggedTemplateExpression()) {
             parentPath.replaceWith(
               generateAST(parentPath.node, {
-                get bigNumId() {
-                  if (bigNumId) return bigNumId;
-                  return (bigNumId = addNamed(
-                    progPath,
-                    "BigNum",
-                    "@bignum/template/core",
-                  ));
-                },
-                get toResultId() {
-                  if (toResultId) return toResultId;
-                  return (toResultId = addNamed(
-                    progPath,
-                    "toResult",
-                    "@bignum/template/core",
-                  ));
-                },
+                getId,
               }),
             );
           }
@@ -104,7 +100,7 @@ function generateAST(
   tagged: t.TaggedTemplateExpression,
   ctx: Context,
 ): t.Expression {
-  const bigNumSet = new Set<t.Expression>();
+  const valuesSet = new Set<t.Expression>();
 
   const template = tagged.quasi;
   const quasi = template.quasis.map((q) => q.value.raw);
@@ -112,27 +108,23 @@ function generateAST(
   const compiler = compile(quasi);
   const exprs = template.expressions as t.Expression[];
 
-  const result = compiler<string | t.Expression, t.Expression>(exprs, {
+  const resultValue = compiler<string | t.Expression, t.Expression>(exprs, {
     binaryOperations: {
-      "+": (a, b) => binExpr(a, "add", b),
-      "-": (a, b) => binExpr(a, "subtract", b),
-      "*": (a, b) => binExpr(a, "multiply", b),
-      "/": (a, b) => binExpr(a, "divide", b),
-      "%": (a, b) => binExpr(a, "modulo", b),
-      "**": (a, b) => binExpr(a, "pow", b),
-      "==": (a, b) => compare(a, "===", b),
-      "!=": (a, b) => compare(a, "!==", b),
-      "<=": (a, b) => compare(a, "<=", b),
-      "<": (a, b) => compare(a, "<", b),
-      ">=": (a, b) => compare(a, ">=", b),
-      ">": (a, b) => compare(a, ">", b),
+      "+": (a, b) => binCallExpr("add", a, b),
+      "-": (a, b) => binCallExpr("subtract", a, b),
+      "*": (a, b) => binCallExpr("multiply", a, b),
+      "/": (a, b) => binCallExpr("divide", a, b),
+      "%": (a, b) => binCallExpr("modulo", a, b),
+      "**": (a, b) => binCallExpr("pow", a, b),
+      "==": (a, b) => binCallExpr("equal", a, b),
+      "!=": (a, b) => binCallExpr("notEqual", a, b),
+      "<=": (a, b) => binCallExpr("lte", a, b),
+      "<": (a, b) => binCallExpr("lt", a, b),
+      ">=": (a, b) => binCallExpr("gte", a, b),
+      ">": (a, b) => binCallExpr("gt", a, b),
     },
     unaryOperations: {
-      "-": (a) =>
-        t.callExpression(
-          t.memberExpression(bigNumOf(a), t.identifier("negate")),
-          [],
-        ),
+      "-": (a) => callExpr("negate", a),
       "+": (a) => exprOf(a),
     },
     variables: Object.fromEntries(
@@ -149,65 +141,44 @@ function generateAST(
         ] as const
       ).map((k) => [
         k,
-        exprOf(t.memberExpression(t.identifier("Math"), t.identifier(k))),
+        t.memberExpression(t.identifier("Math"), t.identifier(k)),
       ]),
     ),
     functions: {
-      sqrt: (a) => callExpr(a, "sqrt"),
-      abs: (a) => callExpr(a, "abs"),
-      trunc: (a) => callExpr(a, "trunc"),
-      round: (a) => callExpr(a, "round"),
-      floor: (a) => callExpr(a, "floor"),
-      ceil: (a) => callExpr(a, "ceil"),
+      sqrt: (a) => callExpr("sqrt", a),
+      abs: (a) => callExpr("abs", a),
+      trunc: (a) => callExpr("trunc", a),
+      round: (a) => callExpr("round", a),
+      floor: (a) => callExpr("floor", a),
+      ceil: (a) => callExpr("ceil", a),
     },
   });
 
-  return t.callExpression(ctx.toResultId, [exprOf(result)]);
+  return t.callExpression(ctx.getId("toResult"), [exprOf(resultValue)]);
 
   /**
-   * Create a binary expression.
+   * Create a call expression with two arguments.
    */
-  function binExpr(
+  function binCallExpr(
+    operator: CoreMethod,
     a: string | t.Expression,
-    operator: keyof BigNum & string,
     b: string | t.Expression,
   ) {
-    const bignum = t.callExpression(
-      t.memberExpression(bigNumOf(a), t.identifier(operator)),
-      [exprOf(b)],
-    );
-    bigNumSet.add(bignum);
-    return bignum;
+    const result = t.callExpression(ctx.getId(operator), [
+      exprOf(a),
+      exprOf(b),
+    ]);
+    valuesSet.add(result);
+    return result;
   }
 
   /**
    * Create a call expression.
    */
-  function callExpr(a: string | t.Expression, method: keyof BigNum & string) {
-    const bignum = t.callExpression(
-      t.memberExpression(bigNumOf(a), t.identifier(method)),
-      [],
-    );
-    bigNumSet.add(bignum);
-    return bignum;
-  }
-
-  /**
-   * Create a binary expression.
-   */
-  function compare(
-    a: string | t.Expression,
-    operator: "===" | "!==" | ">" | "<" | ">=" | "<=",
-    b: string | t.Expression,
-  ) {
-    return t.binaryExpression(
-      operator,
-      t.callExpression(
-        t.memberExpression(bigNumOf(a), t.identifier("compareTo")),
-        [exprOf(b)],
-      ),
-      t.numericLiteral(0),
-    );
+  function callExpr(method: CoreMethod, a: string | t.Expression) {
+    const result = t.callExpression(ctx.getId(method), [exprOf(a)]);
+    valuesSet.add(result);
+    return result;
   }
 
   /**
@@ -223,21 +194,5 @@ function generateAST(
       return t.stringLiteral(value);
     }
     return value;
-  }
-
-  /**
-   * Get the BigNum expression
-   */
-  function bigNumOf(value: string | t.Expression) {
-    const expr = exprOf(value);
-    if (bigNumSet.has(expr)) {
-      return expr;
-    }
-    const bignum = t.callExpression(
-      t.memberExpression(ctx.bigNumId, t.identifier("valueOf")),
-      [expr],
-    );
-    bigNumSet.add(bignum);
-    return bignum;
   }
 }
