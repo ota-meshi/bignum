@@ -9,6 +9,11 @@
       "import": "./lib/index.js",
       "require": "./lib/index.cjs",
       "default": "./lib/index.js"
+    },
+    "./core": {
+      "import": "./lib/core.js",
+      "require": "./lib/core.cjs",
+      "default": "./lib/core.js"
     }
   },
   "files": [

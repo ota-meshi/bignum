@@ -1,4 +1,5 @@
-import { add, div, mod, mul, sub, valueOf, type Frac } from "./frac.mts";
+import { add, div, mod, mul, sub } from "./core.mts";
+import type { Frac } from "./frac.mts";
 
 // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
 const PRECEDENCE = {
@@ -25,9 +26,7 @@ const BINARY_OPERATIONS = {
   "%": (a: Frac, b: Frac) => mod(a, b),
 } as const;
 
-type Compiled = <OPERAND extends string | number | bigint>(
-  params: OPERAND[],
-) => Frac;
+type Compiled = (params: Frac[]) => Frac;
 
 const enum TokenType {
   punctuator,
@@ -63,7 +62,7 @@ function* tokens(elements: readonly string[]): Iterable<Token> {
     if (elements.length > index + 1) {
       yield {
         t: TokenType.operand,
-        v: (params) => valueOf(params[index]),
+        v: (params) => params[index],
       };
     }
   }
