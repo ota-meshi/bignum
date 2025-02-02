@@ -31,14 +31,12 @@ export function divideDigits(n: bigint, d: bigint): DivideDigits {
           remainder >=
           d * pow
         ) {
-          for (let nn = 9n; nn > 0n; nn--) {
-            const amount = d * nn * pow;
-            if (remainder < amount) continue;
-            // Set digit
-            digit = nn;
-            remainder -= amount;
-            break;
-          }
+          let nn = 9n;
+          let amount;
+          while (remainder < (amount = d * nn * pow)) nn--;
+          // Set digit
+          digit = nn;
+          remainder -= amount;
         }
         yield digit;
         if (pow >= 10n) pow /= 10n;
