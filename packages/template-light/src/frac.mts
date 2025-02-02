@@ -32,7 +32,7 @@ function parsePrimValue(value: string | number): Frac {
 /**
  * Returns a Frac from the given numerator and denominator
  */
-export function fracOf(n: bigint, d: bigint): Frac {
+function fracOf(n: bigint, d: bigint): Frac {
   if (!n) {
     // zero
     return { n: 0n, d: 1n };

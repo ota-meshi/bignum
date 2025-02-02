@@ -41,6 +41,7 @@ describe("@bignum/babel-plugin", () => {
         const expected = (await import(inputPath)).default();
         const output = (await import(outputPath)).default();
         assert.deepStrictEqual(output, expected);
+        // console.log(fileName, expected);
       });
     }
   }

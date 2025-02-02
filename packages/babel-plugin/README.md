@@ -13,12 +13,15 @@ Babel plugin to replace tagged template literals with BigNum JS expressions.
 ## 🚀 Features
 
 - This pre-compiles tagged template literals written with [@bignum/template].f`.
+- It also, pre-compiles tagged template literals written with [@bignum/template-light].f`.
 
 ## 💿 Installation
 
 ```bash
 npm install -D @bignum/babel-plugin
 npm install @bignum/template
+# or
+npm install @bignum/template-light
 ```
 
 ## 📖 Usage
@@ -56,6 +59,22 @@ console.log(result); // 0.3
 console.log(toResult(add(0.2, 0.1))); // 0.3
 ```
 
+Or use `@bignum/template-light`.`f` to write the calculation formula.
+
+```js
+import { f } from "@bignum/template-light";
+
+console.log(f`${0.2} + ${0.1}`); // 0.3
+```
+
+Output:
+
+```js
+import { add, execCompiled } from "@bignum/template-light/core";
+
+console.log(execCompiled([0.2, 0.1], args => add(args[0], args[1]))); // 0.3
+```
+
 ## 🛸 Prior Art
 
 - [bigjs-literal]\
@@ -63,3 +82,4 @@ console.log(toResult(add(0.2, 0.1))); // 0.3
 
 [bigjs-literal]: https://www.npmjs.com/package/bigjs-literal
 [@bignum/template]: ../template/README.md
+[@bignum/template-light]: ../template-light/README.md

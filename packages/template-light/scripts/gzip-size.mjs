@@ -8,6 +8,9 @@ const __dirname = new URL(".", import.meta.url).pathname;
 const README_PATH = path.join(__dirname, "../README.md");
 
 const minified = fs.readFileSync(path.join(__dirname, "../temp/index.min.js"));
+const coreMinified = fs.readFileSync(
+  path.join(__dirname, "../temp/core.min.js"),
+);
 
 fs.writeFileSync(
   README_PATH,
@@ -16,6 +19,10 @@ fs.writeFileSync(
     .replace(
       /<span class="minified-size">[\s\S]*?<\/span>/u,
       `<span class="minified-size"> ${displayFileSize(Buffer.byteLength(minified, "utf8"))} (Minified and gzipped: ${displayFileSize(gzipSizeSync(minified, "utf8"))}) </span>`,
+    )
+    .replace(
+      /<span class="core-minified-size">[\s\S]*?<\/span>/u,
+      `<span class="core-minified-size"> ${displayFileSize(Buffer.byteLength(coreMinified, "utf8"))} (Minified and gzipped: ${displayFileSize(gzipSizeSync(coreMinified, "utf8"))}) </span>`,
     ),
 );
 

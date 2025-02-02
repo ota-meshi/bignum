@@ -1,4 +1,5 @@
 import { compile } from "./compiler.mts";
+import { execCompiled } from "./core.mts";
 
 /** Formula Literal Engine */
 export function f<OPERAND extends string | number | bigint>(
@@ -6,6 +7,5 @@ export function f<OPERAND extends string | number | bigint>(
   ...substitutions: OPERAND[]
 ): number {
   const fn = compile(template);
-  const result = fn(substitutions);
-  return Number(result.n) / Number(result.d);
+  return execCompiled(substitutions, fn);
 }
