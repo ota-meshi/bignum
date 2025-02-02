@@ -90,15 +90,13 @@ export function sqrt(x: Frac, options?: MathOptions): Frac | null {
       remainder >=
       part + 1n
     ) {
-      for (let nn = 9n; nn > 0n; nn--) {
-        const amount = (part + nn) * nn;
-        if (remainder < amount) continue;
-        // Set digit
-        numCtx.set(nn);
-        remainder -= amount;
-        part += nn * 2n;
-        break;
-      }
+      let nn = 9n;
+      let amount;
+      while (remainder < (amount = (part + nn) * nn)) nn--;
+      // Set digit
+      numCtx.set(nn);
+      remainder -= amount;
+      part += nn * 2n;
     }
     if (numCtx.overflow()) break;
     numCtx.prepareNext();
