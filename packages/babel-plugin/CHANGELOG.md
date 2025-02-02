@@ -1,5 +1,22 @@
 # @bignum/babel-plugin
 
+## 2.0.0
+
+### Minor Changes
+
+- feat: add support for `@bignum/template-light` to babel plugin ([#90](https://github.com/ota-meshi/bignum/pull/90))
+
+- feat: Improved babel-plugin to optimize output ([#85](https://github.com/ota-meshi/bignum/pull/85))
+
+- feat: Improved babel-plugin to optimize output ([#87](https://github.com/ota-meshi/bignum/pull/87))
+
+### Patch Changes
+
+- fix: bug for import all ([#88](https://github.com/ota-meshi/bignum/pull/88))
+
+- Updated dependencies [[`6dd5299f20b28a8b3064698bbd0d2127180278a7`](https://github.com/ota-meshi/bignum/commit/6dd5299f20b28a8b3064698bbd0d2127180278a7)]:
+  - @bignum/template@1.1.0
+
 ## 1.0.1
 
 ### Patch Changes

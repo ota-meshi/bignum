@@ -1,5 +1,11 @@
 # @bignum/template
 
+## 1.1.0
+
+### Minor Changes
+
+- feat: Improved babel-plugin to optimize output ([#87](https://github.com/ota-meshi/bignum/pull/87))
+
 ## 1.0.0
 
 ### Major Changes
