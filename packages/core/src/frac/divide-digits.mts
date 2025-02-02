@@ -5,7 +5,6 @@ export type DivideDigits = {
   e: bigint;
   /** Iterate over each digit. */
   digits: (infinity?: boolean) => Iterable<bigint>;
-  hasRemainder: () => boolean;
 };
 
 /** Returns an instance that allows you to iterate through the digits of the result of division. */
@@ -21,7 +20,6 @@ export function divideDigits(n: bigint, d: bigint): DivideDigits {
   let remainder = initRemainder;
   const dd: DivideDigits = {
     e,
-    hasRemainder: () => remainder > 0n,
     *digits(infinity?: boolean) {
       remainder = initRemainder;
       let pow = initRemainderPow;
