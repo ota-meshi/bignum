@@ -1,5 +1,11 @@
 # @bignum/template-light
 
+## 1.1.0
+
+### Minor Changes
+
+- feat: add support for `@bignum/template-light` to babel plugin ([#90](https://github.com/ota-meshi/bignum/pull/90))
+
 ## 1.0.0
 
 ### Major Changes
