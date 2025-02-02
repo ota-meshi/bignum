@@ -25,6 +25,8 @@ jobs:
         run: npm run update-readme-size --workspaces --if-present
       - name: Format
         run: npm run eslint-fix
+      - name: Revert lock-file
+        run: git checkout package-lock.json
       - uses: peter-evans/create-pull-request@v7
         with:
           commit-message: Updates file size in README.md
