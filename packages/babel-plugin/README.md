@@ -72,7 +72,7 @@ Output:
 ```js
 import { add, execCompiled } from "@bignum/template-light/core";
 
-console.log(execCompiled([0.2, 0.1], args => add(args[0], args[1]))); // 0.3
+console.log(execCompiled([0.2, 0.1], (args) => add(args[0], args[1]))); // 0.3
 ```
 
 ## 🛸 Prior Art
