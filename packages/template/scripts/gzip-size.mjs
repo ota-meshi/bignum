@@ -7,8 +7,9 @@ const __dirname = new URL(".", import.meta.url).pathname;
 
 const README_PATH = path.join(__dirname, "../README.md");
 
-const compiler = fs.readFileSync(path.join(__dirname, "../temp/index.js"));
-// const minified = fs.readFileSync(path.join(__dirname, "../temp/index.min.js"));
+const compiler = fs.readFileSync(
+  path.join(__dirname, "../temp/template-compiler.js"),
+);
 
 const bigjsLiteralParser = fs.readFileSync(
   createRequire(import.meta.url).resolve("bigjs-literal/src/parser"),
@@ -18,8 +19,8 @@ fs.writeFileSync(
   fs
     .readFileSync(README_PATH, "utf8")
     .replace(
-      /<span class="compiler-size">[\s\S]*?<\/span>/u,
-      `<span class="compiler-size"> ${displayFileSize(Buffer.byteLength(compiler, "utf8"))} <!-- ${fileSize(Buffer.byteLength(compiler, "utf8"))} --> (without minify) </span>`,
+      /<span class="template-compiler-size">[\s\S]*?<\/span>/u,
+      `<span class="template-compiler-size"> ${displayFileSize(Buffer.byteLength(compiler, "utf8"))} <!-- ${fileSize(Buffer.byteLength(compiler, "utf8"))} --> (without minify) </span>`,
     )
     .replace(
       /<span class="bigjs-literal-parser-size">[\s\S]*?<\/span>/u,

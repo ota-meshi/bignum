@@ -11,8 +11,7 @@ export default defineConfig([
     target: "node18",
   },
   ...Object.entries({
-    index: "src/index.mts",
-    "index.min": "src/index.mts",
+    "template-compiler": "../template-compiler",
   }).map(([key, value]) => {
     return {
       clean: true,
