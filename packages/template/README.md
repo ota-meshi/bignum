@@ -159,8 +159,8 @@ f`sqrt(2)`; // Returns the square root of 2.
 ## 🛸 Prior Art
 
 - [bigjs-literal]\
-  This package is similar to [bigjs-literal] in that it uses template literals for calculations, but [bigjs-literal] has a 49kB file for the parser alone.\
-  The JavaScript file for the compiler that `@bignum/template` has is 8kB (without minify).
+  This package is similar to [bigjs-literal] in that it uses template literals for calculations, but [bigjs-literal] has a <span class="bigjs-literal-parser-size"> 48.3 KB <!-- 49484 bytes --> </span> file for the parser alone.\
+  The JavaScript file for the compiler that `@bignum/template` has is <span class="compiler-size"> 11.4 KB <!-- 11655 bytes --> (without minify) </span>.
 
 [@bignum/babel-plugin]: ../babel-plugin/README.md
 [big.js]: https://github.com/MikeMcl/big.js
