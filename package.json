@@ -74,7 +74,7 @@
     "prettier": "^3.0.0",
     "pretty-format": "^29.7.0",
     "rimraf": "^6.0.0",
-    "ts-node": "^10.4.0",
+    "ts-node": "^10.9.2",
     "tsup": "^8.0.0",
     "typescript": "~5.7.0",
     "typescript-eslint": "^8.0.0"

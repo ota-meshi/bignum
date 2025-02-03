@@ -55,16 +55,18 @@ export default declare(() => {
               } else if (specNode.type === "ImportSpecifier") {
                 if (specNode.imported.type === "Identifier") {
                   if (specNode.imported.name === "f") {
-                    path.scope.bindings[
-                      specNode.local.name
-                    ].referencePaths.forEach((p) => apply(p, kind));
+                    for (const ref of path.scope.bindings[specNode.local.name]
+                      .referencePaths) {
+                      apply(ref, kind);
+                    }
                     removeSpecs.add(spec);
                   }
                 }
               } else if (specNode.type === "ImportNamespaceSpecifier") {
-                for (const p of path.scope.bindings[specNode.local.name]
-                  .referencePaths) {
-                  const parent = p.parentPath;
+                const unremovedPaths = path.scope.bindings[
+                  specNode.local.name
+                ].referencePaths.filter((ref) => {
+                  const parent = ref.parentPath;
                   if (
                     parent?.isMemberExpression() &&
                     parent.get("property").isIdentifier({
@@ -72,7 +74,12 @@ export default declare(() => {
                     })
                   ) {
                     apply(parent, kind);
+                    return false; // removed path
                   }
+                  return true;
+                });
+                if (unremovedPaths.length === 0) {
+                  removeSpecs.add(spec);
                 }
               }
             }
