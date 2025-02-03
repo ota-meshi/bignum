@@ -1,5 +1,11 @@
 # @bignum/babel-plugin
 
+## 2.1.0
+
+### Minor Changes
+
+- feat: Improved babel-plugin to optimize output ([#95](https://github.com/ota-meshi/bignum/pull/95))
+
 ## 2.0.0
 
 ### Minor Changes
