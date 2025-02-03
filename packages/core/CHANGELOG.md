@@ -1,5 +1,13 @@
 # @bignum/core
 
+## 1.1.0
+
+### Minor Changes
+
+- feat: remove unnecessary code ([#92](https://github.com/ota-meshi/bignum/pull/92))
+
+- feat: reduce code size ([#93](https://github.com/ota-meshi/bignum/pull/93))
+
 ## 1.0.0
 
 ### Major Changes
