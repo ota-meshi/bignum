@@ -85,19 +85,18 @@ export function sqrt(x: Frac, options?: MathOptions): Frac | null {
     remainder = remainder * 100n + bf.shift()! * 10n + bf.shift()!;
     part *= 10n;
     // Find digit
-    if (
-      // Short circuit: If 1 is not available, it will not loop.
+    let amount;
+    let nn = 0n;
+    while (
       remainder >=
-      part + 1n
+      // amount = (part + nn) * nn  -  /* Next ((part + nn) * nn) */((part + (nn+1)) * (nn+1))
+      (amount = nn + part + nn + 1n)
     ) {
-      let nn = 9n;
-      let amount;
-      while (remainder < (amount = (part + nn) * nn)) nn--;
-      // Set digit
-      numCtx.set(nn);
+      nn++;
       remainder -= amount;
-      part += nn * 2n;
     }
+    numCtx.set(nn);
+    part += nn * 2n;
     if (numCtx.overflow()) break;
     numCtx.prepareNext();
   }

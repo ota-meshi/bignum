@@ -17,25 +17,17 @@ export function divideDigits(n: bigint, d: bigint): DivideDigits {
   if (e >= 0n) initRemainderPow = 10n ** e;
   else initRemainder = initRemainder * 10n ** -e;
 
-  let remainder = initRemainder;
   const dd: DivideDigits = {
     e,
     *digits(infinity?: boolean) {
-      remainder = initRemainder;
+      let remainder = initRemainder;
       let pow = initRemainderPow;
       while (remainder > 0n) {
         // Find digit
+        const amount = pow * d;
         let digit = 0n;
-        if (
-          // Short circuit: If 1 is not available, it will not loop.
-          remainder >=
-          d * pow
-        ) {
-          let nn = 9n;
-          let amount;
-          while (remainder < (amount = d * nn * pow)) nn--;
-          // Set digit
-          digit = nn;
+        while (remainder >= amount) {
+          digit++;
           remainder -= amount;
         }
         yield digit;
