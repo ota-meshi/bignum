@@ -2,7 +2,7 @@ import type { MathOptions } from "../../options.mts";
 import { abs as absFrac, compareTo, divide, multiply } from "./basic.mts";
 import { divideDigits } from "../divide-digits.mts";
 import type { Frac } from "../frac.mts";
-import { INF, N_INF, ZERO, fracOf, numOf } from "../frac.mts";
+import { INF, ZERO, fracOf, numOf } from "../frac.mts";
 import { createNthRootTable } from "../nth-root-utils.mts";
 import { numberContext } from "../number-context.mts";
 import { abs, isEven } from "../util.mts";
@@ -43,8 +43,6 @@ export function pow(x: Frac, n: Frac, options?: MathOptions): Frac | null {
 
 /** Returns a Frac whose value is `x * 10 ** n`. */
 export function scaleByPowerOfTen(x: Frac, n: Frac): Frac | null {
-  if (!x.d) return !n.d ? (n.n > 0 ? x : null) : x;
-  if (!n.d) return n.n < 0n ? ZERO : !x.n ? null : x.n >= 0n ? INF : N_INF;
   return multiply(x, pow(TEN, n)!);
 }
 

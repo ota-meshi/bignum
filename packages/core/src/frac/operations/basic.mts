@@ -21,24 +21,18 @@ export function abs(x: Frac): Frac {
 
 /** Returns a Frac whose value is `x + y`. */
 export function add(x: Frac, y: Frac): Frac | null {
-  return !x.d && !y.d && x.n !== y.n
-    ? null
-    : x.d === y.d
-      ? fracOf(x.n + y.n, x.d)
-      : fracOf(x.n * y.d + y.n * x.d, x.d * y.d);
+  return x.d === y.d
+    ? ofNullable(x.n + y.n, x.d)
+    : ofNullable(x.n * y.d + y.n * x.d, x.d * y.d);
 }
 
 /** Returns a Frac whose value is `x * y`. */
 export function multiply(x: Frac, y: Frac): Frac | null {
-  return (!x.d && !y.n) || (!y.d && !x.n) ? null : mul(x.n, y.n, x.d, y.d);
+  return mul(x.n, y.n, x.d, y.d);
 }
 /** Returns a Frac whose value is `x / y`. */
 export function divide(x: Frac, y: Frac): Frac | null {
-  return !x.d && !y.d
-    ? null
-    : y.n >= 0n
-      ? mul(x.n, y.d, x.d, y.n)
-      : mul(x.n, -y.d, x.d, -y.n);
+  return y.n >= 0n ? mul(x.n, y.d, x.d, y.n) : mul(x.n, -y.d, x.d, -y.n);
 }
 
 /** Returns a Frac whose value is `x % y`. */
@@ -96,9 +90,16 @@ export function ceil(x: Frac): Frac {
 }
 
 /** Multiply two fractions. */
-function mul(n1: bigint, n2: bigint, d1: bigint, d2: bigint): Frac {
+function mul(n1: bigint, n2: bigint, d1: bigint, d2: bigint): Frac | null {
   // Avoid large integers by reducing the value by the greatest common divisor of each element.
   const gA = gcd(n1, d2);
   const gB = gcd(n2, d1);
-  return fracOf((n1 / gA) * (n2 / gB), (d1 / gB) * (d2 / gA));
+  return !gA || !gB
+    ? null /* NaN */
+    : fracOf((n1 / gA) * (n2 / gB), (d1 / gB) * (d2 / gA));
+}
+
+/** Returns a Frac or null from the given numerator and denominator  */
+function ofNullable(n: bigint, d: bigint): Frac | null {
+  return !n && !d ? null /* NaN */ : fracOf(n, d);
 }
