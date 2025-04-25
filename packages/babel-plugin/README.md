@@ -12,8 +12,8 @@ Babel plugin to replace tagged template literals with BigNum JS expressions.
 
 ## 🚀 Features
 
-- This pre-compiles tagged template literals written with [@bignum/template].f`.
-- It also, pre-compiles tagged template literals written with [@bignum/template-light].f`.
+- This pre-compiles tagged template literals written with [@bignum/template].f\`···\`.
+- It also, pre-compiles tagged template literals written with [@bignum/template-light].f\`···\`.
 
 ## 💿 Installation
 
