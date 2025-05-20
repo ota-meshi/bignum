@@ -63,7 +63,7 @@
     "eslint-plugin-jsdoc": "^50.0.0",
     "eslint-plugin-json-schema-validator": "^5.0.0",
     "eslint-plugin-jsonc": "^2.5.0",
-    "eslint-plugin-math": "^0.6.0",
+    "eslint-plugin-math": "^0.7.0",
     "eslint-plugin-n": "^17.0.0",
     "eslint-plugin-node-dependencies": "^1.0.0",
     "eslint-plugin-prettier": "^5.0.0",
