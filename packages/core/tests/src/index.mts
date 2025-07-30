@@ -44,7 +44,7 @@ const B_TESTS: BTest[] = [
     n: (a, b) => new Decimal(a).pow(b).toString(),
     b: (a: BigNum, b: BigNum) => a.pow(b),
     ignore: (a, b) => {
-      if (!isFinite(a) || !isFinite(b)) return false;
+      if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
       const abs = Math.abs(b);
       if (abs && (abs > 1000 || abs < 0.001)) return true;
       if (String(abs).length > 5) return true;
@@ -56,7 +56,7 @@ const B_TESTS: BTest[] = [
     n: (a, b) => new Decimal(a).mul(new Decimal(10).pow(b)).toString(),
     b: (a: BigNum, b: BigNum) => a.scaleByPowerOfTen(b),
     ignore: (a, b) => {
-      if (!isFinite(a) || !isFinite(b)) return false;
+      if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
       const abs = Math.abs(b);
       if (String(abs).length > 5) return true;
       return false;
@@ -67,7 +67,7 @@ const B_TESTS: BTest[] = [
     n: (a, b) => new Decimal(a).pow(new Decimal(1).div(b)).toString(),
     b: (a: BigNum, b: BigNum) => a.nthRoot(b),
     ignore: (a, b) => {
-      if (!isFinite(a) || !isFinite(b)) return false;
+      if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
       const abs = Math.abs(b);
       if (String(abs).length > 5) return true;
       if (String(abs).length >= 5 && String(a).length >= 9) return true;
@@ -80,7 +80,9 @@ const B_TESTS: BTest[] = [
     n: (a, b) => new Decimal(a).pow(new Decimal(1).div(b)).toString(),
     b: (a: BigNum, b: BigNum) => a.pow(BigNum.valueOf(1).divide(b)),
     ignore: (a, b) =>
-      isFinite(a) && isFinite(b) && (a < 0 || String(b).length > 5),
+      Number.isFinite(a) &&
+      Number.isFinite(b) &&
+      (a < 0 || String(b).length > 5),
   },
   {
     op: "compareTo",
