@@ -4,8 +4,8 @@ on:
   workflow_dispatch: null
 
 permissions:
-    contents: write
-    pull-requests: write
+  contents: write
+  pull-requests: write
 
 jobs:
   format:
@@ -22,7 +22,7 @@ jobs:
         run: npm run eslint-fix
       - uses: peter-evans/create-pull-request@v7
         with:
-            commit-message: Format
-            branch: format
-            branch-suffix: timestamp
-            title: Format
+          commit-message: Format
+          branch: format
+          branch-suffix: timestamp
+          title: Format

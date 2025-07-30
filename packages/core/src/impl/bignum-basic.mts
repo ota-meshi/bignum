@@ -238,7 +238,7 @@ class BigNum {
     const n = this.toNumber();
     if (!this.isFinite()) return n;
     const s = this.toString();
-    if (!isFinite(n) || String(n).includes("e")) return s;
+    if (!Number.isFinite(n) || String(n).includes("e")) return s;
     const f1 = parsePrimValue(n)!;
     const f2 = parsePrimValue(s)!;
     return f1.n === f2.n && f1.d === f2.d ? n : s;
