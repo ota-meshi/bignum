@@ -114,13 +114,13 @@ export function parse(str: string, radix: number): Frac | null {
   let num = 0n;
   for (let ch = chars.shift(); ch && ch !== "."; ch = chars.shift()) {
     const i = parseInt(ch, radix);
-    if (isNaN(i)) return null;
+    if (Number.isNaN(i)) return null;
     num = num * radixInt + BigInt(i);
   }
   let fracNum = 0n;
   for (const ch of chars) {
     const i = parseInt(ch, radix);
-    if (isNaN(i)) return null;
+    if (Number.isNaN(i)) return null;
     fracNum = fracNum * radixInt + BigInt(i);
   }
   const denom = radixInt ** BigInt(chars.length);
