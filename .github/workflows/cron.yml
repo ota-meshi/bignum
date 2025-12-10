@@ -27,7 +27,7 @@ jobs:
         run: npm run eslint-fix
       - name: Revert lock-file
         run: git checkout package-lock.json
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         with:
           commit-message: Updates file size in README.md
           branch: update-file-size
