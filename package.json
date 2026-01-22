@@ -52,8 +52,8 @@
     "@types/estree": "^1.0.0",
     "@types/mocha": "^10.0.0",
     "@types/natural-compare": "^1.4.3",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
     "bignumber.js": "^9.1.2",
     "c8": "^10.0.0",
     "decimal.js": "^10.4.3",
@@ -62,7 +62,7 @@
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-jsdoc": "^62.0.0",
     "eslint-plugin-json-schema-validator": "^6.0.0",
-    "eslint-plugin-jsonc": "^2.5.0",
+    "eslint-plugin-jsonc": "^2.21.0",
     "eslint-plugin-math": "^0.13.0",
     "eslint-plugin-n": "^17.0.0",
     "eslint-plugin-node-dependencies": "^1.0.0",
@@ -77,6 +77,6 @@
     "ts-node": "^10.9.2",
     "tsup": "^8.0.0",
     "typescript": "~5.9.0",
-    "typescript-eslint": "^8.0.0"
+    "typescript-eslint": "^8.53.1"
   }
 }
