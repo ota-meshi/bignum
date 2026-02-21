@@ -1,6 +1,6 @@
 /* eslint @typescript-eslint/no-shadow: 0 -- ignore check */
 import { BigNum } from "../../src/index.mjs";
-import assert from "assert";
+import assert from "node:assert";
 import * as snap from "@ota-meshi/test-snapshot";
 import { Decimal } from "decimal.js";
 Decimal.set({
