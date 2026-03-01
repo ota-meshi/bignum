@@ -15,8 +15,8 @@ Arbitrary-precision decimal arithmetic with BigInt.
 - Class for arbitrary-precision arithmetics using BigInt.
 - It can handle very large and very small numbers.
 - It can also handle NaN and Infinity.
-- <span class="minified-size"> 7.1 KB <!-- 7293 bytes --> minified ([bignumber.js]: 18.2 KB) </span>.
-- <span class="minified-and-gzipped-size"> 3.0 KB minified and gzipped ([bignumber.js]: 8.1 KB) </span>.
+- <span class="minified-size"> 7.1 KB <!-- 7293 bytes --> minified ([bignumber.js]: 17.9 KB) </span>.
+- <span class="minified-and-gzipped-size"> 3.0 KB minified and gzipped ([bignumber.js]: 8.0 KB) </span>.
 
 ## 💿 Installation
 
