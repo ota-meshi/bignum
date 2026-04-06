@@ -77,7 +77,7 @@ console.log(f`${0.1} + 0.2`); // 0.3
 
 The default engine performs calculations as exact rational arithmetic. It usually returns a `number`, but if converting the result to `number` would lose precision, it returns a `string` instead.
 
-For finite decimals, that string preserves the exact value. For repeating decimals, the internal calculation is still exact, but converting the result to text uses `BigNum#toString()`, which truncates the decimal expansion after 20 digits by default. For example, `f\`1 / 3\``returns`"0.33333333333333333333"`.
+For finite decimals, that string preserves the exact value. For repeating decimals, the internal calculation is still exact, but converting the result to text uses `BigNum#toString()`, which truncates the decimal expansion after 20 digits by default. For example, `f\`1 / 3\`` returns `"0.33333333333333333333"`.
 
 ## 📝 Supported Syntax
 
