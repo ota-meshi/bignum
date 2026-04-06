@@ -1,6 +1,6 @@
 # @bignum/babel-plugin
 
-Babel plugin to replace tagged template literals with BigNum JS expressions.
+Babel plugin that replaces tagged template literals with BigNum expressions.
 
 [![NPM license](https://img.shields.io/npm/l/@bignum/babel-plugin.svg)](https://www.npmjs.com/package/@bignum/babel-plugin)
 [![NPM version](https://img.shields.io/npm/v/@bignum/babel-plugin.svg)](https://www.npmjs.com/package/@bignum/babel-plugin)
@@ -13,7 +13,7 @@ Babel plugin to replace tagged template literals with BigNum JS expressions.
 ## 🚀 Features
 
 - This pre-compiles tagged template literals written with [@bignum/template].f\`···\`.
-- It also, pre-compiles tagged template literals written with [@bignum/template-light].f\`···\`.
+- It also pre-compiles tagged template literals written with [@bignum/template-light].f\`···\`.
 
 ## 💿 Installation
 

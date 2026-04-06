@@ -1,6 +1,6 @@
 # @bignum
 
-A various JavaScript utility library for performing arbitrary-precision arithmetics.
+A JavaScript utility library for arbitrary-precision arithmetic.
 
 ## 🚀 Packages
 
@@ -10,13 +10,15 @@ A various JavaScript utility library for performing arbitrary-precision arithmet
   - Write formulas with template literals.
 - [@bignum/template-light](./packages/template-light/README.md)
   - Write formulas with template literals. (**light version**)
+- [@bignum/babel-plugin](./packages/babel-plugin/README.md)
+  - Pre-compile tagged template literals.
 
 ## 📖 Basic Examples
 
 ```js
 import { BigNum } from "@bignum/core";
 
-// Perform exact calculations using the arbitrary-precision arithmetic with BigInt.
+// Perform exact calculations using arbitrary-precision arithmetic with BigInt.
 console.log(BigNum.valueOf(0.2).add(BigNum.valueOf(0.1)).toString()); // 0.3
 console.log(0.2 + 0.1); // 0.30000000000000004
 ```
