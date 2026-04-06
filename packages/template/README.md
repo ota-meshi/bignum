@@ -17,7 +17,7 @@ Write formulas with template literals.
 - Returns exact calculation results using arbitrary-precision arithmetic with BigInt.\
   (Similar to [big.js].)
 - The calculation engine is customizable.
-- You can pre-compiled using [@bignum/babel-plugin].
+- You can pre-compile expressions using [@bignum/babel-plugin].
 
 ## 💿 Installation
 
@@ -34,7 +34,7 @@ const num = 0.1;
 const result = f`${num} + 0.1 * 2`;
 console.log(result); // 0.3
 
-// Perform exact calculations using the arbitrary-precision arithmetic with BigInt.
+// Perform exact calculations using arbitrary-precision arithmetic with BigInt.
 console.log(f`${0.2} + ${0.1}`); // 0.3
 console.log(0.2 + 0.1); // 0.30000000000000004
 ```
@@ -54,7 +54,13 @@ Returns the calculation engine.
 
 #### setupEngine context
 
-TBA
+The `context` object can define:
+
+- `binaryOperations`: handlers for binary operators such as `+`, `-`, `*`, `/`, `%`, `**`, `==`, `!=`, `<=`, `<`, `>=`, and `>`.
+- `unaryOperations`: handlers for unary operators such as `+` and `-`.
+- `variables`: identifier values that can be referenced from expressions.
+- `functions`: callable functions such as `sqrt(...)`.
+- `normalizeResult`: a final conversion step for the computed result.
 
 ### BTEngine
 
@@ -69,7 +75,7 @@ const f = setupEngine();
 console.log(f`${0.1} + 0.2`); // 0.3
 ```
 
-The calculation result usually returns a `number`, but if the `number` loses precision when converted to a `string`, it returns a `string` with the original precision is returned.
+The default engine usually returns a `number`, but if converting the result to `number` would lose precision, it returns a `string` that preserves the original precision.
 
 ## 📝 Supported Syntax
 
@@ -110,7 +116,7 @@ f`1 <= 2`; // 1
 f`1 <= 1`; // 1
 f`1 <= 0`; // 0
 f`1 < 2`; // 1
-f`1 < 1`; // 0
+f`2 < 1`; // 0
 f`1 < 1`; // 0
 f`2 >= 1`; // 1
 f`1 >= 1`; // 1
@@ -122,7 +128,7 @@ f`0 > 1`; // 0
 
 ### Operand
 
-Either write the numerical value as is in the template, or the template literal substitution is considered as an operand.
+Either write a numeric literal directly in the template, or use a template literal substitution as an operand.
 
 ```js
 f`0.3 + -${0.1}`; // 0.2
@@ -145,7 +151,7 @@ f`SQRT2`; // Same as Math.SQRT2
 
 ### Functions
 
-You can call built-in functions by writing a Call expression.
+You can call built-in functions by writing a call expression.
 
 ```js
 f`trunc(12.34)`; // Returns the value by truncating the given value.

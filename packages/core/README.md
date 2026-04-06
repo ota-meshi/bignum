@@ -12,7 +12,7 @@ Arbitrary-precision decimal arithmetic with BigInt.
 
 ## 🚀 Features
 
-- Class for arbitrary-precision arithmetics using BigInt.
+- Class for arbitrary-precision decimal arithmetic using BigInt.
 - It can handle very large and very small numbers.
 - It can also handle NaN and Infinity.
 - <span class="minified-size"> 7.1 KB <!-- 7293 bytes --> minified ([bignumber.js]: 17.9 KB) </span>.
@@ -29,7 +29,7 @@ npm install @bignum/core
 ```js
 import { BigNum } from "@bignum/core";
 
-// Perform exact calculations using the arbitrary-precision arithmetic with BigInt.
+// Perform exact calculations using arbitrary-precision arithmetic with BigInt.
 console.log(BigNum.valueOf(0.2).add(BigNum.valueOf(0.1)).toString()); // 0.3
 // (Using the JavaScript built-in number:)
 console.log(0.2 + 0.1); // 0.30000000000000004
@@ -86,32 +86,32 @@ Returns a BigNum whose value is (this % divisor).
 
 Returns a BigNum whose value is (-this).
 
-### BigNum.prototype.pow(n, [options: MathOption]): BigNum
+### BigNum.prototype.pow(n, [options: MathOptions]): BigNum
 
 Returns a BigNum whose value is (this \*\* n).
 
-An object can be given as an option. This is used in negative, or fraction pows. See [MathOption](#type-mathoption).
+An object can be given as an option. This is used for negative or fractional powers. See [MathOptions](#type-mathoptions).
 
 ### BigNum.prototype.scaleByPowerOfTen(n): BigNum
 
 Returns a BigNum whose value is (this \* 10 \*\* n).
 
-### BigNum.prototype.sqrt([options: MathOption]): BigNum
+### BigNum.prototype.sqrt([options: MathOptions]): BigNum
 
 Returns an approximation to the square root of this BigNum.
 
-An object can be given as an option. See [MathOption](#type-mathoption).
+An object can be given as an option. See [MathOptions](#type-mathoptions).
 
 If this BigNum is a negative number, returns a BigNum instance indicating `NaN`.
 
 Note that `x.nthRoot(2)` and `x.sqrt()` behave differently.\
 `x.nthRoot(2)` imitates `x ** (1/2)`, while `x.sqrt()` imitates `Math.sqrt(x)`.
 
-### BigNum.prototype.nthRoot(n, [options: MathOption]): BigNum
+### BigNum.prototype.nthRoot(n, [options: MathOptions]): BigNum
 
 Returns an approximation to the `n`th root of this BigNum.
 
-An object can be given as an option. See [MathOption](#type-mathoption).
+An object can be given as an option. See [MathOptions](#type-mathoptions).
 
 If this BigNum is a negative finite number, returns a BigNum instance indicating `NaN`.
 
@@ -124,7 +124,7 @@ Returns a BigNum whose value is the absolute value of this BigNum.
 
 ### BigNum.prototype.trunc(): BigNum
 
-Returns a BigNum that is the integral part of this BigNum, with removing any fractional digits.
+Returns a BigNum that is the integral part of this BigNum, with any fractional digits removed.
 
 ### BigNum.prototype.round(): BigNum
 
@@ -144,7 +144,7 @@ Returns a number indicating the sign.
 
 ### BigNum.prototype.compareTo(value): 0 | -1 | 1 | NaN
 
-Compares this BigNum with the specified BigNum.
+Compares this BigNum with the specified value.
 
 ### BigNum.prototype.isNaN(): boolean
 
@@ -152,25 +152,25 @@ Returns `true` if this is NaN.
 
 ### BigNum.prototype.isFinite(): boolean
 
-Returns `true` if this is finite number.
+Returns `true` if this is a finite number.
 
-### type MathOption
+### type MathOptions
 
 Options:
 
-| Name         | Type                                       | Description                                                                                                                                         |
-| :----------- | :----------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| overflow     | `(context)=>boolean`                       | You can specify an overflow test function. By default, if there are decimals and the number of precisions exceeds 20, it is considered an overflow. |
-| roundingMode | [RoundingMode](#enum-roundingmode)`.trunc` | Specifies a rounding behavior for numerical operations capable of discarding precision.                                                             |
+| Name         | Type                               | Description                                                                                        |
+| :----------- | :--------------------------------- | :------------------------------------------------------------------------------------------------- |
+| overflow     | `(context) => boolean`             | Overflow test function. By default, decimal results overflow when the precision exceeds 20 digits. |
+| roundingMode | [RoundingMode](#enum-roundingmode) | Rounding behavior for operations that may discard precision. The default is `RoundingMode.trunc`.  |
 
 - `context` parameter
 
   An object that contains the following properties:
 
-  | Name      | Type   | Description                   |
-  | :-------- | :----- | :---------------------------- |
-  | scale     | bigint | The number of decimal places. |
-  | precision | bigint | The number of precision.      |
+  | Name      | Type   | Description                       |
+  | :-------- | :----- | :-------------------------------- |
+  | scale     | bigint | The number of decimal places.     |
+  | precision | bigint | The number of significant digits. |
 
 ### enum RoundingMode
 
@@ -191,7 +191,7 @@ import { BigNumBasic } from "@bignum/core";
 
 If you want something smaller, use BigNumBasic.
 
-It supports four arithmetic APIs and a basic API, which can be reduced to just <span class="bignum-basic-size"> 3.8 KB <!-- 3888 bytes --> with tree shaking and minification (minified and gzipped: 1.6 KB) </span>.\
+It omits the advanced APIs from `BigNum` (`parse`, `pow`, `scaleByPowerOfTen`, `sqrt`, and `nthRoot`), and can be reduced to just <span class="bignum-basic-size"> 3.8 KB <!-- 3888 bytes --> with tree shaking and minification (minified and gzipped: 1.6 KB) </span>.\
 However, the API it provides is still experimental.
 
 ## 🛸 Prior Art
