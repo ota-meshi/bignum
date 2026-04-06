@@ -16,8 +16,8 @@ import { compile } from "@bignum/template-compiler";
 const compiled = compile(["", " + 2 * 3"]);
 const context = {
   binaryOperations: {
-    "+": (a, b) => a + b,
-    "*": (a, b) => a * b,
+    "+": (a, b) => Number(a) + Number(b),
+    "*": (a, b) => Number(a) * Number(b),
   },
 };
 
