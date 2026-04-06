@@ -58,7 +58,7 @@ The `context` object can define:
 
 - `binaryOperations`: handlers for binary operators such as `+`, `-`, `*`, `/`, `%`, `**`, `==`, `!=`, `<=`, `<`, `>=`, and `>`.
 - `unaryOperations`: handlers for unary operators such as `+` and `-`.
-- `variables`: identifier values that can be referenced from expressions.
+- `variables`: identifier values that can be referenced from expressions. The default variables (`E`, `PI`, and so on) come from `Math`, so they are convenient aliases, not arbitrary-precision constants.
 - `functions`: callable functions such as `sqrt(...)`.
 - `normalizeResult`: a final conversion step for the computed result.
 
@@ -75,7 +75,9 @@ const f = setupEngine();
 console.log(f`${0.1} + 0.2`); // 0.3
 ```
 
-The default engine usually returns a `number`, but if converting the result to `number` would lose precision, it returns a `string` that preserves the original precision.
+The default engine performs calculations as exact rational arithmetic. It usually returns a `number`, but if converting the result to `number` would lose precision, it returns a `string` instead.
+
+For finite decimals, that string preserves the exact value. For repeating decimals, the internal calculation is still exact, but converting the result to text uses `BigNum#toString()`, which truncates the decimal expansion after 20 digits by default. For example, `f\`1 / 3\``returns`"0.33333333333333333333"`.
 
 ## 📝 Supported Syntax
 
@@ -148,6 +150,8 @@ f`PI`; // Same as Math.PI
 f`SQRT1_2`; // Same as Math.SQRT1_2
 f`SQRT2`; // Same as Math.SQRT2
 ```
+
+These default values come from JavaScript's `Math` object, so they inherit double-precision floating-point approximations. If you need stricter values for constants such as `PI`, provide custom `variables` via `setupEngine(...)`.
 
 ### Functions
 
