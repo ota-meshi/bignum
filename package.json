@@ -9,7 +9,7 @@
     "packages/shared",
     "packages/template-compiler",
     "packages/template",
-    "packages/template-lite",
+    "packages/template-light",
     "packages/babel-plugin",
     "packages/*"
   ],
