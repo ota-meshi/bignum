@@ -294,6 +294,8 @@ describe("Random tests", () => {
           const actual = t.b(ba, bb);
           const expect = t.n(a, b);
           lazyAssert(name, actual, expect);
+
+          assert.strictEqual(`${actual}`, `${new BigNum(actual.toString())}`);
         });
       });
     }
@@ -309,6 +311,8 @@ describe("Random tests", () => {
         const actual = t.b(ba);
         const expect = t.n(a);
         lazyAssert(name, actual, expect);
+
+        assert.strictEqual(`${actual}`, `${new BigNum(actual.toString())}`);
       });
     }
   }

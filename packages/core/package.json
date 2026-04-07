@@ -20,6 +20,8 @@
   "scripts": {
     "prebuild": "npm run -s clean",
     "build": "npm run bundle",
+    "benchmark:libs": "node ./scripts/compare-libs.mjs",
+    "benchmark:tostring": "node ./scripts/benchmark-tostring.mjs",
     "bundle": "tsup",
     "clean": "rimraf .nyc_output lib coverage",
     "test": "mocha --loader=ts-node/esm \"tests/src/**/*.mts\" --reporter dot --timeout 60000",
