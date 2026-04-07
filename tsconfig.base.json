@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "target": "es2020",
     "strict": true,
-    "lib": ["es2020", "DOM"],
+    "lib": ["es2022", "DOM"],
     "module": "NodeNext",
     "declaration": true,
     "noImplicitAny": true,
