@@ -1,4 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["mocha"]
+  },
   "include": ["src/**/*.mts", "test/**/*.mts", "tsup.config.ts"]
 }

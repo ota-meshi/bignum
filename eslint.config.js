@@ -74,6 +74,7 @@ export default [
       "lib/",
       "node_modules/",
       "!.vscode/",
+      "packages/*/.tsup/",
       "packages/*/lib/",
       "packages/*/temp/",
       "packages/*/coverage/",
