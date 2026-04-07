@@ -1,30 +1,28 @@
-import type { Format } from "tsdown";
-import { defineConfig } from "tsdown";
+import type { Format } from "tsup";
+import { defineConfig } from "tsup";
 
 export default defineConfig([
   {
     clean: true,
     dts: true,
     entry: ["src/index.mts", "src/core.mts"],
-    fixedExtension: false,
     format: ["esm", "cjs"],
     outDir: "lib",
-    target: "node20",
+    target: "node18",
   },
   ...Object.entries({
-    "index.min": "src/index.mts",
-    "core.min": "src/core.mts",
+    "template-compiler": "../template-compiler",
   }).map(([key, value]) => {
     return {
       clean: true,
       entry: {
         [key]: value,
       },
-      fixedExtension: false,
       format: ["esm" as Format],
       outDir: "temp",
-      target: "node20" as const,
-      minify: true,
+      target: "node18" as const,
+      minify: Boolean(key.includes(".min")),
+      noExternal: ["@bignum/template-compiler", "@bignum/shared"],
     };
   }),
 ]);
