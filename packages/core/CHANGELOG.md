@@ -1,5 +1,11 @@
 # @bignum/core
 
+## 1.4.0
+
+### Minor Changes
+
+- pref: improve performance ([#142](https://github.com/ota-meshi/bignum/pull/142))
+
 ## 1.3.0
 
 ### Minor Changes
