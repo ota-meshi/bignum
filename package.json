@@ -9,6 +9,8 @@
     "packages/shared",
     "packages/template-compiler",
     "packages/template",
+    "packages/template-lite",
+    "packages/babel-plugin",
     "packages/*"
   ],
   "engines": {
