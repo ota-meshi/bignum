@@ -46,6 +46,7 @@
   "homepage": "https://github.com/ota-meshi/bignum#readme",
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
+    "@microsoft/api-extractor": "^7.58.1",
     "@ota-meshi/eslint-plugin": "^0.20.0",
     "@ota-meshi/test-snapshot": "^1.0.0",
     "@svitejs/changesets-changelog-github-compact": "^1.1.0",
@@ -74,7 +75,7 @@
     "pretty-format": "^30.0.0",
     "rimraf": "^6.0.0",
     "ts-node": "^10.9.2",
-    "tsup": "^8.0.0",
+    "tsup": "^8.5.1",
     "typescript": "~6.0.0",
     "typescript-eslint": "^8.56.0"
   }

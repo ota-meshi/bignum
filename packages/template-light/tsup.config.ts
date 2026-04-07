@@ -4,7 +4,7 @@ import { defineConfig } from "tsup";
 export default defineConfig([
   {
     clean: true,
-    dts: true,
+    experimentalDts: true,
     entry: ["src/index.mts", "src/core.mts"],
     format: ["esm", "cjs"],
     outDir: "lib",
