@@ -151,6 +151,7 @@ async function withWeakMapSpy(
   try {
     await run(instances);
   } finally {
+    // eslint-disable-next-line require-atomic-updates -- For test
     globalThis.WeakMap = OriginalWeakMap;
   }
 }
