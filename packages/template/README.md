@@ -18,6 +18,7 @@ Write formulas with template literals.
   (Similar to [big.js].)
 - The calculation engine is customizable.
 - You can pre-compile expressions using [@bignum/babel-plugin].
+- Repeated calls from the same tagged template callsite reuse the compiled expression at runtime.
 
 ## 💿 Installation
 
@@ -74,6 +75,8 @@ import { setupEngine } from "@bignum/template";
 const f = setupEngine();
 console.log(f`${0.1} + 0.2`); // 0.3
 ```
+
+Repeated evaluation from the same tagged template callsite reuses the compiled expression. Different callsites are cached independently.
 
 The default engine performs calculations as exact rational arithmetic. It usually returns a `number`, but if converting the result to `number` would lose precision, it returns a `string` instead.
 

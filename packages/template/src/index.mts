@@ -1,4 +1,4 @@
-import { type BTEngine, type BTContext } from "@bignum/shared";
+import { type BTEngine, type BTContext, type BTCompiled } from "@bignum/shared";
 import { compile } from "@bignum/template-compiler";
 import type { BigNum } from "@bignum/core";
 import {
@@ -100,8 +100,13 @@ export function setupEngine<
   if (!context) {
     return setupEngine(defaultContext) as any;
   }
+  const compileCache = new WeakMap<TemplateStringsArray, BTCompiled>();
   return (template, ...substitutions) => {
-    const fn = compile(template);
+    let fn = compileCache.get(template);
+    if (!fn) {
+      fn = compile(template);
+      compileCache.set(template, fn);
+    }
     const result = fn(substitutions, context);
     return context.normalizeResult
       ? context.normalizeResult(result)

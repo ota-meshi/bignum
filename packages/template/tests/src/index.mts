@@ -1,4 +1,4 @@
-import { f } from "../../src/index.mjs";
+import { f, setupEngine } from "../../src/index.mjs";
 import * as snap from "@ota-meshi/test-snapshot";
 
 describe("standard tests", () => {
@@ -155,6 +155,36 @@ describe("Compare tests", () => {
     });
   }
 });
+describe("compile cache", () => {
+  it("reuses the compiled template for the same callsite", () => {
+    withWeakMapSpy((instances) => {
+      const engine = setupEngine();
+
+      expectDeepStrictEqual(
+        [evalSameCallsite(engine, 1), evalSameCallsite(engine, 2)],
+        [2, 3],
+      );
+
+      const cache = getTemplateCache(instances);
+      expectStrictEqual(cache.setKeys.length, 1);
+    });
+  });
+
+  it("does not share compiled templates across different callsites", () => {
+    withWeakMapSpy((instances) => {
+      const engine = setupEngine();
+
+      expectDeepStrictEqual(
+        [evalCallsiteA(engine, 1), evalCallsiteB(engine, 2)],
+        [2, 3],
+      );
+
+      const cache = getTemplateCache(instances);
+      expectStrictEqual(cache.setKeys.length, 2);
+      expectNotStrictEqual(cache.setKeys[0], cache.setKeys[1]);
+    });
+  });
+});
 
 /**
  *
@@ -175,4 +205,76 @@ function test(
     name,
     param: [template, ...substitutions] as const,
   };
+}
+
+type WeakMapSpyInstance = {
+  setKeys: object[];
+};
+
+function withWeakMapSpy(run: (instances: WeakMapSpyInstance[]) => void) {
+  const OriginalWeakMap = globalThis.WeakMap;
+  const instances: WeakMapSpyInstance[] = [];
+
+  class SpyWeakMap<K extends object, V> extends OriginalWeakMap<K, V> {
+    public readonly setKeys: object[] = [];
+
+    constructor(entries?: readonly (readonly [K, V])[] | null) {
+      super(entries);
+      instances.push(this as unknown as WeakMapSpyInstance);
+    }
+
+    override set(key: K, value: V): this {
+      this.setKeys.push(key);
+      return super.set(key, value);
+    }
+  }
+
+  globalThis.WeakMap = SpyWeakMap as typeof WeakMap;
+  try {
+    run(instances);
+  } finally {
+    globalThis.WeakMap = OriginalWeakMap;
+  }
+}
+
+function getTemplateCache(instances: WeakMapSpyInstance[]) {
+  const cache = instances.find((instance) => instance.setKeys.length > 0);
+  if (!cache) {
+    throw new Error("Expected a compile cache entry");
+  }
+  return cache;
+}
+
+function evalSameCallsite(engine: typeof f, value: number | bigint | string) {
+  return engine`${value} + 1`;
+}
+
+function evalCallsiteA(engine: typeof f, value: number | bigint | string) {
+  return engine`${value} + 1`;
+}
+
+function evalCallsiteB(engine: typeof f, value: number | bigint | string) {
+  return engine`${value} + 1`;
+}
+
+function expectStrictEqual(actual: unknown, expected: unknown) {
+  if (actual !== expected) {
+    throw new Error(
+      `Expected ${String(actual)} to strictly equal ${String(expected)}`,
+    );
+  }
+}
+
+function expectNotStrictEqual(actual: unknown, expected: unknown) {
+  if (actual === expected) {
+    throw new Error("Expected values to be different");
+  }
+}
+
+function expectDeepStrictEqual(actual: unknown, expected: unknown) {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    throw new Error(
+      `Expected ${JSON.stringify(actual)} to deeply equal ${JSON.stringify(expected)}`,
+    );
+  }
 }
