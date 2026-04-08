@@ -64,15 +64,38 @@ export const abs = buildOperation(
   (a) => a.abs(),
   (a) => (a < 0 ? -a : a),
 );
-export const trunc = buildOperation((a) => a.trunc(), identity);
-export const round = buildOperation((a) => a.round(), identity);
-export const floor = buildOperation((a) => a.floor(), identity);
-export const ceil = buildOperation((a) => a.ceil(), identity);
-
-/** Identity function */
-function identity<T>(a: T): T {
-  return a;
-}
+export const trunc = buildOperation(
+  (a, dp) => a.trunc(dp),
+  (a, dp) => {
+    return withDPFactor(a, dp, (factor) => (a / factor) * factor);
+  },
+);
+export const round = buildOperation(
+  (a, dp) => a.round(dp),
+  (a, dp) => {
+    return withDPFactor(
+      a,
+      dp,
+      (factor) => ((a + factor / 2n) / factor) * factor,
+    );
+  },
+);
+export const floor = buildOperation(
+  (a, dp) => a.floor(dp),
+  (a, dp) => {
+    return withDPFactor(a, dp, (factor) => (a / factor) * factor);
+  },
+);
+export const ceil = buildOperation(
+  (a, dp) => a.ceil(dp),
+  (a, dp) => {
+    return withDPFactor(
+      a,
+      dp,
+      (factor) => ((a + factor - 1n) / factor) * factor,
+    );
+  },
+);
 
 /**
  * Build evaluator function
@@ -120,11 +143,11 @@ function buildCompare(
 function buildOperation(
   opForD: (
     a: BigNum,
-    ...options: (string | number | bigint | BigNum | bigint)[]
+    ...options: (string | number | bigint | BigNum | undefined)[]
   ) => BigNum,
   opForB?: (
     a: bigint,
-    ...options: (string | number | bigint | BigNum | bigint)[]
+    ...options: (string | number | bigint | BigNum | undefined)[]
   ) => bigint,
 ): BTFunction<string | number | bigint, BigNum | bigint> {
   if (!opForB) return (a, ...options) => opForD(BigNum.valueOf(a), ...options);
@@ -134,4 +157,19 @@ function buildOperation(
       ? opForB(na, ...options)
       : opForD(na, ...options);
   };
+}
+
+/**
+ * Apply operation with decimal place factor if needed
+ */
+function withDPFactor(
+  a: bigint,
+  dp: string | number | bigint | BigNum | undefined,
+  op: (factor: bigint) => bigint,
+): bigint {
+  if (dp == null) return a;
+  const normalizedDp = normalize(dp);
+  if (typeof normalizedDp !== "bigint" || normalizedDp >= 0n) return a;
+  const factor = 10n ** -normalizedDp;
+  return op(factor);
 }

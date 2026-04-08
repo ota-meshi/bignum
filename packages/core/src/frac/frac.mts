@@ -1,4 +1,4 @@
-import { gcd } from "./util.mjs";
+import { abs, gcd } from "./util.mjs";
 
 // Emit repeating decimals in 9-digit chunks so each BigInt division yields several output digits.
 const CHUNK_BASE = 1_000_000_000n;
@@ -100,7 +100,7 @@ function finiteDecimalString(x: Frac): string | null {
 
   // Scale is the number of digits after the decimal point once the denominator becomes 10^scale.
   const scale = twos > fives ? twos : fives;
-  let digits = x.n < 0n ? -x.n : x.n;
+  let digits = abs(x.n);
   // Example: 3 / 40 = 3 / (2^3 * 5). Multiply by the missing 5^2 so we can rewrite it as
   // 75 / 10^3 and then insert the decimal point once.
   // Convert n / (2^a * 5^b) into an integer over 10^scale before placing the decimal point.
@@ -114,11 +114,11 @@ function finiteDecimalString(x: Frac): string | null {
   // Values smaller than 1 need leading zero padding so the split point stays valid.
   // Example: 3 / 40 -> "075" with point at 1 -> "0.75".
   // Ensure there is always at least one digit to the left of the decimal point.
-  if (BigInt(text.length) <= scale) {
-    text = `${"0".repeat(Number(scale - BigInt(text.length) + 1n))}${text}`;
+  let point = text.length - Number(scale);
+  if (point < 1) {
+    text = `${"0".repeat(1 - point)}${text}`;
+    point = 1;
   }
-  // `point` is the insertion index of the decimal separator measured from the left.
-  const point = text.length - Number(scale);
   let decimal = text.slice(point);
   // Exact terminating decimals are normalised to the shortest equivalent form.
   // Example: "1.2300" becomes "1.23".
@@ -161,8 +161,8 @@ function repeatingDecimalString(x: Frac): string {
     // Every base-10^9 chunk corresponds to exactly 9 decimal digits, including internal zeros.
     let digits = String(chunk).padStart(CHUNK_DIGITS, "0");
     // Chunks before the first non-zero digit belong to the leading-zero prefix, not the significant tail.
-    if (!integerPart && !decimal.length) {
-      const firstNonZero = digits.search(/[1-9]/u);
+    if (!integerPart && !decimal) {
+      const firstNonZero = digits.search(/[^0]/u);
       if (firstNonZero < 0) {
         decimalLeadingZero += digits;
         continue;
