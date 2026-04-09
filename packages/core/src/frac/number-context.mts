@@ -7,24 +7,6 @@ import {
 
 const DEF_OPT: IsOverflow = (ctx) => ctx.scale > 0n && ctx.precision > 20n;
 
-/**
- * Assert never.
- */
-function assertNever(value: never, message: string): never {
-  throw new Error(`${message}: ${JSON.stringify(value)}`);
-}
-
-/**
- * Parse math options.
- */
-function parseOptions(options: MathOptions | undefined): Required<MathOptions> {
-  const { overflow, roundingMode } = options ?? {};
-  return {
-    overflow: overflow ?? DEF_OPT,
-    roundingMode: roundingMode ?? RoundingMode.trunc,
-  };
-}
-
 type NumberContext = {
   /** Set the currently digit. */
   set(n: bigint): void;
@@ -44,11 +26,20 @@ export function numberContext(
   initExponent: bigint,
   options: MathOptions | undefined,
 ): NumberContext {
-  const { overflow, roundingMode: rm } = parseOptions(options);
+  const overflow = options?.overflow ?? DEF_OPT;
+  const rm = options?.roundingMode ?? RoundingMode.trunc;
   let intVal = 0n,
     exponent = initExponent,
     precision = 1n;
-  const ctx: NumberContext = {
+  const overflowCtx: OverflowContext = {
+    get scale() {
+      return -exponent;
+    },
+    get precision() {
+      return precision;
+    },
+  };
+  return {
     set(n: bigint) {
       intVal += n;
     },
@@ -68,7 +59,7 @@ export function numberContext(
         : [signed, exponent];
     },
     round(hasRem: boolean) {
-      const nextDigits = [];
+      const nextDigits: bigint[] = [];
       while (overflow(overflowCtx)) {
         exponent++;
         nextDigits.push(intVal % 10n);
@@ -89,17 +80,8 @@ export function numberContext(
       } else if (rm === RoundingMode.ceil) {
         if (sign > 0) intVal++;
       } else {
-        assertNever(rm, "Unknown rounding mode");
+        throw new Error(`Unknown rounding mode: ${JSON.stringify(rm)}`);
       }
     },
   };
-  const overflowCtx: OverflowContext = {
-    get scale() {
-      return -exponent;
-    },
-    get precision() {
-      return precision;
-    },
-  };
-  return ctx;
 }

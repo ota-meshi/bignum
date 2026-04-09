@@ -56,37 +56,54 @@ export function compareTo(x: Frac, y: Frac): 0 | -1 | 1 {
 }
 
 /** Returns a Frac that is the integral part of x, with removing any fractional digits. */
-export function trunc(x: Frac): Frac {
+function trunc0(x: Frac): Frac {
   return !x.d ? x : fracOf(x.n / x.d, 1n);
 }
 
+/** Returns a Frac that is the integral part of x, with removing any fractional digits. */
+export function trunc(x: Frac, dp?: bigint): Frac {
+  return atDecimalPlaces(x, dp, trunc0);
+}
+
 /** Returns this Frac rounded to the nearest integer. */
-export function round(x: Frac): Frac {
-  if (!x.d) return x;
-  const dblMod = (absInt(x.n) % x.d) * 2n;
-  if (!dblMod) return x;
-  const minus = x.n < 0n;
-  return (minus ? dblMod > x.d : dblMod >= x.d)
-    ? fracOf(x.n / x.d + (minus ? -1n : 1n), 1n)
-    : trunc(x);
+export function round(x: Frac, dp?: bigint): Frac {
+  return atDecimalPlaces(x, dp, (v): Frac => {
+    if (!v.d) return v;
+    const dblMod = (absInt(v.n) % v.d) * 2n;
+    if (!dblMod) return v;
+    const minus = v.n < 0n;
+    return (minus ? dblMod > v.d : dblMod >= v.d)
+      ? fracOf(v.n / v.d + (minus ? -1n : 1n), 1n)
+      : trunc0(v);
+  });
 }
 
 /** Returns the largest integer less than or equal to x. */
-export function floor(x: Frac): Frac {
-  return x.n >= 0n
-    ? trunc(x)
-    : !x.d || !(x.n % x.d)
-      ? x
-      : fracOf(x.n / x.d - 1n, 1n);
+export function floor(x: Frac, dp?: bigint): Frac {
+  return atDecimalPlaces(
+    x,
+    dp,
+    (v): Frac =>
+      v.n >= 0n
+        ? trunc0(v)
+        : !v.d || !(v.n % v.d)
+          ? v
+          : fracOf(v.n / v.d - 1n, 1n),
+  );
 }
 
 /** Returns the smallest integer greater than or equal to x. */
-export function ceil(x: Frac): Frac {
-  return x.n <= 0n
-    ? trunc(x)
-    : !x.d || !(x.n % x.d)
-      ? x
-      : fracOf(x.n / x.d + 1n, 1n);
+export function ceil(x: Frac, dp?: bigint): Frac {
+  return atDecimalPlaces(
+    x,
+    dp,
+    (v): Frac =>
+      v.n <= 0n
+        ? trunc0(v)
+        : !v.d || !(v.n % v.d)
+          ? v
+          : fracOf(v.n / v.d + 1n, 1n),
+  );
 }
 
 /** Multiply two fractions. */
@@ -102,4 +119,17 @@ function mul(n1: bigint, n2: bigint, d1: bigint, d2: bigint): Frac | null {
 /** Returns a Frac or null from the given numerator and denominator  */
 function ofNullable(n: bigint, d: bigint): Frac | null {
   return !n && !d ? null /* NaN */ : fracOf(n, d);
+}
+
+/** Applies an integer rounding operation at the requested decimal place. */
+function atDecimalPlaces(
+  x: Frac,
+  dp: bigint | undefined,
+  op: (value: Frac) => Frac,
+): Frac {
+  if (!x.d || !dp) return op(x);
+  const offset = fracOf(10n ** absInt(dp), 1n);
+  const shift = dp > 0n ? multiply : divide;
+  const unshift = dp > 0n ? divide : multiply;
+  return unshift(op(shift(x, offset)!), offset)!;
 }

@@ -52,6 +52,18 @@ function parsePrimValue(value: string | number): Frac | null {
   );
 }
 
+/** Applies an integer or decimal-place operation to the given fraction. */
+function applyAtDecimalPlaces(
+  x: Frac | null,
+  dp: BigNum | string | number | bigint | null | undefined,
+  op: (x: Frac, dp?: bigint) => Frac,
+): Frac | null {
+  if (!x) return x;
+  if (dp == null) return op(x);
+  const places = frac(dp);
+  return places?.d === 1n ? op(x, places.n) : null;
+}
+
 /** Get BigNum instance from value */
 export let num: <T extends BigNum>(x: T, prop: Frac | null | undefined) => T;
 /** Get frac instance from value */
@@ -177,28 +189,24 @@ class BigNum {
     return num(this, x && abs(x));
   }
 
-  /** Returns a BigNum that is the integral part of this BigNum, with removing any fractional digits. */
-  public trunc(): this {
-    const x = this.#p;
-    return num(this, x && trunc(x));
+  /** Returns a BigNum truncated to an integer or to the requested decimal place. */
+  public trunc(dp?: BigNum | string | number | bigint): this {
+    return num(this, applyAtDecimalPlaces(this.#p, dp, trunc));
   }
 
-  /** Returns this BigNum rounded to the nearest integer. */
-  public round(): this {
-    const x = this.#p;
-    return num(this, x && round(x));
+  /** Returns this BigNum rounded to an integer or to the requested decimal place. */
+  public round(dp?: BigNum | string | number | bigint): this {
+    return num(this, applyAtDecimalPlaces(this.#p, dp, round));
   }
 
-  /** Returns the greatest integer less than or equal to this BigNum. */
-  public floor(): this {
-    const x = this.#p;
-    return num(this, x && floor(x));
+  /** Returns this BigNum floored to an integer or to the requested decimal place. */
+  public floor(dp?: BigNum | string | number | bigint): this {
+    return num(this, applyAtDecimalPlaces(this.#p, dp, floor));
   }
 
-  /** Returns the smallest integer greater than or equal to this BigNum. */
-  public ceil(): this {
-    const x = this.#p;
-    return num(this, x && ceil(x));
+  /** Returns this BigNum ceiled to an integer or to the requested decimal place. */
+  public ceil(dp?: BigNum | string | number | bigint): this {
+    return num(this, applyAtDecimalPlaces(this.#p, dp, ceil));
   }
 
   /** Compares this BigNum with the specified BigNum. */

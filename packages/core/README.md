@@ -15,7 +15,7 @@ Arbitrary-precision decimal arithmetic with BigInt.
 - Class for arbitrary-precision decimal arithmetic using BigInt.
 - It can handle very large and very small numbers.
 - It can also handle NaN and Infinity.
-- <span class="minified-size"> 7.7 KB <!-- 7906 bytes --> minified ([bignumber.js]: 17.9 KB) </span>.
+- <span class="minified-size"> 7.8 KB <!-- 7992 bytes --> minified ([bignumber.js]: 17.9 KB) </span>.
 - <span class="minified-and-gzipped-size"> 3.3 KB minified and gzipped ([bignumber.js]: 8.0 KB) </span>.
 
 ## 💿 Installation
@@ -41,9 +41,15 @@ console.log(BigNum.valueOf(5e-324).subtract(12345).toString()); // -12344.999...
 
 // Since the value is held as a rational number, no rounding errors occur due to division.
 console.log(BigNum.valueOf(1).divide(3).multiply(3).toString()); // 1
-// (However, if you convert an infinite decimal value into a string, a rounding error will occur.)
-console.log(BigNum.valueOf(1).divide(3).toString()); // 0.33333333333333333333
+// `toString()` gives the standard string form of the current value.
+const oneThird = BigNum.valueOf(1).divide(3);
+console.log(oneThird.toString()); // 0.33333333333333333333
+// If you need a finite decimal value at a specific scale, materialize that value first.
+console.log(oneThird.trunc(25).toString()); // 0.3333333333333333333333333
+console.log(oneThird.round(2).toString()); // 0.33
 ```
+
+For finite decimals, `toString()` preserves the exact value. For non-terminating decimals such as `1 / 3`, `toString()` returns the library's default compact decimal form for the current exact value. If you need a finite decimal value at a specific scale, use `trunc(dp)`, `round(dp)`, `floor(dp)`, or `ceil(dp)` first, then stringify that new value.
 
 ## 🧮 API
 
@@ -122,21 +128,29 @@ Note that `x.nthRoot(2)` and `x.sqrt()` behave differently.\
 
 Returns a BigNum whose value is the absolute value of this BigNum.
 
-### BigNum.prototype.trunc(): BigNum
+### BigNum.prototype.trunc([dp]): BigNum
 
 Returns a BigNum that is the integral part of this BigNum, with any fractional digits removed.
 
-### BigNum.prototype.round(): BigNum
+If `dp` is given, truncates to that many decimal places instead. Negative `dp` values apply on the integer side of the decimal point (for example, truncating to tens or hundreds).
+
+### BigNum.prototype.round([dp]): BigNum
 
 Returns this BigNum rounded to the nearest integer.
 
-### BigNum.prototype.floor(): BigNum
+If `dp` is given, rounds to that many decimal places instead. Negative `dp` values round on the integer side of the decimal point.
+
+### BigNum.prototype.floor([dp]): BigNum
 
 Returns the greatest integer less than or equal to this BigNum.
 
-### BigNum.prototype.ceil(): BigNum
+If `dp` is given, floors to that many decimal places instead. Negative `dp` values round on the integer side of the decimal point.
+
+### BigNum.prototype.ceil([dp]): BigNum
 
 Returns the smallest integer greater than or equal to this BigNum.
+
+If `dp` is given, ceils to that many decimal places instead. Negative `dp` values round on the integer side of the decimal point.
 
 ### BigNum.prototype.signum(): 0 | 1 | -1 | NaN
 
@@ -191,7 +205,7 @@ import { BigNumBasic } from "@bignum/core";
 
 If you want something smaller, use BigNumBasic.
 
-It omits the advanced APIs from `BigNum` (`parse`, `pow`, `scaleByPowerOfTen`, `sqrt`, and `nthRoot`), and can be reduced to just <span class="bignum-basic-size"> 4.2 KB <!-- 4257 bytes --> with tree shaking and minification (minified and gzipped: 1.7 KB) </span>.\
+It omits the advanced APIs from `BigNum` (`parse`, `pow`, `scaleByPowerOfTen`, `sqrt`, and `nthRoot`), and can be reduced to just <span class="bignum-basic-size"> 4.3 KB <!-- 4443 bytes --> with tree shaking and minification (minified and gzipped: 1.8 KB) </span>.\
 However, the API it provides is still experimental.
 
 ## 🛸 Prior Art

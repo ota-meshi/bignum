@@ -64,15 +64,50 @@ export const abs = buildOperation(
   (a) => a.abs(),
   (a) => (a < 0 ? -a : a),
 );
-export const trunc = buildOperation((a) => a.trunc(), identity);
-export const round = buildOperation((a) => a.round(), identity);
-export const floor = buildOperation((a) => a.floor(), identity);
-export const ceil = buildOperation((a) => a.ceil(), identity);
+export const trunc = buildOperation(
+  (a, dp) => a.trunc(dp),
+  (a, dp) => {
+    return withDPFactor(a, dp, (factor) => truncWithFactor(a, factor));
+  },
+);
 
-/** Identity function */
-function identity<T>(a: T): T {
-  return a;
-}
+export const round = buildOperation(
+  (a, dp) => a.round(dp),
+  (a, dp) => {
+    return withDPFactor(a, dp, (factor) => {
+      const remainder = a % factor;
+      if (!remainder) return a;
+      const dblMod = (remainder < 0n ? -remainder : remainder) * 2n;
+      return (a < 0n ? dblMod > factor : dblMod >= factor)
+        ? (a / factor + (a < 0n ? -1n : 1n)) * factor
+        : truncWithFactor(a, factor);
+    });
+  },
+);
+export const floor = buildOperation(
+  (a, dp) => a.floor(dp),
+  (a, dp) => {
+    return withDPFactor(a, dp, (factor) => {
+      return a % factor
+        ? a < 0n
+          ? truncWithFactor(a, factor) - factor
+          : truncWithFactor(a, factor)
+        : a;
+    });
+  },
+);
+export const ceil = buildOperation(
+  (a, dp) => a.ceil(dp),
+  (a, dp) => {
+    return withDPFactor(a, dp, (factor) => {
+      return a % factor
+        ? a < 0n
+          ? truncWithFactor(a, factor)
+          : truncWithFactor(a, factor) + factor
+        : a;
+    });
+  },
+);
 
 /**
  * Build evaluator function
@@ -120,12 +155,12 @@ function buildCompare(
 function buildOperation(
   opForD: (
     a: BigNum,
-    ...options: (string | number | bigint | BigNum | bigint)[]
+    ...options: (string | number | bigint | BigNum | undefined)[]
   ) => BigNum,
   opForB?: (
     a: bigint,
-    ...options: (string | number | bigint | BigNum | bigint)[]
-  ) => bigint,
+    ...options: (string | number | bigint | BigNum | undefined)[]
+  ) => bigint | BigNum /* NaN */,
 ): BTFunction<string | number | bigint, BigNum | bigint> {
   if (!opForB) return (a, ...options) => opForD(BigNum.valueOf(a), ...options);
   return (a, ...options) => {
@@ -134,4 +169,33 @@ function buildOperation(
       ? opForB(na, ...options)
       : opForD(na, ...options);
   };
+}
+
+/**
+ * Apply operation with decimal place factor if needed.
+ */
+function withDPFactor(
+  a: bigint,
+  dp: string | number | bigint | BigNum | undefined,
+  op: (factor: bigint) => bigint,
+): bigint | BigNum {
+  if (dp == null) return a;
+  const normalizedDp = normalize(dp);
+  let integerDp: bigint;
+  if (typeof normalizedDp === "bigint") {
+    integerDp = normalizedDp;
+  } else {
+    const s = String(normalizedDp);
+    if (!RE_VALID_INTEGER.test(s)) return BigNum.valueOf(NaN);
+    integerDp = BigInt(s);
+  }
+  if (integerDp >= 0n) return a;
+  return op(10n ** -integerDp);
+}
+
+/**
+ * Truncate the bigint to the nearest multiple of the factor toward zero.
+ */
+function truncWithFactor(a: bigint, factor: bigint): bigint {
+  return (a / factor) * factor;
 }
