@@ -83,9 +83,9 @@ Repeated evaluation from the same tagged template callsite reuses the compiled e
 
 The default engine performs calculations as exact rational arithmetic. It usually returns a `number`, but if converting the result to `number` would lose precision, it returns a `string` instead.
 
-For finite decimals, that string preserves the exact value. For non-terminating decimals, the internal calculation is still exact, and the default engine returns the standard compact decimal form of the current value. For example, `f\`1 / 3\`` returns `"0.33333333333333333333"`.
+For finite decimals, that string preserves the exact value. For non-terminating decimals, the internal calculation is still exact, and the default engine returns the standard compact decimal form of the current value. For example, `` f`1 / 3` `` returns `"0.33333333333333333333"`.
 
-If you need a finite decimal value at a specific scale, change the value in the expression first. For example, `f\`trunc(1 / 3, 25)\`` returns `"0.3333333333333333333333333"`, and`f\`round(1 / 3, 2)\`` returns `0.33`. This is value conversion, not display-only formatting.
+If you need a finite decimal value at a specific scale, change the value in the expression first. For example, `` f`trunc(1 / 3, 25)` `` returns `"0.3333333333333333333333333"`, and `` f`round(1 / 3, 2)` `` returns `0.33`. This is value conversion, not display-only formatting.
 
 ## 📝 Supported Syntax
 
