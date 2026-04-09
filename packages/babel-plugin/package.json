@@ -1,6 +1,6 @@
 {
   "name": "@bignum/babel-plugin",
-  "version": "3.0.0",
+  "version": "2.1.1",
   "description": "Babel plugin to replace tagged template literals with BigNum JS expressions.",
   "type": "module",
   "main": "lib/index.js",
