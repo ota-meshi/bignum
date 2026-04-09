@@ -19,7 +19,7 @@ This is the light version of [@bignum/template]. It has significantly more limit
 - You can write formulas with template literals.\
   (`` f`${0.3} - ${0.1}` `` is easier to read than a statement like `new MyNum(0.3).minus(0.1)`.)
 - Prevent rounding errors by calculating with rational numbers using BigInt.
-- It has no dependencies and can be minified to <span class="minified-size"> 2.3 KB (Minified and gzipped: 1.1 KB) </span>.
+- It has no dependencies and can be minified to <span class="minified-size"> 2.4 KB (Minified and gzipped: 1.1 KB) </span>.
 - You can pre-compile expressions using [@bignum/babel-plugin], which reduces the runtime library size to <span class="core-minified-size"> 1.1 KB (Minified and gzipped: 0.6 KB) </span>.
 - Repeated calls from the same tagged template callsite reuse the compiled expression at runtime.
 

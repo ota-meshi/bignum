@@ -8,7 +8,7 @@ export default defineConfig([
     entry: ["src/index.mts", "src/core.mts"],
     format: ["esm", "cjs"],
     outDir: "lib",
-    target: "node18",
+    target: "node20",
   },
   ...Object.entries({
     "index.min": "src/index.mts",
@@ -21,7 +21,7 @@ export default defineConfig([
       },
       format: ["esm" as Format],
       outDir: "temp",
-      target: "node18" as const,
+      target: "node20" as const,
       minify: true,
     };
   }),

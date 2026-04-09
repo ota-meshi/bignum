@@ -6,5 +6,5 @@ export default defineConfig({
   entry: ["src/index.mts"],
   format: ["esm", "cjs"],
   outDir: "lib",
-  target: "node18",
+  target: "node20",
 });
