@@ -564,11 +564,11 @@ exports[`standard tests () => BigNum.valueOf(0.2).add(0.01) 1`] = `"0.21"`;
 
 exports[`standard tests () => BigNum.valueOf(0.2).add(0.1) 1`] = `"0.3"`;
 
-exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-2) 1`] = `"\\"2.2360679774997896964\\""`;
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-2) 1`] = `"\\"2.23606797749978969641\\""`;
 
-exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-3) 1`] = `"\\"1.7099759466766969893\\""`;
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-3) 1`] = `"\\"1.70997594667669698935\\""`;
 
-exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-4) 1`] = `"\\"1.4953487812212205419\\""`;
+exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(-4) 1`] = `"\\"1.49534878122122054191\\""`;
 
 exports[`standard tests () => BigNum.valueOf(0.2).nthRoot(2) 1`] = `"\\"0.44721359549995793928\\""`;
 
@@ -724,7 +724,7 @@ exports[`standard tests () => BigNum.valueOf(2).scaleByPowerOfTen(4) 1`] = `"200
 
 exports[`standard tests () => BigNum.valueOf(2).sqrt() 1`] = `"\\"1.4142135623730950488\\""`;
 
-exports[`standard tests () => BigNum.valueOf(2.3).divide(1.1) 1`] = `"\\"2.090909090909090909\\""`;
+exports[`standard tests () => BigNum.valueOf(2.3).divide(1.1) 1`] = `"\\"2.09090909090909090909\\""`;
 
 exports[`standard tests () => BigNum.valueOf(2.25).sqrt() 1`] = `"1.5"`;
 

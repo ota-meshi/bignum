@@ -176,7 +176,7 @@ exports[`standard tests \`2.1 * 2.3 ** 3\` 1`] = `25.5507`;
 
 exports[`standard tests \`2.3 % 1.1\` 1`] = `0.1`;
 
-exports[`standard tests \`2.3 / 1.1\` 1`] = `"2.090909090909090909"`;
+exports[`standard tests \`2.3 / 1.1\` 1`] = `"2.09090909090909090909"`;
 
 exports[`standard tests \`3 - 3 / 3\` 1`] = `2`;
 
