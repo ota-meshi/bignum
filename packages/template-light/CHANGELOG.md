@@ -1,5 +1,11 @@
 # @bignum/template-light
 
+## 1.2.0
+
+### Minor Changes
+
+- perf(template): cache compiled templates by callsite ([#145](https://github.com/ota-meshi/bignum/pull/145))
+
 ## 1.1.0
 
 ### Minor Changes
