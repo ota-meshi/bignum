@@ -75,9 +75,9 @@ export const round = buildOperation(
   (a, dp) => a.round(dp),
   (a, dp) => {
     return withDPFactor(a, dp, (factor) => {
-      const mod = a % factor;
-      if (!mod) return a;
-      const dblMod = (mod < 0n ? -mod : mod) * 2n;
+      const remainder = a % factor;
+      if (!remainder) return a;
+      const dblMod = (remainder < 0n ? -remainder : remainder) * 2n;
       return (a < 0n ? dblMod > factor : dblMod >= factor)
         ? (a / factor + (a < 0n ? -1n : 1n)) * factor
         : truncWithFactor(a, factor);
