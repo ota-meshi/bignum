@@ -132,7 +132,7 @@ Returns a BigNum whose value is the absolute value of this BigNum.
 
 Returns a BigNum that is the integral part of this BigNum, with any fractional digits removed.
 
-If `dp` is given, truncates to that many decimal places instead. Negative `dp` values round on the integer side of the decimal point.
+If `dp` is given, truncates to that many decimal places instead. Negative `dp` values apply on the integer side of the decimal point (for example, truncating to tens or hundreds).
 
 ### BigNum.prototype.round([dp]): BigNum
 
