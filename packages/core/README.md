@@ -132,25 +132,25 @@ Returns a BigNum whose value is the absolute value of this BigNum.
 
 Returns a BigNum that is the integral part of this BigNum, with any fractional digits removed.
 
-If `dp` is given, truncates to that many decimal places instead. Negative values round on the integer side of the decimal point.
+If `dp` is given, truncates to that many decimal places instead. Negative `dp` values round on the integer side of the decimal point.
 
 ### BigNum.prototype.round([dp]): BigNum
 
 Returns this BigNum rounded to the nearest integer.
 
-If `dp` is given, rounds to that many decimal places instead. Negative values round on the integer side of the decimal point.
+If `dp` is given, rounds to that many decimal places instead. Negative `dp` values round on the integer side of the decimal point.
 
 ### BigNum.prototype.floor([dp]): BigNum
 
 Returns the greatest integer less than or equal to this BigNum.
 
-If `dp` is given, floors to that many decimal places instead. Negative values round on the integer side of the decimal point.
+If `dp` is given, floors to that many decimal places instead. Negative `dp` values round on the integer side of the decimal point.
 
 ### BigNum.prototype.ceil([dp]): BigNum
 
 Returns the smallest integer greater than or equal to this BigNum.
 
-If `dp` is given, ceils to that many decimal places instead. Negative values round on the integer side of the decimal point.
+If `dp` is given, ceils to that many decimal places instead. Negative `dp` values round on the integer side of the decimal point.
 
 ### BigNum.prototype.signum(): 0 | 1 | -1 | NaN
 

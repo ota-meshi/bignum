@@ -67,33 +67,45 @@ export const abs = buildOperation(
 export const trunc = buildOperation(
   (a, dp) => a.trunc(dp),
   (a, dp) => {
-    return withDPFactor(a, dp, (factor) => (a / factor) * factor);
+    return withDPFactor(a, dp, (factor) => truncWithFactor(a, factor));
   },
 );
+
 export const round = buildOperation(
   (a, dp) => a.round(dp),
   (a, dp) => {
-    return withDPFactor(
-      a,
-      dp,
-      (factor) => ((a + factor / 2n) / factor) * factor,
-    );
+    return withDPFactor(a, dp, (factor) => {
+      const mod = a % factor;
+      if (!mod) return a;
+      const dblMod = (mod < 0n ? -mod : mod) * 2n;
+      return (a < 0n ? dblMod > factor : dblMod >= factor)
+        ? (a / factor + (a < 0n ? -1n : 1n)) * factor
+        : truncWithFactor(a, factor);
+    });
   },
 );
 export const floor = buildOperation(
   (a, dp) => a.floor(dp),
   (a, dp) => {
-    return withDPFactor(a, dp, (factor) => (a / factor) * factor);
+    return withDPFactor(a, dp, (factor) => {
+      return a % factor
+        ? a < 0n
+          ? truncWithFactor(a, factor) - factor
+          : truncWithFactor(a, factor)
+        : a;
+    });
   },
 );
 export const ceil = buildOperation(
   (a, dp) => a.ceil(dp),
   (a, dp) => {
-    return withDPFactor(
-      a,
-      dp,
-      (factor) => ((a + factor - 1n) / factor) * factor,
-    );
+    return withDPFactor(a, dp, (factor) => {
+      return a % factor
+        ? a < 0n
+          ? truncWithFactor(a, factor)
+          : truncWithFactor(a, factor) + factor
+        : a;
+    });
   },
 );
 
@@ -148,7 +160,7 @@ function buildOperation(
   opForB?: (
     a: bigint,
     ...options: (string | number | bigint | BigNum | undefined)[]
-  ) => bigint,
+  ) => bigint | BigNum /* NaN */,
 ): BTFunction<string | number | bigint, BigNum | bigint> {
   if (!opForB) return (a, ...options) => opForD(BigNum.valueOf(a), ...options);
   return (a, ...options) => {
@@ -160,16 +172,30 @@ function buildOperation(
 }
 
 /**
- * Apply operation with decimal place factor if needed
+ * Apply operation with decimal place factor if needed.
  */
 function withDPFactor(
   a: bigint,
   dp: string | number | bigint | BigNum | undefined,
   op: (factor: bigint) => bigint,
-): bigint {
+): bigint | BigNum {
   if (dp == null) return a;
   const normalizedDp = normalize(dp);
-  if (typeof normalizedDp !== "bigint" || normalizedDp >= 0n) return a;
-  const factor = 10n ** -normalizedDp;
-  return op(factor);
+  let integerDp: bigint;
+  if (typeof normalizedDp === "bigint") {
+    integerDp = normalizedDp;
+  } else {
+    const s = String(normalizedDp);
+    if (!RE_VALID_INTEGER.test(s)) return BigNum.valueOf(NaN);
+    integerDp = BigInt(s);
+  }
+  if (integerDp >= 0n) return a;
+  return op(10n ** -integerDp);
+}
+
+/**
+ * Truncate the bigint to the nearest multiple of the factor toward zero.
+ */
+function truncWithFactor(a: bigint, factor: bigint): bigint {
+  return (a / factor) * factor;
 }
