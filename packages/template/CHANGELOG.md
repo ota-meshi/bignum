@@ -1,5 +1,18 @@
 # @bignum/template
 
+## 1.2.0
+
+### Minor Changes
+
+- perf(template): cache compiled templates by callsite ([#145](https://github.com/ota-meshi/bignum/pull/145))
+
+- feat(core,template): add decimal-place rounding helpers ([#147](https://github.com/ota-meshi/bignum/pull/147))
+
+### Patch Changes
+
+- Updated dependencies [[`1e1f48683fd29f2a7d38c769d9df2b64d39bcb19`](https://github.com/ota-meshi/bignum/commit/1e1f48683fd29f2a7d38c769d9df2b64d39bcb19)]:
+  - @bignum/core@1.5.0
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @bignum/core
 
+## 1.5.0
+
+### Minor Changes
+
+- feat(core,template): add decimal-place rounding helpers ([#147](https://github.com/ota-meshi/bignum/pull/147))
+
 ## 1.4.0
 
 ### Minor Changes
