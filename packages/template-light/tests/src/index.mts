@@ -1,5 +1,9 @@
 import { f } from "../../src/index.mjs";
 import * as snap from "@ota-meshi/test-snapshot";
+import { copyFile, mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 describe("standard tests", () => {
   for (const t of [
@@ -125,8 +129,6 @@ type WeakMapSpyInstance = {
   setKeys: object[];
 };
 
-let templateLightImportVersion = 0;
-
 async function withWeakMapSpy(
   run: (instances: WeakMapSpyInstance[]) => Promise<void>,
 ) {
@@ -157,9 +159,28 @@ async function withWeakMapSpy(
 }
 
 async function importFreshTemplateLight() {
-  const url = new URL("../../src/index.mjs", import.meta.url);
-  url.searchParams.set("cache-test", String(templateLightImportVersion++));
-  return import(url.href);
+  const temporaryDirectory = await mkdtemp(
+    join(tmpdir(), "bignum-template-light-"),
+  );
+  const sourceDirectory = fileURLToPath(new URL("../../src/", import.meta.url));
+  const copiedSourceDirectory = join(temporaryDirectory, "src");
+  await mkdir(copiedSourceDirectory);
+
+  for (const entry of await readdir(sourceDirectory)) {
+    if (!entry.endsWith(".mts")) continue;
+    await copyFile(
+      join(sourceDirectory, entry),
+      join(copiedSourceDirectory, entry),
+    );
+  }
+
+  try {
+    return await import(
+      pathToFileURL(join(copiedSourceDirectory, "index.mts")).href
+    );
+  } finally {
+    await rm(temporaryDirectory, { force: true, recursive: true });
+  }
 }
 
 function getTemplateCache(instances: WeakMapSpyInstance[]) {
