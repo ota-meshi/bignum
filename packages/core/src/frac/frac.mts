@@ -139,7 +139,9 @@ function repeatingDecimalString(x: Frac): string {
   remainder %= x.d;
 
   const integer = String(integerPart);
-  // Non-terminating decimals always expose up to 20 digits after the decimal point.
+  // Keep the public formatting contract:
+  // - values smaller than 1 preserve leading fractional zeros, then emit up to 20 digits
+  // - values with an integer part keep up to 20 digits after the decimal point
   let remaining = 20;
   // Keep leading zeros separate so `0.00012...` does not have to special-case string assembly later.
   let decimalLeadingZero = "";
@@ -156,7 +158,7 @@ function repeatingDecimalString(x: Frac): string {
 
     // Every base-10^9 chunk corresponds to exactly 9 decimal digits, including internal zeros.
     let digits = String(chunk).padStart(CHUNK_DIGITS, "0");
-    // Chunks before the first non-zero digit belong to the leading-zero prefix, not the significant tail.
+    // Values smaller than 1 preserve leading zeros ahead of the first significant digit.
     if (!integerPart && !decimal) {
       const firstNonZero = digits.search(/[^0]/u);
       if (firstNonZero < 0) {
@@ -183,5 +185,9 @@ function repeatingDecimalString(x: Frac): string {
   // `decimalLeadingZero` preserves zeros between the decimal point and the first significant digit,
   // while `decimal` holds the significant digits we emitted/truncated above.
   // `decimalLeadingZero` is only non-empty when the fractional part starts with zeros.
-  return `${sign}${integer}.${decimalLeadingZero}${decimal}`;
+  return decimal
+    ? `${sign}${integer}.${decimalLeadingZero}${decimal}`
+    : integerPart
+      ? `${sign}${integer}`
+      : "0";
 }

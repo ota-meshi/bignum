@@ -101,6 +101,16 @@ describe("decimal place rounding tests", () => {
       `${BigNum.valueOf("12345678901234567891").divide(3)}`,
       "4115226300411522630.33333333333333333333",
     );
+    assert.strictEqual(
+      `${BigNum.valueOf(1).divide("30000000000000000000000000")}`,
+      "0.000000000000000000000000033333333333333333333",
+    );
+    assert.strictEqual(
+      `${BigNum.valueOf(1).add(
+        BigNum.valueOf(1).divide("30000000000000000000000000"),
+      )}`,
+      "1",
+    );
   });
 
   it("keeps finite decimals exact", () => {
