@@ -8,7 +8,7 @@ export default defineConfig([
     entry: ["src/index.mts", "src/core.mts"],
     format: ["esm", "cjs"],
     outDir: "lib",
-    target: "node18",
+    target: "node20",
   },
   ...Object.entries({
     "template-compiler": "../template-compiler",
@@ -20,7 +20,7 @@ export default defineConfig([
       },
       format: ["esm" as Format],
       outDir: "temp",
-      target: "node18" as const,
+      target: "node20" as const,
       minify: Boolean(key.includes(".min")),
       noExternal: ["@bignum/template-compiler", "@bignum/shared"],
     };
