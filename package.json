@@ -21,6 +21,7 @@
     "clean": "rimraf .nyc_output lib coverage",
     "lint": "eslint .",
     "eslint-fix": "npm run lint -- --fix && prettier **/README.md --write",
+    "type-check": "npm run type-check --workspaces --if-present",
     "pretest": "npm run build",
     "test": "npm run test --workspaces --if-present",
     "preupdate-snap": "npm run build",

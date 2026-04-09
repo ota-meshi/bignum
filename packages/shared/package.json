@@ -21,7 +21,8 @@
     "prebuild": "npm run -s clean",
     "build": "npm run bundle",
     "bundle": "tsup",
-    "clean": "rimraf .nyc_output lib coverage"
+    "clean": "rimraf .nyc_output lib coverage",
+    "type-check": "tsc --noEmit"
   },
   "publishConfig": {
     "access": "public"
