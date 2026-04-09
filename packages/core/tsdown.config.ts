@@ -1,11 +1,12 @@
-import type { Format } from "tsup";
-import { defineConfig } from "tsup";
+import type { Format } from "tsdown";
+import { defineConfig } from "tsdown";
 
 export default defineConfig([
   {
     clean: true,
-    experimentalDts: true,
+    dts: true,
     entry: ["src/index.mts"],
+    fixedExtension: false,
     format: ["esm", "cjs"],
     outDir: "lib",
     target: "node20",
@@ -20,6 +21,7 @@ export default defineConfig([
       entry: {
         [key]: value,
       },
+      fixedExtension: false,
       format: ["esm" as Format],
       outDir: "temp",
       target: "node20" as const,
@@ -34,6 +36,7 @@ export default defineConfig([
       entry: {
         [key]: value,
       },
+      fixedExtension: false,
       format: ["esm" as Format],
       outDir: "temp",
       target: "node20" as const,

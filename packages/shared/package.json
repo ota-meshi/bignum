@@ -20,7 +20,7 @@
   "scripts": {
     "prebuild": "npm run -s clean",
     "build": "npm run bundle",
-    "bundle": "tsup",
+    "bundle": "tsdown",
     "clean": "rimraf .nyc_output lib coverage",
     "type-check": "tsc --noEmit"
   },
