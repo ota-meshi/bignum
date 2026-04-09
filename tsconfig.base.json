@@ -14,6 +14,7 @@
     "moduleResolution": "NodeNext",
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "rootDir": "."
   }
 }

@@ -139,12 +139,8 @@ function repeatingDecimalString(x: Frac): string {
   remainder %= x.d;
 
   const integer = String(integerPart);
-  // Keep the previous public formatting contract:
-  // - if there is no integer part, allow up to 20 fractional digits
-  // - otherwise shrink the fractional budget by the integer digit count
-  // Match the old behavior: when there is an integer part, the total printed significant
-  // decimal payload shrinks so the whole result stays within the same 20-digit budget.
-  let remaining = integerPart ? Math.max(1, 20 - integer.length) : 20;
+  // Non-terminating decimals always expose up to 20 digits after the decimal point.
+  let remaining = 20;
   // Keep leading zeros separate so `0.00012...` does not have to special-case string assembly later.
   let decimalLeadingZero = "";
   let decimal = "";

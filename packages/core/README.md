@@ -49,7 +49,7 @@ console.log(oneThird.trunc(25).toString()); // 0.3333333333333333333333333
 console.log(oneThird.round(2).toString()); // 0.33
 ```
 
-For finite decimals, `toString()` preserves the exact value. For non-terminating decimals such as `1 / 3`, `toString()` returns the library's default compact decimal form for the current exact value. If you need a finite decimal value at a specific scale, use `trunc(dp)`, `round(dp)`, `floor(dp)`, or `ceil(dp)` first, then stringify that new value.
+For finite decimals, `toString()` preserves the exact value. For non-terminating decimals such as `1 / 3`, `toString()` returns the current value truncated to at most 20 digits after the decimal point. If you need a finite decimal value at a specific scale, use `trunc(dp)`, `round(dp)`, `floor(dp)`, or `ceil(dp)` first, then stringify that new value.
 
 ## 🧮 API
 

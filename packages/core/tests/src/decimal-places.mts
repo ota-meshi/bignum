@@ -88,6 +88,26 @@ describe("decimal place rounding tests", () => {
     assert.strictEqual(`${value.ceil(2)}`, "0.34");
   });
 
+  it("renders repeating decimals with up to 20 fractional digits", () => {
+    assert.strictEqual(
+      `${BigNum.valueOf(1).divide(3)}`,
+      "0.33333333333333333333",
+    );
+    assert.strictEqual(
+      `${BigNum.valueOf(3).divide(2.25)}`,
+      "1.33333333333333333333",
+    );
+    assert.strictEqual(
+      `${BigNum.valueOf("12345678901234567891").divide(3)}`,
+      "4115226300411522630.33333333333333333333",
+    );
+  });
+
+  it("keeps finite decimals exact", () => {
+    assert.strictEqual(`${BigNum.valueOf("1.25")}`, "1.25");
+    assert.strictEqual(`${BigNum.valueOf(1).divide(8)}`, "0.125");
+  });
+
   it("preserves Infinity when dp is provided", () => {
     assert.strictEqual(`${BigNum.valueOf(Infinity).round(2)}`, "Infinity");
     assert.strictEqual(`${BigNum.valueOf(-Infinity).floor(-2)}`, "-Infinity");
