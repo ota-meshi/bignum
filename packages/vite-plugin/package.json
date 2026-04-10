@@ -1,6 +1,6 @@
 {
   "name": "@bignum/vite-plugin",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Vite plugin to pre-compile BigNum template literals.",
   "type": "module",
   "main": "lib/index.js",
@@ -50,7 +50,7 @@
   "homepage": "https://github.com/ota-meshi/bignum/tree/main/packages/vite-plugin#readme",
   "dependencies": {
     "@babel/core": "^7.29.0",
-    "@bignum/babel-plugin": "^2.1.1"
+    "@bignum/babel-plugin": "^3.0.0"
   },
   "devDependencies": {},
   "peerDependencies": {

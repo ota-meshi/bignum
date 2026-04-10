@@ -1,5 +1,18 @@
 # @bignum/template
 
+## 2.0.0
+
+### Major Changes
+
+- Drop Node.js 18 support. The minimum supported Node.js version is now 20. ([#149](https://github.com/ota-meshi/bignum/pull/149))
+
+### Patch Changes
+
+- Updated dependencies [[`7e63047`](https://github.com/ota-meshi/bignum/commit/7e6304764ca845e09744bdcf5e97f924d43d1559), [`ddef043`](https://github.com/ota-meshi/bignum/commit/ddef043ca4101a9ed541845ff883543ab55ce6f5)]:
+  - @bignum/core@2.0.0
+  - @bignum/shared@2.0.0
+  - @bignum/template-compiler@2.0.0
+
 ## 1.2.0
 
 ### Minor Changes

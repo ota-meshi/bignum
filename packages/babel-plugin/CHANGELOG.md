@@ -1,5 +1,21 @@
 # @bignum/babel-plugin
 
+## 3.0.0
+
+### Major Changes
+
+- Drop Node.js 18 support. The minimum supported Node.js version is now 20. ([#149](https://github.com/ota-meshi/bignum/pull/149))
+
+### Patch Changes
+
+- fix: keep non-canonical integer-like literals as strings in the Babel plugin ([#154](https://github.com/ota-meshi/bignum/pull/154))
+
+  Update `@bignum/babel-plugin` so integer-like literals such as `1.0` and `1e2` remain strings unless they can be emitted as the same canonical integer literal without changing their source representation.
+
+- Updated dependencies [[`ddef043`](https://github.com/ota-meshi/bignum/commit/ddef043ca4101a9ed541845ff883543ab55ce6f5)]:
+  - @bignum/template@2.0.0
+  - @bignum/template-compiler@2.0.0
+
 ## 2.1.1
 
 ### Patch Changes

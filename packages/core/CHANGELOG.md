@@ -1,5 +1,15 @@
 # @bignum/core
 
+## 2.0.0
+
+### Major Changes
+
+- Change `BigNum#toString()` so non-terminating decimals with an integer part now return up to 20 digits after the decimal point regardless of the integer-part length. ([#148](https://github.com/ota-meshi/bignum/pull/148))
+
+  This is a breaking change because repeating-decimal string output for values such as `3 / 2.25` and `12345678901234567891 / 3` now includes more fractional digits than in previous releases.
+
+- Drop Node.js 18 support. The minimum supported Node.js version is now 20. ([#149](https://github.com/ota-meshi/bignum/pull/149))
+
 ## 1.5.0
 
 ### Minor Changes
