@@ -28,7 +28,6 @@
     "update-snap": "npm run update-snap --workspaces --if-present",
     "cover": "npm run cover --workspaces --if-present",
     "preversion": "npm run lint && npm test",
-    "update-visitor": "node --import @oxc-node/core/register scripts/update-visitor.mts && eslint src/visitor.mts --fix",
     "prerelease": "npm run clean && npm run build",
     "release": "changeset publish",
     "postinstall": "npm run build"
