@@ -1,6 +1,6 @@
 {
   "name": "@bignum/template",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Write formulas with template literals.",
   "type": "module",
   "main": "lib/index.js",
@@ -66,9 +66,9 @@
   },
   "homepage": "https://github.com/ota-meshi/bignum/tree/main/packages/template#readme",
   "dependencies": {
-    "@bignum/core": "^1.5.0",
-    "@bignum/shared": "^1.0.0",
-    "@bignum/template-compiler": "^1.0.0"
+    "@bignum/core": "^2.0.0",
+    "@bignum/shared": "^2.0.0",
+    "@bignum/template-compiler": "^2.0.0"
   },
   "devDependencies": {
     "bigjs-literal": "^0.2.2"

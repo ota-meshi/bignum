@@ -1,5 +1,11 @@
 # @bignum/template-light
 
+## 2.0.0
+
+### Major Changes
+
+- Drop Node.js 18 support. The minimum supported Node.js version is now 20. ([#149](https://github.com/ota-meshi/bignum/pull/149))
+
 ## 1.2.0
 
 ### Minor Changes
