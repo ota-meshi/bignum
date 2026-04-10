@@ -66,6 +66,42 @@ describe("@bignum/vite-plugin", () => {
     assert.match(output.code, /_toResult\(_add\(price, "0\.1"\)\)/u);
   });
 
+  it("supports plain TypeScript without forcing TSX parsing", async () => {
+    const input = `
+      import { f } from "@bignum/template";
+
+      type Foo = number;
+      const inputValue = 0.2;
+      const price = <Foo>inputValue;
+
+      export default f\`\${price} + 0.1\`;
+    `;
+
+    const output = await runTransform(input, "/entry.ts");
+
+    assert.ok(output);
+    assert.match(output.code, /@bignum\/template\/core/u);
+    assert.match(output.code, /type Foo = number/u);
+    assert.match(output.code, /const price =/u);
+  });
+
+  it("supports TSX inputs when JSX syntax is expected", async () => {
+    const input = `
+      import { f } from "@bignum/template";
+
+      const price: number = 0.2;
+      const node = <div>{price}</div>;
+
+      export default [node, f\`\${price} + 0.1\`];
+    `;
+
+    const output = await runTransform(input, "/entry.tsx");
+
+    assert.ok(output);
+    assert.match(output.code, /@bignum\/template\/core/u);
+    assert.ok(output.code.includes("const node = <div>{price}</div>;"));
+  });
+
   it("ignores non-script virtual modules", async () => {
     const output = await runTransform(
       'import { f } from "@bignum/template";',
