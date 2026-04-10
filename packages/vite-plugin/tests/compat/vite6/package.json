@@ -1,0 +1,11 @@
+{
+  "name": "@bignum/vite-plugin-compat-vite6",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
+  },
+  "dependencies": {
+    "vite": "^6.4.2"
+  }
+}

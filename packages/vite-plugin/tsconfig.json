@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["mocha", "node"]
+  },
+  "include": ["src/**/*.mts", "tests/**/*.mts", "tsdown.config.ts"]
+}

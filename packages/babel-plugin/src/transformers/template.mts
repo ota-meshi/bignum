@@ -3,7 +3,6 @@ import { addNamed } from "@babel/helper-module-imports";
 import { compile } from "@bignum/template-compiler";
 import * as t from "@babel/types";
 import type * as coreAll from "@bignum/template/core";
-import { BigNum, toResult } from "@bignum/template/core";
 
 type CoreMethod = keyof typeof coreAll;
 
@@ -117,13 +116,22 @@ export function transformTemplate(
    */
   function exprOf(value: string | t.Expression) {
     if (typeof value === "string") {
-      const bignum = new BigNum(value);
-      const res = toResult(bignum);
-      if (typeof res === "number" && Number.isSafeInteger(res)) {
-        return t.numericLiteral(res);
+      const safeInt = getCanonicalSafeInteger(value);
+      if (safeInt != null) {
+        return t.numericLiteral(safeInt);
       }
       return t.stringLiteral(value);
     }
     return value;
   }
+}
+
+/**
+ * Convert a numeric literal string to a safe integer only if it round-trips canonically.
+ */
+function getCanonicalSafeInteger(value: string): number | null {
+  const safeInt = Number(value);
+  return Number.isSafeInteger(safeInt) && String(safeInt) === value
+    ? safeInt
+    : null;
 }

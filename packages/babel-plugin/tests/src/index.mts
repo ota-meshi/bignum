@@ -45,4 +45,34 @@ describe("@bignum/babel-plugin", () => {
       });
     }
   }
+
+  describe("canonical integer literal emission", () => {
+    for (const [literal, expected] of [
+      ["1", "_toResult(1);"],
+      ["1.0", '_toResult("1.0");'],
+      [".0", '_toResult(".0");'],
+      ["1e2", '_toResult("1e2");'],
+      ["9007199254740991", "_toResult(9007199254740991);"],
+      ["1.0000000000000001", '_toResult("1.0000000000000001");'],
+      ["9007199254740991.1", '_toResult("9007199254740991.1");'],
+      ["9007199254740992", '_toResult("9007199254740992");'],
+    ]) {
+      it(`should emit a canonical literal for ${literal}`, () => {
+        const output = transform(
+          `import { f } from "@bignum/template"; export default f\`${literal}\`;`,
+          {
+            plugins: [plugin],
+          },
+        );
+        assert.match(
+          output?.code ?? "",
+          new RegExp(escapeRegex(expected), "u"),
+        );
+      });
+    }
+  });
 });
+
+function escapeRegex(value: string): string {
+  return value.replaceAll(/[$()*+.?[\\\]^{|}]/gu, "\\$&");
+}
