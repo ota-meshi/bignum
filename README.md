@@ -12,6 +12,8 @@ A JavaScript utility library for arbitrary-precision arithmetic.
   - Write formulas with template literals. (**light version**)
 - [@bignum/babel-plugin](./packages/babel-plugin/README.md)
   - Pre-compile tagged template literals.
+- [@bignum/vite-plugin](./packages/vite-plugin/README.md)
+  - Pre-compile tagged template literals in Vite projects.
 
 ## 📖 Basic Examples
 
