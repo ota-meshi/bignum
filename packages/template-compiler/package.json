@@ -22,11 +22,11 @@
     "build": "npm run bundle",
     "bundle": "tsdown",
     "clean": "rimraf .nyc_output lib coverage",
-    "test": "mocha --loader=ts-node/esm \"tests/src/**/*.mts\" --reporter dot --timeout 60000",
+    "test": "node --import @oxc-node/core/register ../../node_modules/mocha/bin/mocha.js \"tests/src/**/*.mts\" --reporter dot --timeout 60000",
     "cover": "c8 --reporter=lcov npm run test",
-    "debug": "mocha --loader=ts-node/esm/transpile-only \"tests/src/**/*.mts\" --reporter dot",
+    "debug": "node --import @oxc-node/core/register ../../node_modules/mocha/bin/mocha.js \"tests/src/**/*.mts\" --reporter dot",
     "type-check": "tsc --noEmit",
-    "update-snap": "mocha --loader=ts-node/esm \"tests/src/**/*.mts\" --reporter dot --update"
+    "update-snap": "node --import @oxc-node/core/register ../../node_modules/mocha/bin/mocha.js \"tests/src/**/*.mts\" --reporter dot --update"
   },
   "publishConfig": {
     "access": "public"
