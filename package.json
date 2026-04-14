@@ -55,7 +55,7 @@
     "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^25.5.2",
-    "bignumber.js": "^10.0.0",
+    "bignumber.js": "^11.0.0",
     "c8": "^11.0.0",
     "decimal.js": "^10.4.3",
     "eslint": "^10.0.0",
