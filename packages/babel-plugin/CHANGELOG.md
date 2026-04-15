@@ -1,5 +1,11 @@
 # @bignum/babel-plugin
 
+## 3.0.1
+
+### Patch Changes
+
+- Fix Babel transforms for template functions so calls with multiple arguments, such as `round(1 / 3, 2)`, preserve every argument. ([#156](https://github.com/ota-meshi/bignum/pull/156))
+
 ## 3.0.0
 
 ### Major Changes
