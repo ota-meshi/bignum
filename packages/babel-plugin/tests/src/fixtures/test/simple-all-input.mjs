@@ -22,5 +22,9 @@ export default function test() {
     t.f`round(1.5)`,
     t.f`floor(1.5)`,
     t.f`ceil(1.5)`,
+    t.f`trunc(1 / 3, 2)`,
+    t.f`round(1 / 3, 2)`,
+    t.f`floor(1234.56, -2)`,
+    t.f`ceil(1234.56, -2)`,
   ];
 }

@@ -75,12 +75,12 @@ export function transformTemplate(
       ]),
     ),
     functions: {
-      sqrt: (a) => callExpr("sqrt", a),
-      abs: (a) => callExpr("abs", a),
-      trunc: (a) => callExpr("trunc", a),
-      round: (a) => callExpr("round", a),
-      floor: (a) => callExpr("floor", a),
-      ceil: (a) => callExpr("ceil", a),
+      sqrt: (...args) => callExpr("sqrt", ...args),
+      abs: (...args) => callExpr("abs", ...args),
+      trunc: (...args) => callExpr("trunc", ...args),
+      round: (...args) => callExpr("round", ...args),
+      floor: (...args) => callExpr("floor", ...args),
+      ceil: (...args) => callExpr("ceil", ...args),
     },
   });
 
@@ -105,8 +105,8 @@ export function transformTemplate(
   /**
    * Create a call expression.
    */
-  function callExpr(method: CoreMethod, a: string | t.Expression) {
-    const result = t.callExpression(ctx.getId(method), [exprOf(a)]);
+  function callExpr(method: CoreMethod, ...args: (string | t.Expression)[]) {
+    const result = t.callExpression(ctx.getId(method), args.map(exprOf));
     valuesSet.add(result);
     return result;
   }
