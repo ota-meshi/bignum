@@ -15,7 +15,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": "^22.18.0 || >=24.11.0"
+    "node": ">=20"
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
