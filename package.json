@@ -15,7 +15,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=20"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
@@ -24,7 +24,8 @@
     "eslint-fix": "npm run lint -- --fix && prettier **/README.md --write",
     "type-check": "npm run type-check --workspaces --if-present",
     "pretest": "npm run build",
-    "test": "npm run test --workspaces --if-present",
+    "test": "npm run test:packages",
+    "test:packages": "npm run test --workspaces --if-present",
     "preupdate-snap": "npm run build",
     "update-snap": "npm run update-snap --workspaces --if-present",
     "cover": "npm run cover --workspaces --if-present",
