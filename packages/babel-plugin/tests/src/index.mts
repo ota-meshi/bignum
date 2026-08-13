@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { transform } from "@babel/core";
+import { transformSync } from "@babel/core";
 import plugin from "../../src/index.mts";
 import assert from "node:assert";
 
@@ -23,7 +23,7 @@ describe("@bignum/babel-plugin", () => {
           path.resolve(FIXTURES_ROOT, fileName),
           "utf8",
         );
-        const output = transform(code, {
+        const output = transformSync(code, {
           plugins: [plugin],
         });
         if (fs.existsSync(outputPath) && !process.argv.includes("--update")) {
@@ -58,7 +58,7 @@ describe("@bignum/babel-plugin", () => {
       ["9007199254740992", '_toResult("9007199254740992");'],
     ]) {
       it(`should emit a canonical literal for ${literal}`, () => {
-        const output = transform(
+        const output = transformSync(
           `import { f } from "@bignum/template"; export default f\`${literal}\`;`,
           {
             plugins: [plugin],
