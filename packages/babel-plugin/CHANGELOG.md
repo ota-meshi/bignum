@@ -1,5 +1,11 @@
 # @bignum/babel-plugin
 
+## 3.1.0
+
+### Minor Changes
+
+- Add support for Babel 8 while retaining Babel 7 compatibility. ([#162](https://github.com/ota-meshi/bignum/pull/162))
+
 ## 3.0.1
 
 ### Patch Changes
