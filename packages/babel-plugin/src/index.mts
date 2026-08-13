@@ -9,7 +9,9 @@ import {
   transformTemplateLight,
 } from "./transformers/template-light.mts";
 
-export default declare(() => {
+export default declare((api) => {
+  api.assertVersion("^7.0.0 || ^8.0.0");
+
   return {
     name: "@bignum/babel-plugin",
 

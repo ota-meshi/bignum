@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["mocha", "node"]
   },
-  "include": ["src/**/*.mts", "test/**/*.mts", "tsup.config.ts"]
+  "include": ["src/**/*.mts", "tests/**/*.mts", "tsup.config.ts"]
 }
