@@ -49,7 +49,7 @@
   },
   "homepage": "https://github.com/ota-meshi/bignum/tree/main/packages/vite-plugin#readme",
   "dependencies": {
-    "@babel/core": "^7.29.0",
+    "@babel/core": "^8.0.0",
     "@bignum/babel-plugin": "^3.0.0"
   },
   "devDependencies": {},
