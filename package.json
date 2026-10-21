@@ -52,7 +52,7 @@
     "@changesets/cli": "^3.0.0",
     "@ota-meshi/eslint-plugin": "^0.20.0",
     "@ota-meshi/test-snapshot": "^1.0.0",
-    "@oxc-node/core": "^0.1.0",
+    "@oxc-node/core": "^1.0.0",
     "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^25.5.2",
